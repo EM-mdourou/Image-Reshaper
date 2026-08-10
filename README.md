@@ -1,35 +1,28 @@
-# Muslim Link Image Reshaper — V7.28
+# Muslim Link Image Reshaper — V7.29
 
-## V7.28 — Runtime repair for all poster sizes
+## V7.29 — User-authoritative layout + final-image verification
 
-V7.28 fixes a regression introduced in V7.27.
+### User instructions are the highest authority
+User-added text and explicit user instructions are mandatory. The renderer may reorganize the composition, reduce spacing, move other content, or use another open region of the banner, but it may not silently drop user-requested content.
 
-### Fixed: `applyVisualInstructionToPlan is not defined`
-V7.27 still called the visual-instruction state transformer during:
-- initial generation;
-- Modify requests;
-- version branching;
+### Free-placement user text
+User-added text no longer gets merged into the normal “extra facts” column. It is composited as an independent required element after the base banner is rendered, and may use left, right, center, upper, or lower open regions.
 
-but the function itself was accidentally removed while the universal design-state renderer was introduced.
+### Theme-aware font styling
+New text inherits source/planner font-family hints, CTA/headline styling and the source accent palette where possible. Generic black is no longer the preferred fallback for manually added banner text.
 
-That caused every poster size to fail immediately with:
+### Actual final-image validation
+After Apply text changes and Modify current design, V7.29 sends the actual rendered PNG to a vision validation pass. “Applied” is shown only when the visible end product verifies the request.
 
-`applyVisualInstructionToPlan is not defined`
+### Descriptive version history
+Direct text/content versions now describe the actual change, such as “Added text: Ayesha Shirazi” or “CTA changed from … to …”.
 
-V7.28 restores the function and keeps the V7.27 universal design-state features intact.
+### Editable fields for large formats
+Non-banner results now return a structured bannerPlan/source text manifest as well as the flattened image, allowing large poster/social sizes to populate the same Edit text & content system used by compact banners.
 
-### Restored visual controls
-The repaired transformer preserves:
-- center / left / right subject positioning;
-- bigger / much bigger / full-height subject sizing;
-- tighter upper-body / face-focused crops;
-- two-person swap/order requests;
-- persistent visual state across later versions.
-
-### Retained V7.27 features
-- Universal design state for all sizes
-- Instant local Apply text changes
-- Text style metadata / inheritance
-- Version-targeted branching such as “from version 6…”
+### Retained V7.28 features
 - Source elements
 - Modification diagnostics
+- Version-targeted branching
+- Persistent visual subject controls
+- Stable manual fields
