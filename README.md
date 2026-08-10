@@ -1,49 +1,38 @@
-# Muslim Link Image Reshaper — V7.23
+# Muslim Link Image Reshaper — V7.24
 
-## Dynamic text/content editor
+## Structured visual-state controls
 
-V7.23 adds deterministic text editing to the current design.
+V7.24 applies the same state-based approach used for exact text to subject placement.
 
-After the first generated design, a dynamic **Edit text & content** panel appears. It only shows text elements that exist in the current design, so different posters can expose different fields.
+Natural-language visual instructions are converted into deterministic plan values before layout and are re-applied after the AI response so the renderer cannot quietly ignore them.
 
-Possible fields include:
-- Headline
-- Date / time
-- Venue
-- Address / location
-- Call to action
-- Speaker/person names
-- Prices
-- URLs
-- Other additional text
+Supported examples include:
+- “Place Sammy in the middle” → subject center = 50%.
+- “Make Sammy bigger / more visible” → persistent subject scale increase.
+- “Move the speakers to the right” → persistent right-side anchor.
+- “Move the speakers to the left” → persistent left-side anchor.
+- “Switch/swap the two speakers” → reverse visual order for a two-person subject asset.
 
-There is no assumption that every poster has speakers, dates, prices, venues, or CTAs.
+For a two-person isolated/group asset, V7.24 can visibly reverse the two halves in the final renderer. Truly independent arbitrary person-by-person positioning still benefits from future source isolation returning separate assets for each subject.
 
-Users can:
-- edit exact wording directly;
-- remove an existing text element;
-- use **+ Add text** to add a new item;
-- click **Apply text changes** without asking the AI to rewrite the wording.
+## Text editor duplication fix
 
-Text entered directly becomes authoritative current-design state and persists into future Modify versions.
+Manual text now has a single source of truth.
 
-## Exact text preservation
+- Clicking **Apply text changes** repeatedly does not add more fields.
+- Existing manual field IDs remain stable.
+- Only **+ Add text** creates a new empty field.
+- Manual text is merged into visible extra text only at render time and deduplicated.
 
-Headline wrapping no longer stops after a preferred line count and drops the remaining words. The renderer keeps the complete headline and adapts by wrapping or reducing type size.
+## Persistent visual state
 
-## Modify this design
+Subject position, scale and order persist into later versions until a new user instruction explicitly changes them.
 
-The natural-language Modify box remains available for visual/layout changes. Direct text edits persist through visual-only Modify requests unless the newest request explicitly changes that text field.
+## Retained V7.23 features
 
-## History
-
-Direct text edits create a new version and archive the previous version just like AI modifications.
-
-## Retained V7.22 features
-
-- Canvas-first composition
-- Iterative modification history
-- Exact target dimensions
-- Source-analysis recovery/fallback
-- Protected factual copy
-- Reused visual assets
+- Dynamic Edit text & content panel
+- Exact authoritative text editing
+- Add/remove text
+- Complete headline preservation
+- Version history
+- Natural-language Modify workflow

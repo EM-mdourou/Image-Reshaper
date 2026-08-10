@@ -125,7 +125,7 @@ footer>br,footer>text{display:none}
 @media(max-width:760px){.textrow{grid-template-columns:1fr}.textremove{justify-self:start}}
 
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.23:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.24:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -168,7 +168,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.23 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.23 also fixes the compact/leaderboard instruction-layout initialization error. V7.23 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.24 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.24 also fixes the compact/leaderboard instruction-layout initialization error. V7.24 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -206,7 +206,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.23</div>
+  <div class="versionfooter">Version 7.24</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let textEditorRows=[];
 
@@ -240,7 +240,12 @@ function normalizeTextEditorFromPlan(plan={}){
   });
 
   const manual=Array.isArray(plan.manualTextElements)?plan.manualTextElements:[];
-  manual.forEach((item,i)=>add('manual-'+i,item.label||'Added text',item.text||'','manual'));
+  manual.forEach((item,i)=>{
+    const txt=String(item?.text||'').trim();
+    if(!txt)return;
+    const alreadyShown=rows.some(r=>String(r.text||'').trim().toLowerCase()===txt.toLowerCase());
+    if(!alreadyShown)add(item.id||('manual-'+i),item.label||'Added text',txt,'manual');
+  });
   textEditorRows=rows;
   renderTextEditor();
 }
@@ -297,8 +302,8 @@ function applyRowsToPlan(plan,rows){
     if(id==='address'){next.address=row.text;next.secondary=row.text;hasAddress=true;continue;}
     if(id==='cta'){next.cta=row.text;hasCta=true;continue;}
     if(row.kind==='extra' || id.startsWith('extra-')){extras.push(row.text);continue;}
-    manual.push({label:row.label||'Added text',text:row.text});
-    extras.push(row.text);
+    // Manual rows live in ONE collection only. They are merged for rendering later.
+    manual.push({id:row.id||('manual-'+Date.now()),label:row.label||'Added text',text:row.text});
   }
 
   if(!hasHeadline)next.headline='';
@@ -314,6 +319,50 @@ function applyRowsToPlan(plan,rows){
   return next;
 }
 
+
+function applyVisualInstructionToPlan(plan={},instruction=''){
+  const next={...plan};
+  const t=String(instruction||'').toLowerCase();
+
+  // Persistent, deterministic visual state. The AI can plan around these values,
+  // but the browser renderer applies them after the response as the final authority.
+  if(/\b(?:middle|center|centre)\b/.test(t) && /\b(?:move|place|put|position|pic|picture|image|speaker|person|subject|him|her|them)\b/.test(t)){
+    next.subjectAnchor='center';
+    next.subjectX=.50;
+    next.subjectPositionLocked=true;
+  }else if(/\b(?:right side|to the right|move right|place.*right|put.*right)\b/.test(t)){
+    next.subjectAnchor='right-third';
+    next.subjectX=.72;
+    next.subjectPositionLocked=true;
+  }else if(/\b(?:left side|to the left|move left|place.*left|put.*left)\b/.test(t)){
+    next.subjectAnchor='left-third';
+    next.subjectX=.28;
+    next.subjectPositionLocked=true;
+  }
+
+  if(/\b(?:bigger|larger|more visible|zoom in|closer|more prominent)\b/.test(t) &&
+     /\b(?:pic|picture|image|speaker|person|subject|him|her|them|sammy|aisha|ayesha)\b/.test(t)){
+    next.subjectScale=Math.max(Number(next.subjectScale)||1,1.22);
+    next.subjectScaleLocked=true;
+  }
+
+  if(/\b(?:swap|switch(?:\s+places?|\s+positions?)|change\s+places?)\b/.test(t) &&
+     Number(next.subjectCount||0)>=2){
+    next.subjectOrder=next.subjectOrder==='reverse'?'normal':'reverse';
+    next.subjectOrderLocked=true;
+  }
+
+  // Helpful persistent metadata for later versions.
+  next.visualState={
+    ...(next.visualState||{}),
+    subjectAnchor:next.subjectAnchor,
+    subjectX:next.subjectX,
+    subjectScale:next.subjectScale,
+    subjectOrder:next.subjectOrder||'normal'
+  };
+  return next;
+}
+
 async function renderPlanLocally(data,target){
   if(data.renderMode==='canvas-first-banner-composer')return await buildCanvasFirstBanner(data,target[1],target[2]);
   if(data.renderMode==='visual-first-banner-composer')return await buildVisualFirstBanner(data,target[1],target[2]);
@@ -322,6 +371,16 @@ async function renderPlanLocally(data,target){
   if(data.renderMode==='exact-banner')return await buildExactBanner(lastRenderedUrl||URL.createObjectURL(f),data.bannerPlan,target[1],target[2]);
   if(data.image)return await fitExact(data.image,target[1],target[2]);
   throw Error('The current design cannot be rendered locally.');
+}
+
+
+function renderExtraFacts(plan={}){
+  const extras=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
+  const manual=Array.isArray(plan.manualTextElements)
+    ? plan.manualTextElements.map(x=>String(x?.text||'').trim()).filter(Boolean)
+    : [];
+  const all=[...extras,...manual];
+  return all.filter((v,i,a)=>a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);
 }
 
 function setCurrentInstruction(text,kind='Initial generation'){
@@ -819,22 +878,34 @@ async function buildHybridBanner(data,w,h){
 
   if(subject){
     // Nearly full-height subject. Wider allowance for groups.
-    const targetH=h-Math.max(2,Math.round(h*.028)); // ~97% height
-    const maxW=balanced
+    const subjectScale=Math.max(.65,Math.min(1.65,Number(plan.subjectScale)||1));
+    const targetH=(h-Math.max(2,Math.round(h*.028)))*subjectScale;
+    const maxW=(balanced
       ? Math.min(Math.round(w*.39),Math.round(h*3.25))
-      : Math.min(Math.round(w*.34),Math.round(h*3.05));
+      : Math.min(Math.round(w*.34),Math.round(h*3.05)))*subjectScale;
 
     const scale=Math.min(maxW/subject.width,targetH/subject.height);
     const dw=subject.width*scale, dh=subject.height*scale;
     subjectW=dw;
 
-    const sx=side==='right'?w-margin-dw:margin;
+    let sx=side==='right'?w-margin-dw:margin;
+    if(Number.isFinite(plan.subjectX))sx=Math.round(plan.subjectX*w-dw/2);
+    else if(String(plan.subjectAnchor||'').toLowerCase()==='center')sx=Math.round(w*.5-dw/2);
+    sx=Math.max(margin,Math.min(w-margin-dw,sx));
     const sy=(h-dh)/2;
 
     x.save();
     x.shadowColor='rgba(0,0,0,.18)';
     x.shadowBlur=Math.max(2,Math.round(h*.03));
-    x.drawImage(subject,sx,sy,dw,dh);
+    if(plan.subjectOrder==='reverse' && Number(plan.subjectCount||0)>=2){
+      // For a two-person isolated/group asset, reverse the two visual halves.
+      // This gives "switch places" a deterministic visible effect without regenerating the art.
+      const sw=subject.width/2;
+      x.drawImage(subject,sw,0,subject.width-sw,subject.height,sx,sy,dw/2,dh);
+      x.drawImage(subject,0,0,sw,subject.height,sx+dw/2,sy,dw/2,dh);
+    }else{
+      x.drawImage(subject,sx,sy,dw,dh);
+    }
     x.restore();
   }
 
@@ -851,7 +922,7 @@ async function buildHybridBanner(data,w,h){
   const dateTime=(plan.dateTime||plan.detail||'').trim();
   const venue=(plan.venue||'').trim();
   const address=(plan.address||plan.secondary||'').trim();
-  const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
+  const extraFacts=renderExtraFacts(plan);
   const extra=(extraFacts.length?extraFacts.join(' · '):(plan.extraFact||'')).trim();
 
   let cta=(plan.cta||'').trim();
@@ -1019,7 +1090,7 @@ async function buildVisualFirstBanner(data,w,h){
   const dateTime=(plan.dateTime||plan.detail||'').trim();
   const venue=(plan.venue||'').trim();
   const address=(plan.address||plan.secondary||'').trim();
-  const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
+  const extraFacts=renderExtraFacts(plan);
   const extra=(extraFacts.length?extraFacts.join(' · '):(plan.extraFact||'')).trim();
 
   let cta=(plan.cta||'').trim();
@@ -1200,10 +1271,10 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.23: instruction/layout intent MUST be initialized before subject placement.
+  // V7.24: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
-  const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
+  const extraFacts=renderExtraFacts(plan);
   const requiredRequests=(plan.requiredVisibleFacts||[]).join(' ').toLowerCase();
   const modifyText=((plan.modifyInstructions||'')+' '+(plan.layoutDirectives||[]).join(' ')+' '+(plan.requiredFactsPlacement||'')).toLowerCase();
   const datesRequested=/date/.test(requiredRequests);
@@ -1232,11 +1303,12 @@ async function buildCanvasFirstBanner(data,w,h){
   if(subject){
     const requestedHeight=Math.max(78,Math.min(110,Number(plan.subjectHeightPct||(subjectCount>=2?94:98))));
     const subjectHeightPct=micro?Math.min(requestedHeight,94):requestedHeight;
-    const targetH=Math.round(h*(subjectHeightPct/100));
+    const subjectScale=Math.max(.65,Math.min(1.65,Number(plan.subjectScale)||1));
+    const targetH=Math.round(h*(subjectHeightPct/100)*subjectScale);
     const baseZone=Math.max(22,Math.min(50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.23 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.24 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -1244,7 +1316,7 @@ async function buildCanvasFirstBanner(data,w,h){
     if(subject.width*scale>maxSubjectW)scale=maxSubjectW/subject.width;
 
     const dw=subject.width*scale,dh=sourceCropH*scale;
-    let cx=anchorToCenterX(anchor,w,edgePad);
+    let cx=Number.isFinite(plan.subjectX)?plan.subjectX*w:anchorToCenterX(anchor,w,edgePad);
     const factsPanelW=speakerNamesRight?Math.round(w*.22):0;
     const factsPanelX=speakerNamesRight?(w-edgePad-factsPanelW):w;
 
@@ -1259,7 +1331,11 @@ async function buildCanvasFirstBanner(data,w,h){
     x.save();
     x.shadowColor='rgba(0,0,0,.15)';
     x.shadowBlur=Math.max(1,Math.round(h*.016));
-    if(upperBody){
+    if(plan.subjectOrder==='reverse' && subjectCount>=2 && !upperBody){
+      const sw=subject.width/2;
+      x.drawImage(subject,sw,0,subject.width-sw,subject.height,dx,dy,dw/2,dh);
+      x.drawImage(subject,0,0,sw,subject.height,dx+dw/2,dy,dw/2,dh);
+    }else if(upperBody){
       x.drawImage(subject,0,0,subject.width,sourceCropH,dx,dy,dw,dh);
     }else{
       x.drawImage(subject,dx,dy,dw,dh);
@@ -1427,7 +1503,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.23 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.24 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -1440,7 +1516,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.23 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.24 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -1460,7 +1536,7 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
       ex=await fitExact(j.image,s[1],s[2]);
     }
     $('output').src=ex;$('download').href=ex;$('download').download='reshaped-'+s[0].toLowerCase().replaceAll(' ','-')+'.png';
-    lastServerResult=j;lastRenderedUrl=ex;lastDesignTarget=[s[0],s[1],s[2]];$('modifyInstructions').value='';
+    j.bannerPlan=applyVisualInstructionToPlan(j.bannerPlan||{},$('instructions').value||'');lastServerResult=j;lastRenderedUrl=ex;lastDesignTarget=[s[0],s[1],s[2]];$('modifyInstructions').value='';
     normalizeTextEditorFromPlan(j.bannerPlan||{});
     setCurrentInstruction($('instructions').value,'Initial instructions');
     $('validation').textContent=j.validationSummary||'Completed.';$('result').style.display='block';
@@ -1475,7 +1551,7 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
 
 $('addTextRow').onclick=()=>{
   const n=textEditorRows.filter(r=>r.kind==='manual').length+1;
-  textEditorRows.push({id:'manual-'+Date.now(),label:'Added text '+n,text:'',kind:'manual'});
+  textEditorRows.push({id:'manual-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),label:'Added text '+n,text:'',kind:'manual'});
   renderTextEditor();
   const rows=document.querySelectorAll('#textRows .textrow');
   rows[rows.length-1]?.querySelector('[data-role="value"]')?.focus();
@@ -1501,7 +1577,7 @@ $('applyTextEdits').onclick=async()=>{
     lastServerResult=nextData;
     normalizeTextEditorFromPlan(newPlan);
     setCurrentInstruction('Direct text/content edit','Text/content edit');
-    $('validation').textContent='V7.23 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
+    $('validation').textContent='V7.24 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
   }catch(e){
     $('error').textContent='Text edit failed: '+e.message;
     $('error').style.display='block';
@@ -1542,7 +1618,7 @@ $('modifyBtn').onclick=async()=>{
     // Keep the modify request small. Do NOT send base64/data-URL visual assets
     // inside priorPlan; the original upload is already sent as `image`, and the
     // browser retains the current visual assets locally for rendering.
-    const priorPlanForModify={...(lastServerResult.bannerPlan||{})};
+    const priorPlanForModify=applyVisualInstructionToPlan(lastServerResult.bannerPlan||{},instructions);
     delete priorPlanForModify.sourceImage;
     delete priorPlanForModify.backgroundArt;
     delete priorPlanForModify.subjectAsset;
@@ -1560,6 +1636,10 @@ $('modifyBtn').onclick=async()=>{
       j.backgroundArt=j.backgroundArt||lastServerResult.backgroundArt;
       j.subjectAsset=j.subjectAsset||lastServerResult.subjectAsset;
     }
+    j.bannerPlan=applyVisualInstructionToPlan(
+      {...(j.bannerPlan||lastServerResult.bannerPlan||{}), ...priorPlanForModify},
+      instructions
+    );
 
     // target already defined earlier in this modify request
     let ex;
