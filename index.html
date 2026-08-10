@@ -3,7 +3,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:#fff;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 body:before{content:"";display:block;height:4px;background:var(--green)}
-main{max-width:1380px;margin:auto;padding:28px 34px 0} 
+main{max-width:1380px;margin:auto;padding:28px 34px 0}
 header{display:flex;align-items:center;justify-content:space-between;gap:28px;margin-bottom:28px}
 .brandlogo{width:250px;max-width:42vw;height:auto;display:block;object-fit:contain}
 header>div{margin-left:auto;text-align:right}
@@ -106,7 +106,7 @@ footer>br,footer>text{display:none}
   .action button{width:100%}
 }
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.20:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.21:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -149,7 +149,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.20 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.20 also fixes the compact/leaderboard instruction-layout initialization error. V7.20 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.21 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.21 also fixes the compact/leaderboard instruction-layout initialization error. V7.21 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -175,7 +175,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.20</div>
+  <div class="versionfooter">Version 7.21</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 
 function setCurrentInstruction(text,kind='Initial generation'){
@@ -1033,7 +1033,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.20: instruction/layout intent MUST be initialized before subject placement.
+  // V7.21: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
@@ -1043,7 +1043,8 @@ async function buildCanvasFirstBanner(data,w,h){
   const speakerNamesRequested=/speaker.*name|name.*speaker/.test(requiredRequests);
   const emphasizeDates=datesRequested && /(emphasize_dates|big|bigger|larger|legible|readable|increase)/.test(modifyText);
   const emphasizeSpeakerNames=speakerNamesRequested && /(emphasize_speaker_names|big|bigger|larger|legible|readable|increase)/.test(modifyText);
-  const speakerNamesRight=speakerNamesRequested && /right/.test(modifyText);
+  const speakerNamesInline=(plan.speakerNamesMode||'').toLowerCase()==='inline' || /speaker_names_inline|part\s+of\s+the\s+design|not\s+(?:a\s+)?block|inline/.test(modifyText);
+  const speakerNamesRight=speakerNamesRequested && /right/.test(modifyText) && !speakerNamesInline;
 
   // Rich decorative background: preserve meaningful visual atmosphere from V6.6.
   if(bg){
@@ -1068,7 +1069,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.20 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.21 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -1213,6 +1214,26 @@ async function buildCanvasFirstBanner(data,w,h){
     x.fillText(cta,ctaBox.x+(ctaBox.w-ctaBox.textW)/2,ctaBox.y+ctaBox.h/2);
   }
 
+  if(speakerNamesInline && extraFacts.length){
+    x.save();
+    x.textBaseline='top';x.fillStyle=textColor;
+    const gap=Math.max(2,Math.round(h*.022));
+    const maxNameSize=Math.max(12,Math.round(h*(emphasizeSpeakerNames?.17:.14)));
+    const minNameSize=Math.max(10,Math.round(h*.10));
+    let nx=subjectRect?subjectRect.x+subjectRect.w+Math.max(6,Math.round(w*.008)):Math.max(textLeft,w*.58);
+    let available=Math.max(120,w-outer-nx);
+    if(available<120 && subjectRect){nx=Math.max(outer,subjectRect.x-Math.round(w*.24));available=Math.max(120,subjectRect.x-nx-Math.max(5,Math.round(w*.008)));}
+    let ny=Math.max(outer,Math.round(h*.12));
+    for(const name of extraFacts){
+      if(ny>=h-outer-4)break;
+      const size=fitText(x,name,available,maxNameSize,minNameSize,'800');
+      x.font=`800 ${size}px Arial`;
+      x.shadowColor='rgba(255,255,255,.72)';x.shadowBlur=Math.max(1,Math.round(h*.015));
+      x.fillText(name,nx,ny);x.shadowBlur=0;ny+=size+gap;
+    }
+    x.restore();
+  }
+
   if(speakerNamesRight && extraFacts.length){
     const panelW=Math.round(w*.22);
     const px=w-outer-panelW,py=outer,pw=panelW,ph=h-outer*2;
@@ -1239,7 +1260,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.20 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.21 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -1252,7 +1273,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.20 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.21 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);

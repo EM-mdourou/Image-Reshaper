@@ -19,3 +19,12 @@ Because the browser could not parse the application script, native textareas sti
 - explicitly wires custom dimensions
 
 All backend/history/text-priority/modify-current-design behavior from V7.19 is retained.
+
+
+## V7.21 — Authoritative Modify Instructions
+
+- Explicit user text instructions now have deterministic priority over extracted copy.
+- Supports natural phrases such as “add the subheading X after the heading Y”.
+- “Missing/complete to the end” instructions append the requested phrase to the current protected headline.
+- Speaker-name instructions can remove the detached box and integrate names into the artwork.
+- Existing iterative version history and current-design modification workflow are preserved.

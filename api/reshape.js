@@ -80,7 +80,7 @@ async function vision(key,data,prompt,opts={}){
 
   const recovery=`${prompt}
 
-V7.20 RECOVERY MODE:
+V7.21 RECOVERY MODE:
 Return the requested answer as visible plain text now.
 Do not return only reasoning.
 Do not omit the answer.
@@ -93,7 +93,7 @@ Use only information visible in the attached source image.`;
   if(extraction||opts.allowModelFallback){
     text=await run("fallback","gpt-4.1",null,opts.fallbackMaxOutput||3600,recovery);
     if(text){
-      console.warn("V7.20 source-analysis fallback to gpt-4.1 succeeded.");
+      console.warn("V7.21 source-analysis fallback to gpt-4.1 succeeded.");
       return text;
     }
   }
@@ -405,7 +405,7 @@ Rules:
   return Object.freeze({headline,detail,secondary,cta});
 }
 function applyProtectedFacts(composer,manifest){
-  // V7.20: the layout model has zero authority to author display copy.
+  // V7.21: the layout model has zero authority to author display copy.
   composer.headline=manifest.headline||"";
   composer.detail=manifest.detail||"";
   composer.secondary=manifest.secondary||"";
@@ -453,6 +453,7 @@ function applyUserFactOverrides(manifest,userInstructions=""){
   const o=parseUserFactOverrides(userInstructions);
   const next={...(manifest||{})};
   if(o.headline)next.headline=o.headline;
+  else if(o.headlineAppend)next.headline=mergeHeadlineCompletion(next.headline||"",o.headlineAppend);
   if(o.detail)next.detail=o.detail;
   if(o.secondary)next.secondary=o.secondary;
   if(o.cta)next.cta=o.cta;
@@ -694,6 +695,21 @@ function augmentInstructionManifestFromRaw(raw="",manifest={}){
     }
   }
 
+  // V7.21: newest user instruction is authoritative for deterministic text/styling.
+  const appendAfter=t.match(/\b(?:add|insert|put|place|include|append)\b[\s\S]{0,55}?\b(?:subheading|subtitle|text|words?|phrase)\b[\s\S]{0,30}?["“]([^"”]+)["”][\s\S]{0,90}?\b(?:after|right\s+after|following)\b[\s\S]{0,55}?\b(?:the\s+)?(?:heading|headline|title|words?)\b[\s\S]{0,30}?["“]([^"”]+)["”]/i);
+  if(appendAfter?.[1]&&appendAfter?.[2]){
+    m.headlineOverride=mergeHeadlineCompletion(cleanDisplayFact(appendAfter[2]),cleanDisplayFact(appendAfter[1]));
+    m.headlineCompletionPhrase="";
+    addUnique(m.preserveExactPhrases,m.headlineOverride);
+  }
+  if(/\bspeakers?'?\s+names?\b|\bspeaker names?\b/i.test(t) && /\b(?:part\s+of\s+the\s+design|integrat(?:e|ed)|inline|not\s+(?:a\s+)?block|not\s+in\s+(?:a\s+)?block|not\s+(?:a\s+)?list)\b/i.test(t)){
+    addUnique(m.designDirectives,"SPEAKER_NAMES_INLINE");
+    addUnique(m.designDirectives,"SPEAKER_NAMES_NO_BACKGROUND");
+  }
+  if(/\b(?:remove|delete|clear|no|without)\b[\s\S]{0,35}\b(?:background|box|panel)\b/i.test(t) && /\b(?:speaker|speakers|names?|label)\b/i.test(t)){
+    addUnique(m.designDirectives,"SPEAKER_NAMES_NO_BACKGROUND");
+  }
+
   return Object.freeze(m);
 }
 
@@ -712,7 +728,10 @@ function applyModifyLayoutDirectives(plan,instructions="",manifest={}){
     next.subjectHeightPct=Math.max(Number(next.subjectHeightPct||98),102);
     next.subjectZonePct=Math.max(Number(next.subjectZonePct||36),42);
   }
-  if(/SPEAKER_NAMES_NO_BACKGROUND/i.test([...(manifest?.designDirectives||[])].join(" ")+" "+String(instructions||""))){
+  const speakerStyleText=[...(manifest?.designDirectives||[])].join(" ")+" "+String(instructions||"");
+  if(/SPEAKER_NAMES_NO_BACKGROUND/i.test(speakerStyleText))next.speakerNamesBackground="none";
+  if(/SPEAKER_NAMES_INLINE|part\s+of\s+the\s+design|not\s+(?:a\s+)?block|inline/i.test(speakerStyleText)){
+    next.speakerNamesMode="inline";
     next.speakerNamesBackground="none";
   }
   next.modifyInstructions=String(instructions||"");
@@ -725,28 +744,45 @@ function applyModifyLayoutDirectives(plan,instructions="",manifest={}){
 
 function explicitTextOverridesFromRaw(raw=""){
   const t=String(raw||"");
-  const out={headline:"",detail:"",secondary:"",cta:""};
+  const out={headline:"",headlineAppend:"",detail:"",secondary:"",cta:""};
+  const cq=v=>cleanDisplayFact(String(v||"").replace(/^\s*\.{3}\s*/,"").trim());
 
-  const quotedHeadline=t.match(/\b(?:title|headline|name)\b[\s\S]{0,80}?\b(?:should be|should say|change(?: it)? to|change the name to|replace(?: it)? with|set(?: it)? to|correct(?: it)? to)\b[\s\S]{0,30}?["“]([^"”]+)["”]/i);
-  if(quotedHeadline?.[1])out.headline=cleanDisplayFact(quotedHeadline[1]);
+  // Exact natural-language append: add "X" after heading/title "Y".
+  let m=t.match(/\b(?:add|insert|put|place|include|append)\b[\s\S]{0,55}?\b(?:subheading|subtitle|text|words?|phrase)\b[\s\S]{0,30}?["“]([^"”]+)["”][\s\S]{0,90}?\b(?:after|right\s+after|following)\b[\s\S]{0,55}?\b(?:the\s+)?(?:heading|headline|title|words?)\b[\s\S]{0,30}?["“]([^"”]+)["”]/i);
+  if(m?.[1]&&m?.[2]) out.headline=mergeHeadlineCompletion(cq(m[2]),cq(m[1]));
 
   if(!out.headline){
-    const directName=t.match(/\bchange\s+the\s+name\s+to\s+["“]([^"”]+)["”]/i);
-    if(directName?.[1])out.headline=cleanDisplayFact(directName[1]);
+    m=t.match(/\b(?:after|right\s+after|following)\b[\s\S]{0,45}?\b(?:heading|headline|title|words?)\b[\s\S]{0,25}?["“]([^"”]+)["”][\s\S]{0,90}?\b(?:add|insert|put|place|include|append)\b[\s\S]{0,40}?["“]([^"”]+)["”]/i);
+    if(m?.[1]&&m?.[2]) out.headline=mergeHeadlineCompletion(cq(m[1]),cq(m[2]));
+  }
+
+  const quotedHeadline=t.match(/\b(?:title|headline|name)\b[\s\S]{0,90}?\b(?:should be|should say|change(?: it)? to|change the name to|replace(?: it)? with|set(?: it)? to|correct(?: it)? to)\b[\s\S]{0,35}?["“]([^"”]+)["”]/i);
+  if(!out.headline && quotedHeadline?.[1])out.headline=cq(quotedHeadline[1]);
+
+  if(!out.headline){
+    const direct=t.match(/\bchange\s+the\s+(?:name|title|headline)\s+to\s+["“]([^"”]+)["”]/i);
+    if(direct?.[1])out.headline=cq(direct[1]);
+  }
+
+  // Missing/complete-to-end requests append quoted text to CURRENT headline.
+  if(!out.headline){
+    const append=t.match(/\b(?:missing|complete|finish|add|append|include)\b[\s\S]{0,80}?["“]([^"”]{2,180})["”][\s\S]{0,80}?(?:\bafter\b|\bto\s+the\s+end\b|\bat\s+the\s+end\b|$)/i);
+    if(append?.[1])out.headlineAppend=cq(append[1]);
+  }
+  if(!out.headline && !out.headlineAppend && /\b(?:missing|complete|full headline|finish)\b/i.test(t)){
+    const q=t.match(/["“]([^"”]{2,180})["”]/);
+    if(q?.[1])out.headlineAppend=cq(q[1]);
   }
 
   if(!out.headline){
-    const unquoted=t.match(/\b(?:title|headline|name)\b[\s\S]{0,80}?\b(?:should be|should say|change(?: it)? to|change the name to|replace(?: it)? with|set(?: it)? to|correct(?: it)? to)\b\s*:?\s*([^\n;]{4,180})/i);
-    if(unquoted?.[1] && !/\b(?:bigger|larger|legible|readable|right|left|center)\b/i.test(unquoted[1])){
-      out.headline=cleanDisplayFact(unquoted[1].replace(/["“”]/g,""));
-    }
+    const unquoted=t.match(/\b(?:title|headline|name)\b[\s\S]{0,80}?\b(?:should be|should say|change(?: it)? to|replace(?: it)? with|set(?: it)? to|correct(?: it)? to)\b\s*:?\s*([^\n;]{4,180})/i);
+    if(unquoted?.[1] && !/\b(?:bigger|larger|legible|readable|right|left|center)\b/i.test(unquoted[1]))out.headline=cq(unquoted[1].replace(/["“”]/g,""));
   }
 
-  const q=(label)=>t.match(new RegExp(`\\b(?:${label})\\b[\\s\\S]{0,60}?\\b(?:should be|should say|change(?: it)? to|replace(?: it)? with|set(?: it)? to|correct(?: it)? to)\\b[\\s\\S]{0,25}?["“]([^"”]+)["”]`,"i"));
-  const detail=q("date|time|detail"); if(detail?.[1])out.detail=cleanDisplayFact(detail[1]);
-  const secondary=q("venue|address|location|secondary"); if(secondary?.[1])out.secondary=cleanDisplayFact(secondary[1]);
-  const cta=q("cta|button|call to action"); if(cta?.[1])out.cta=cleanDisplayFact(cta[1]);
-
+  const q=(label)=>t.match(new RegExp(`\\b(?:${label})\\b[\\s\\S]{0,65}?\\b(?:should be|should say|change(?: it)? to|replace(?: it)? with|set(?: it)? to|correct(?: it)? to)\\b[\\s\\S]{0,30}?["“]([^"”]+)["”]`,"i"));
+  const detail=q("date|time|detail"); if(detail?.[1])out.detail=cq(detail[1]);
+  const secondary=q("venue|address|location|secondary"); if(secondary?.[1])out.secondary=cq(secondary[1]);
+  const cta=q("cta|button|call to action"); if(cta?.[1])out.cta=cq(cta[1]);
   return out;
 }
 
@@ -1141,7 +1177,7 @@ Art-direction rules:
 export default async function handler(req,res){
 const len=Number(req.headers?.["content-length"]||0);
 if(req.method==="POST" && len>4_000_000){
-  return res.status(413).json({error:"Upload is too large for the serverless function. V7.20 should compress the source image in the browser before upload; please refresh and try again."});
+  return res.status(413).json({error:"Upload is too large for the serverless function. V7.21 should compress the source image in the browser before upload; please refresh and try again."});
 }
 
 if(req.method==='GET')return res.status(200).json({ok:true,route:'/api/reshape',version:'7.8'});
@@ -1204,7 +1240,7 @@ For banner output, visual interest is required: use a focused source visual and 
     if((tr>2.4 && h<=160) || tr<0.2){
       const sourceData=`data:${im.type||"image/png"};base64,${im.data.toString("base64")}`;
 
-      // V7.20 MODIFY MODE: update the LAST generated plan rather than starting over.
+      // V7.21 MODIFY MODE: update the LAST generated plan rather than starting over.
       if(requestMode==="modify" && priorPlan){
         let modifyManifest;
         try{
@@ -1263,11 +1299,11 @@ return res.status(200).json({
           width:w,height:h,
           bannerPlan:modified,
           reuseAssets:true,
-          validationSummary:"V7.20 modified the current design. The newest user instruction had absolute priority and current visual assets were preserved."
+          validationSummary:"V7.21 modified the current design. The newest user instruction had absolute priority and current visual assets were preserved."
         });
       }
 
-      // V7.20 stage 0: understand Optional Instructions as a first-class manifest.
+      // V7.21 stage 0: understand Optional Instructions as a first-class manifest.
       let instructionManifest;
       try{
         instructionManifest=await interpretUserInstructions(key,sourceData,extra);
@@ -1278,7 +1314,7 @@ return res.status(200).json({
         instructionManifest=augmentInstructionManifestFromRaw(extra,{headlineOverride:"",headlineCompletionPhrase:"",detailOverride:"",secondaryOverride:"",ctaOverride:"",requestedSourceElements:[],sourceElementPlacement:"",requiredVisibleFacts:[],requiredFactsPlacement:"",layoutDirectives:[],designDirectives:[],preserveExactPhrases:[]});
       }
 
-      // V7.20 stage 1: extract factual display copy before any layout/design reasoning.
+      // V7.21 stage 1: extract factual display copy before any layout/design reasoning.
       let protectedFacts;
       try{ protectedFacts=await buildProtectedFactManifest(key,sourceData,w,h); }
       catch(e){
@@ -1287,12 +1323,12 @@ return res.status(200).json({
         protectedFacts=Object.freeze({headline:fallback.headline||"",detail:fallback.detail||"",secondary:"",cta:fallback.cta||""});
       }
 
-      // V7.20: interpreted user corrections outrank extraction; regex parser remains as fallback.
+      // V7.21: interpreted user corrections outrank extraction; regex parser remains as fallback.
       protectedFacts=applyInstructionManifestToFacts(protectedFacts,instructionManifest);
       protectedFacts=applyUserFactOverrides(protectedFacts,extra);
       protectedFacts=applyAuthoritativeUserText(protectedFacts,extra);
 
-      // V7.20: resolve natural-language "missing ending" headline requests against the ORIGINAL source.
+      // V7.21: resolve natural-language "missing ending" headline requests against the ORIGINAL source.
       if(!explicitTextOverridesFromRaw(extra).headline && instructionManifest?.headlineCompletionPhrase){
         const completeHeadline=await resolveHeadlineCompletion(
           key,sourceData,protectedFacts.headline,instructionManifest.headlineCompletionPhrase
@@ -1300,7 +1336,7 @@ return res.status(200).json({
         protectedFacts=Object.freeze({...protectedFacts,headline:completeHeadline});
       }
 
-      // V7.20: facts the user explicitly asks to see become protected display facts,
+      // V7.21: facts the user explicitly asks to see become protected display facts,
       // rather than optional art-direction suggestions.
       const requiredFacts=await extractRequiredVisibleFacts(
         key,sourceData,instructionManifest?.requiredVisibleFacts||[]
@@ -1319,7 +1355,7 @@ return res.status(200).json({
         composer={headline:"",detail:"",secondary:"",cta:"",visual:"none",subjectDescription:"",subjectSide:"right",style:"",accent:"#9ABB35",textColor:"#111111"};
       }
 
-      // V7.20 stage 2: protected facts are re-applied AFTER planning. Planner metadata can never become drawable copy.
+      // V7.21 stage 2: protected facts are re-applied AFTER planning. Planner metadata can never become drawable copy.
       const invPlan=bannerPlanFromInventory(inventory,extra);
       composer=applyProtectedFacts(composer,protectedFacts);
       composer.requestedSourceElements=instructionManifest?.requestedSourceElements||[];
@@ -1344,7 +1380,7 @@ return res.status(200).json({
       try{ composer=await artDirectorRefinePlan(key,sourceData,w,h,composer,instructionManifest); }
       catch(e){ console.error("Art-director refinement failed; using first-pass plan:",e?.message||e); }
 
-      // V7.20 stage 3: lock again after art direction and fail closed on any copy mutation/leak.
+      // V7.21 stage 3: lock again after art direction and fail closed on any copy mutation/leak.
       composer=applyProtectedFacts(composer,protectedFacts);
       const copyAudit=validateProtectedFacts(composer,protectedFacts);
       if(!copyAudit.ok) throw Error("Protected display-copy validation failed: "+copyAudit.failures.join(", "));
@@ -1378,7 +1414,7 @@ return res.status(200).json({
         backgroundArt:visualArt,
         subjectAsset,
         bannerPlan:composer,
-        validationSummary:`V7.20 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
+        validationSummary:`V7.21 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
         modelInfo:{planner:PLANNER_MODEL,reasoning:PLANNER_REASONING,api:"responses",imageRequested:IMAGE_MODEL,imageFallback:IMAGE_MODEL_FALLBACK}
       });
     }
@@ -1456,12 +1492,12 @@ HIGHEST-PRIORITY USER OVERRIDE RULE:
 // The original upload still remains available above for source inventory/fact verification.
 let editInput=(requestMode==="modify"&&currentIm)?currentIm:im;
 let editMime=editInput.type||mime;
-let b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt,sp.size);let val="PASS";try{let val=await vision(key,`data:image/png;base64,${b}`,`Compare this generated adaptation against this source inventory:\n${inventory}\nEvaluate whether any clearly new/unrequested element was invented (especially QR codes, barcodes, logos, badges, people, URLs or CTAs), whether important content appears clipped at the canvas edges, whether major source elements appear missing, whether a visible source address was dropped while its venue was retained, and whether equivalent speaker cards/footer groups are conspicuously off-center or unequal, and whether a wide target has excessive blank side zones or looks like a narrow portrait poster inside a landscape frame, or squeezes the whole source into tiny unreadable content instead of creating a real banner, or resembles a cropped horizontal slice through a larger poster, OR simply places/shrinks the original source poster inside the new destination instead of genuinely recomposing it. For 300x250, 320x100, 320x50 and other small ad sizes, explicitly flag LETTERBOXED/PRESERVED-looking results that do not use the destination geometry intentionally. Return exactly PASS or RETRY: <brief reasons>.`,{mode:"extract",effort:"none",recoveryEffort:"none",maxOutput:1000,recoveryMaxOutput:1400,allowModelFallback:true});}catch(e){console.warn("V7.20 visual QA unavailable; preserving successful render:",e?.message||e);val="PASS";}let retried=false;if(/^RETRY:/i.test(val.trim())){retried=true;b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt+`\n\nVALIDATION FAILURE FROM FIRST ATTEMPT:\n${val}\nCorrect these failures. Remove every invented element and pull all important content further inside the safe zone.`,sp.size)}res.setHeader('Cache-Control','no-store');return res.status(200).json({image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:'contain',validationSummary:retried?'V7.20 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='modify'?'V7.20 modified the current rendered design and preserved unrequested content.':'V7.20 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.')})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
+let b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt,sp.size);let val="PASS";try{let val=await vision(key,`data:image/png;base64,${b}`,`Compare this generated adaptation against this source inventory:\n${inventory}\nEvaluate whether any clearly new/unrequested element was invented (especially QR codes, barcodes, logos, badges, people, URLs or CTAs), whether important content appears clipped at the canvas edges, whether major source elements appear missing, whether a visible source address was dropped while its venue was retained, and whether equivalent speaker cards/footer groups are conspicuously off-center or unequal, and whether a wide target has excessive blank side zones or looks like a narrow portrait poster inside a landscape frame, or squeezes the whole source into tiny unreadable content instead of creating a real banner, or resembles a cropped horizontal slice through a larger poster, OR simply places/shrinks the original source poster inside the new destination instead of genuinely recomposing it. For 300x250, 320x100, 320x50 and other small ad sizes, explicitly flag LETTERBOXED/PRESERVED-looking results that do not use the destination geometry intentionally. Return exactly PASS or RETRY: <brief reasons>.`,{mode:"extract",effort:"none",recoveryEffort:"none",maxOutput:1000,recoveryMaxOutput:1400,allowModelFallback:true});}catch(e){console.warn("V7.21 visual QA unavailable; preserving successful render:",e?.message||e);val="PASS";}let retried=false;if(/^RETRY:/i.test(val.trim())){retried=true;b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt+`\n\nVALIDATION FAILURE FROM FIRST ATTEMPT:\n${val}\nCorrect these failures. Remove every invented element and pull all important content further inside the safe zone.`,sp.size)}res.setHeader('Cache-Control','no-store');return res.status(200).json({image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:'contain',validationSummary:retried?'V7.21 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='modify'?'V7.21 modified the current rendered design and preserved unrequested content.':'V7.21 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.')})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
 
 
 /*
 
-CONTROLLED CREATIVE FREEDOM — V7.20:
+CONTROLLED CREATIVE FREEDOM — V7.21:
 The final canvas is exactly 728x90 and MUST be treated as the design surface from the first decision.
 Do NOT use a rigid left/right/thirds template. Compose the whole advertisement as an art director.
 You may place the main source subject left, right, center, off-center, between text groups, or partially integrated with typography/background when visually strong.
