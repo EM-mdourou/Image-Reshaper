@@ -1,0 +1,1434 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Muslim Link Image Reshaper</title><style>
+:root{--green:#9ABB35;--green-dark:#5f741b;--ink:#111;--muted:#6d6d6d;--paper:#fff;--soft:#f7f8f4;--line:#dedfd9;--charcoal:#151515}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+body:before{content:"";display:block;height:4px;background:var(--green)}
+main{max-width:1380px;margin:auto;padding:28px 34px 0}
+header{display:flex;align-items:center;justify-content:space-between;gap:28px;margin-bottom:28px}
+.brandlogo{width:250px;max-width:42vw;height:auto;display:block;object-fit:contain}
+header>div{margin-left:auto;text-align:right}
+h1{font-size:22px;margin:0;font-weight:800}
+header p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.hero{background:linear-gradient(135deg,#111,#252525);border-radius:20px;padding:36px 52px;color:#fff;margin-bottom:24px;box-shadow:0 12px 30px #00000010}
+.hero .eyebrow{font-size:11px;letter-spacing:.4px;color:var(--green);font-weight:800;margin-bottom:10px}
+.hero h2{font-size:clamp(34px,4.4vw,58px);line-height:1.02;margin:0 0 14px;letter-spacing:-1.6px}
+.hero h2 span{color:var(--green)}
+.hero p{max-width:760px;color:#f0f0f0;line-height:1.55;margin:0;font-size:17px}
+.grid{display:grid;grid-template-columns:1fr 1.3fr;gap:18px;margin-top:20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 5px 18px #00000008}
+.cardhead{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.step{font-size:12px;font-weight:800;color:#60791c;background:#e8efd2;padding:7px 9px;border-radius:7px}
+.cardhead h3{font-size:18px;margin:0}
+.drop{height:395px;border:1.5px dashed #aeb79b;border-radius:14px;background:#fbfcfa;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px;cursor:pointer;text-align:center;overflow:hidden}
+.drop:hover{border-color:var(--green);background:#fafcf4}
+.drop img{width:100%;height:100%;object-fit:contain;background:#f4f5f2}
+.up{width:64px;height:64px;border-radius:50%;background:#edf3dc;color:var(--green-dark);display:grid;place-items:center;font-size:36px}
+.drop strong{font-size:17px}.drop small{color:#747474}
+.filename{margin-top:10px;font-size:12px;color:#557014;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.presets{display:grid!important;grid-template-columns:repeat(3,1fr);gap:10px;visibility:visible!important;opacity:1!important}
+.preset{border:1px solid #dfe0db;border-radius:11px;background:#fff;padding:12px 14px;text-align:left;cursor:pointer;color:#222;min-height:62px}
+.preset:hover{border-color:#b5c77a}
+.preset.active{border:1.5px solid var(--green);background:#fbfdf5;box-shadow:inset 0 0 0 1px #eef3dd}
+.preset b{display:block;font-size:13px}.preset small{display:block;margin-top:4px;color:#737373;font-size:11px}
+.customsize{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.customtitle{font-size:13px;font-weight:800;margin-bottom:9px}
+.customrow{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+.customrow label{font-size:11px;font-weight:700;color:#454545}
+.customrow input{width:100%;margin-top:6px;border:1px solid #d9dad4;border-radius:9px;padding:12px;font:14px inherit;outline:none}
+.customrow input:focus{border-color:var(--green)}
+.customrow span{display:none}
+.customrow button{border:1px solid #bbcb82;border-radius:9px;background:#edf3dc;color:#506617;padding:12px 18px;font-weight:800;cursor:pointer}
+.instructions{margin-top:18px}
+textarea{width:100%;height:110px;border:1px solid #dadbd5;border-radius:12px;padding:14px;font:14px inherit;resize:vertical;outline:none}
+textarea:focus{border-color:var(--green)}
+.hint{font-size:11px;color:#777;margin-top:8px}
+.action{margin:18px 0;display:flex;align-items:center;justify-content:space-between;background:#f2f5eb;border-radius:13px;padding:10px 10px 10px 18px;gap:16px}
+.action .meta b{font-size:15px}.action .meta span{font-size:12px;color:#68705e;margin-left:10px}
+button.primary{border:0;border-radius:10px;background:var(--green);color:#111;padding:15px 24px;font-weight:850;cursor:pointer}
+button.primary:hover{background:#a6c441}
+button.primary:disabled{opacity:.45;cursor:not-allowed}
+.progressbox{display:none;margin:18px 0;background:#111;color:white;border-radius:14px;padding:18px 20px}
+.progresshead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.progresshead b{font-size:14px}.elapsed{font-size:12px;color:#c8c8c8}
+.progresssteps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.pstep{border:1px solid #3b3b3b;border-radius:9px;padding:10px;font-size:11px;color:#aaa;min-height:52px}
+.pstep.active{border-color:var(--green);color:#fff;background:#1b1f12}.pstep.done{color:#dfe9bf;border-color:#6f832d}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#666;margin-right:6px}.pstep.active .dot,.pstep.done .dot{background:var(--green)}
+.status{display:none;margin:-8px 0 18px;padding:12px 14px;border-radius:12px;background:#f1f4e8;color:#5b691f;font-size:13px}
+.error{display:none;background:#fff0ee;color:#9b3d31;padding:13px 16px;border-radius:12px;margin:0 0 20px;font-size:13px}
+.result{display:none;margin-top:20px}
+.resultbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.download{font-size:12px;color:#4f6514;text-decoration:none;border:1px solid #b7c783;border-radius:9px;padding:8px 10px}
+.preview{background:#f1f3ee;border-radius:14px;padding:12px;text-align:center}.preview img{display:block;max-width:100%;max-height:720px;margin:auto}
+.note{font-size:12px;color:#6f7d74;margin-top:10px}
+.modifybox{margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+.historytitle{margin:18px 0 8px;font-size:16px;font-weight:800}
+.historylist{display:flex;flex-direction:column;gap:14px;margin-top:10px}
+.historyitem{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}
+.historymeta{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.historyrun{font-size:12px;font-weight:800;color:#60721d;text-transform:uppercase;letter-spacing:.04em}
+.historyinstruction{font-size:13px;line-height:1.45;color:#222;margin-top:4px;white-space:pre-wrap}
+.historyimgwrap{background:#f3f5ef;border-radius:11px;padding:10px;text-align:center}
+.historyimgwrap img{max-width:100%;max-height:420px;display:block;margin:auto}
+.historydownload{font-size:12px;color:#536500;text-decoration:none;border:1px solid #9fba42;border-radius:8px;padding:7px 10px;white-space:nowrap}
+.currentinstruction{font-size:13px;line-height:1.45;margin:10px 0 12px;padding:10px 12px;background:#f7f8f3;border-radius:9px}
+.currentinstruction b{display:block;font-size:11px;text-transform:uppercase;color:#657521;margin-bottom:4px}
+.clearbtn{margin-left:10px;border:1px solid #a7b568;background:#fff;border-radius:8px;padding:7px 10px;font-weight:700;cursor:pointer}
+
+.modifybox h4{margin:0 0 8px;font-size:15px}
+.modifybox textarea{height:90px}
+.modifyactions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:9px}
+.modifyhint{font-size:11px;color:#777;line-height:1.45}
+button.modifybtn{border:0;border-radius:9px;background:#111;color:#fff;padding:11px 16px;font-weight:800;cursor:pointer;white-space:nowrap}
+button.modifybtn:disabled{opacity:.45;cursor:not-allowed}
+
+footer{margin-top:36px;background:#151515;color:#fff;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding:26px 6vw;border-top:4px solid var(--green);display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
+footer .versionfooter{margin:0;text-align:right;color:#d4d4d4;font-size:11px}
+footer .copyright{grid-row:1;color:#f1f1f1;font-size:11px}
+footer>br,footer>text{display:none}
+@media(max-width:900px){
+  main{padding:20px 16px 0}
+  header{align-items:flex-start;flex-direction:column}
+  header>div{text-align:left;margin-left:0}
+  .brandlogo{width:220px;max-width:80vw}
+  .hero{padding:28px}
+  .grid{grid-template-columns:1fr}
+  .presets{grid-template-columns:1fr 1fr}
+  .drop{height:300px}
+  .progresssteps{grid-template-columns:1fr 1fr}
+  footer{grid-template-columns:1fr;text-align:center}
+  footer .versionfooter{text-align:center}
+}
+@media(max-width:560px){
+  .presets{grid-template-columns:1fr}
+  .customrow{grid-template-columns:1fr}
+  .action{align-items:flex-start;flex-direction:column}
+  .action button{width:100%}
+}
+</style><script>
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.20:
+Treat 728x90 as the final canvas before all layout decisions.
+Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
+Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
+Optimize the complete composition rather than maximizing individual elements.
+Allow one- or two-line headlines when that improves balance. Prevent cramped detail lines.
+Use intentional environmental graphics and source-inspired atmosphere. Decorative invention is allowed; factual invention is not.
+Avoid portrait-card/thumbnail framing unless clearly justified by the source.
+Use layering and overlap when aesthetically useful.
+Perform a final art-director critique for balance, legibility, recognizability, cropping, dead space, cramped copy, richness, and professional-ad quality; revise the plan if needed.
+Never expose internal planner/meta/debug/schema text.`;
+</script>
+</head><body><main><header>
+  <img class="brandlogo" src="/assets/muslim-link-logo.png" alt="Muslim Link">
+  <div><h1>Muslim Link Image Reshaper</h1><p>Resize posters, flyers and promotional graphics intelligently.</p></div>
+</header><section class="hero">
+  <div>
+    <div class="eyebrow">AI-POWERED IMAGE ADAPTATION</div>
+    <h2>Preserve the design. <span>Change the shape.</span></h2>
+    <p>Upload your artwork, choose a preset or custom size, and let AI intelligently recompose it for the destination format.</p>
+  </div>
+</section><div class="grid"><section class="card"><div class="head"><span class="step">01</span><h3>Upload your artwork</h3></div><div id="drop" class="drop"><div class="up">↑</div><strong>Drag & drop your image here</strong><small>or click to browse · PNG, JPG, WEBP</small></div><input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden><div id="filename" class="filename"></div><button id="clearAll" class="clearbtn" type="button" style="display:none">Clear / start over</button></section><section class="card"><div class="head"><span class="step">02</span><h3>Choose the destination</h3></div><div id="presets" class="presets">
+<button type="button" class="preset" data-name="News" data-width="850" data-height="638"><b>News</b><small>850 × 638 px</small></button>
+<button type="button" class="preset" data-name="Opportunities" data-width="850" data-height="350"><b>Opportunities</b><small>850 × 350 px</small></button>
+<button type="button" class="preset" data-name="Action Alerts" data-width="850" data-height="500"><b>Action Alerts</b><small>850 × 500 px</small></button>
+<button type="button" class="preset active" data-name="Events" data-width="880" data-height="460"><b>Events</b><small>880 × 460 px</small></button>
+<button type="button" class="preset" data-name="Social Media" data-width="1080" data-height="1350"><b>Social Media</b><small>1080 × 1350 px</small></button>
+<button type="button" class="preset" data-name="Front Page" data-width="900" data-height="500"><b>Front Page</b><small>900 × 500 px</small></button>
+<button type="button" class="preset" data-name="Mobile Ad" data-width="320" data-height="50"><b>Mobile Ad</b><small>320 × 50 px</small></button>
+<button type="button" class="preset" data-name="Large Ad" data-width="300" data-height="600"><b>Large Ad</b><small>300 × 600 px</small></button>
+<button type="button" class="preset" data-name="Side Ad" data-width="300" data-height="250"><b>Side Ad</b><small>300 × 250 px</small></button>
+<button type="button" class="preset" data-name="Leaderboard Ad" data-width="728" data-height="90"><b>Leaderboard Ad</b><small>728 × 90 px</small></button>
+<button type="button" class="preset" data-name="Mobile Directory" data-width="200" data-height="100"><b>Mobile Directory</b><small>200 × 100 px</small></button>
+<button type="button" class="preset" data-name="Desktop Directory" data-width="320" data-height="100"><b>Desktop Directory</b><small>320 × 100 px</small></button>
+</div>
+<div class="customsize">
+  <div class="customtitle">Custom dimensions</div>
+  <div class="customrow">
+    <label>Width <input id="customW" type="number" min="50" max="5000" step="1" placeholder="e.g. 1200"></label>
+    <span>×</span>
+    <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
+    <button type="button" id="useCustom">Use custom</button>
+  </div>
+</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.20 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.20 also fixes the compact/leaderboard instruction-layout initialization error. V7.20 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+<div id="progressbox" class="progressbox">
+  <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
+  <div class="progresssteps">
+    <div class="pstep"><span class="dot"></span>Read source</div>
+    <div class="pstep"><span class="dot"></span>Identify content</div>
+    <div class="pstep"><span class="dot"></span>Prioritize content</div>
+    <div class="pstep"><span class="dot"></span>Plan layout</div>
+    <div class="pstep"><span class="dot"></span>Generate design</div>
+    <div class="pstep"><span class="dot"></span>Finalize output</div>
+  </div>
+</div>
+<div id="status" class="status"></div><div id="error" class="error"></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download crisp PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
+<div class="preview"><img id="output"></div><div id="validation" class="note"></div>
+<div id="modifyBox" class="modifybox">
+  <h4>Modify this design</h4>
+  <textarea id="modifyInstructions" placeholder="Example: Make the dates bigger, move the speaker names to the right, or complete the title with “... Your Future on the Ballot”."></textarea>
+  <div class="modifyactions">
+    <div class="modifyhint">Updates the CURRENT design instead of starting over. Each successful change is saved below as a previous version with the instruction that produced it.</div>
+    <button id="modifyBtn" class="modifybtn" type="button">Modify current design →</button>
+  </div>
+</div>
+<div class="historytitle">Previous versions</div>
+<div id="historyList" class="historylist"></div>
+</section><footer>
+  <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
+  <div class="versionfooter">Version 7.20</div>
+</footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
+
+function setCurrentInstruction(text,kind='Initial generation'){
+  currentRunInstruction=(text||'').trim();
+  const el=$('currentInstruction');
+  if(!el)return;
+  const shown=currentRunInstruction||'No additional instructions';
+  el.innerHTML=`<b>Current version ${currentVersionNumber} · ${kind}</b>${escapeHtml(shown)}`;
+  el.style.display='block';
+}
+function escapeHtml(s=''){
+  return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function archiveCurrentRun(){
+  if(!lastRenderedUrl)return;
+  historyRunNumber++;
+  const archivedVersion=currentVersionNumber;
+  const box=document.createElement('div');
+  box.className='historyitem';
+  const instruction=currentRunInstruction||'No additional instructions';
+  box.innerHTML=`
+    <div class="historymeta">
+      <div>
+        <div class="historyrun">Version ${archivedVersion}</div>
+        <div class="historyinstruction">${escapeHtml(instruction)}</div>
+      </div>
+      <a class="historydownload" href="${lastRenderedUrl}" download="reshaped-history-${historyRunNumber}.png">Download PNG ↓</a>
+    </div>
+    <div class="historyimgwrap"><img src="${lastRenderedUrl}" alt="Previous generated version"></div>`;
+  $('historyList').prepend(box);
+}
+function resetDesignSession(clearFile=false){
+  lastServerResult=null;lastRenderedUrl=null;currentRunInstruction='';historyRunNumber=0;currentVersionNumber=1;lastDesignTarget=null;
+  if($('historyList'))$('historyList').innerHTML='';
+  if($('result'))$('result').style.display='none';
+  if($('error'))$('error').style.display='none';
+  if($('instructions'))$('instructions').value='';
+  if($('modifyInstructions'))$('modifyInstructions').value='';
+  if($('currentInstruction'))$('currentInstruction').style.display='none';
+  if(clearFile){
+    f=null;
+    $('file').value='';
+    $('filename').textContent='';
+    $('clearAll').style.display='none';
+    $('submit').disabled=true;
+    d.innerHTML='<div class="up">↑</div><strong>Drag & drop your image here</strong><small>or click to browse · PNG, JPG, WEBP</small>';
+    wireUploader();
+const customBtn=$('useCustom');
+if(customBtn){
+  customBtn.onclick=()=>{
+    const w=+$('customW').value,h=+$('customH').value;
+    if(w>0&&h>0){
+      s=['Custom',w,h];
+      document.querySelectorAll('#presets .preset').forEach(x=>x.classList.remove('active'));
+      M();
+    }
+  };
+}
+
+  }
+}
+
+
+function wireUploader(){
+  const input=$('file');
+  const drop=$('drop');
+  if(!input||!drop)return;
+
+  // Ensure the drop area is clickable even after UI/session resets.
+  drop.style.cursor='pointer';
+
+  // Replace direct property handlers with idempotent addEventListener wiring.
+  if(!drop.dataset.uploadWired){
+    drop.addEventListener('click',e=>{
+      // Don't trigger file dialog when clicking a real control nested inside drop area.
+      if(e.target.closest('button,a,input,textarea,select'))return;
+      input.click();
+    });
+    drop.addEventListener('dragover',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      drop.classList.add('drag');
+    });
+    drop.addEventListener('dragleave',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      drop.classList.remove('drag');
+    });
+    drop.addEventListener('drop',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      drop.classList.remove('drag');
+      const file=e.dataTransfer?.files?.[0];
+      if(file)F(file);
+    });
+    drop.dataset.uploadWired='1';
+  }
+
+  if(!input.dataset.uploadWired){
+    input.addEventListener('change',e=>{
+      const file=e.target.files?.[0];
+      if(file)F(file);
+    });
+    input.dataset.uploadWired='1';
+  }
+}
+
+const P=[['News',850,638],['Opportunities',850,350],['Action Alerts',850,500],['Events',880,460],['Social Media',1080,1350],['Front Page',900,500],['Mobile Ad',320,50],['Large Ad',300,600],['Side Ad',300,250],['Leaderboard Ad',728,90],['Mobile Directory',200,100],['Desktop Directory',320,100]];
+let s=P[3],f=null,$=i=>document.getElementById(i);
+function M(){$('chosen').textContent=s[0];$('dims').textContent=`${s[1]} × ${s[2]} px`}
+function wireDestinations(){
+  document.querySelectorAll('#presets .preset').forEach(btn=>{
+    if(btn.dataset.destinationWired)return;
+    btn.addEventListener('click',()=>{
+      s=[btn.dataset.name,+btn.dataset.width,+btn.dataset.height];
+      document.querySelectorAll('#presets .preset').forEach(x=>x.classList.toggle('active',x===btn));
+      M();
+    });
+    btn.dataset.destinationWired='1';
+  });
+}
+wireDestinations();M();let d=$('drop');d.ondragover=e=>e.preventDefault();function F(x){if(!x)return;resetDesignSession(false);f=x;$('filename').textContent='✓ '+x.name;$('clearAll').style.display='inline-block';$('submit').disabled=false;d.innerHTML=`<img src="${URL.createObjectURL(x)}">`}$('clearAll').onclick=()=>resetDesignSession(true);
+function fitExact(src,w,h){return new Promise((ok,no)=>{let i=new Image();i.onload=()=>{let c=document.createElement('canvas');c.width=w;c.height=h;let x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';let bg=Math.max(w/i.width,h/i.height),bw=i.width*bg,bh=i.height*bg;x.save();x.filter='blur(20px)';x.globalAlpha=.88;x.drawImage(i,(w-bw)/2,(h-bh)/2,bw,bh);x.restore();let fg=Math.min(w/i.width,h/i.height),fw=i.width*fg,fh=i.height*fg;x.drawImage(i,(w-fw)/2,(h-fh)/2,fw,fh);c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not create PNG')),'image/png',1)};i.onerror=no;i.src=src})}
+
+wireUploader();
+
+let progressTimer=null,elapsedTimer=null,progressStart=0;
+function setProgress(step,title){
+  const box=$('progressbox');box.style.display='block';
+  [...box.querySelectorAll('.pstep')].forEach((el,i)=>{
+    el.classList.toggle('active',i===step);
+    el.classList.toggle('done',i<step);
+  });
+  $('progressTitle').textContent=title;
+}
+function startProgress(){
+  progressStart=Date.now();
+  clearInterval(progressTimer);clearInterval(elapsedTimer);
+  $('elapsed').textContent='0s';
+  setProgress(0,'Reading the source artwork…');
+  const timeline=[
+    [2500,1,'Identifying text, people, logos and key facts…'],
+    [6000,2,'Prioritizing content for this destination size…'],
+    [10000,3,'Planning the composition for the target aspect ratio…'],
+    [16000,4,'Generating and recomposing the artwork…']
+  ];
+  let fired=new Set();
+  progressTimer=setInterval(()=>{
+    const t=Date.now()-progressStart;
+    timeline.forEach(([ms,step,title])=>{
+      if(t>=ms&&!fired.has(step)){fired.add(step);setProgress(step,title)}
+    });
+  },400);
+  elapsedTimer=setInterval(()=>{$('elapsed').textContent=Math.floor((Date.now()-progressStart)/1000)+'s';},1000);
+}
+function stopProgress(){clearInterval(progressTimer);clearInterval(elapsedTimer);}
+function cropSafeZone(src,w,h,z){return new Promise((ok,no)=>{let i=new Image();i.onload=()=>{let c=document.createElement('canvas');c.width=w;c.height=h;let x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.drawImage(i,z.x,z.y,z.w,z.h,0,0,w,h);c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not create PNG')),'image/png',1)};i.onerror=no;i.src=src})}
+
+
+function loadImage(src){return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src})}
+function roundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function fitText(ctx,text,maxWidth,startSize,minSize,fontWeight='800',fontFamily='Arial'){
+  let size=startSize;
+  while(size>minSize){
+    ctx.font=`${fontWeight} ${size}px ${fontFamily}`;
+    if(ctx.measureText(text).width<=maxWidth)break;
+    size--;
+  }
+  return size;
+}
+function drawWrapped(ctx,text,x,y,maxWidth,lineHeight,maxLines){
+  const words=(text||'').split(/\s+/); let lines=[],line='';
+  for(const word of words){
+    const test=line?line+' '+word:word;
+    if(ctx.measureText(test).width>maxWidth && line){lines.push(line);line=word;if(lines.length>=maxLines-1)break}
+    else line=test;
+  }
+  if(line && lines.length<maxLines)lines.push(line);
+  lines.forEach((l,i)=>ctx.fillText(l,x,y+i*lineHeight));
+}
+async function buildExactBanner(sourceUrl,plan,w,h){
+  const src=await loadImage(sourceUrl);
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const x=c.getContext('2d');
+  x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high';
+
+  const accent=plan.accentColor||'#9ABB35';
+  const textColor=plan.textColor||'#111111';
+  const pad=Math.max(5,Math.round(h*.06));
+  const isPerson=plan.visualType==='person';
+  const side=plan.subjectSide==='right'?'right':'left';
+
+  // Strong source-derived background.
+  const bgScale=Math.max(w/src.width,h/src.height);
+  const bw=src.width*bgScale, bh=src.height*bgScale;
+  x.save();
+  x.filter=`blur(${Math.max(3,Math.round(h*.035))}px) saturate(1.42) contrast(1.07)`;
+  x.globalAlpha=.80;
+  x.drawImage(src,(w-bw)/2,(h-bh)/2,bw,bh);
+  x.restore();
+  x.fillStyle=isPerson?'rgba(255,255,255,.18)':'rgba(255,255,255,.30)';
+  x.fillRect(0,0,w,h);
+
+  const crop=plan.visualCrop||{};
+  const faceCenter=plan.faceCenter||{};
+  const hasCrop=[crop.x,crop.y,crop.w,crop.h].every(Number.isFinite) && crop.w>0 && crop.h>0;
+  const hasFaceCenter=[faceCenter.x,faceCenter.y].every(Number.isFinite) && (faceCenter.x>0 || faceCenter.y>0);
+  const zoom=plan.subjectZoom||'medium';
+
+  let visualW=0;
+
+  if(hasCrop){
+    const sx=Math.max(0,Math.min(src.width-1,Math.round(crop.x*src.width)));
+    const sy=Math.max(0,Math.min(src.height-1,Math.round(crop.y*src.height)));
+    const sw=Math.max(1,Math.min(src.width-sx,Math.round(crop.w*src.width)));
+    const sh=Math.max(1,Math.min(src.height-sy,Math.round(crop.h*src.height)));
+
+    if(isPerson){
+      // V4.10: use a medium portrait area and frame from the generous person crop,
+      // not from an unreliable razor-tight face box.
+      const cropAspect=sw/sh;
+      visualW=Math.round(h*Math.max(1.35,Math.min(1.85,cropAspect*1.55)));
+      visualW=Math.max(Math.round(h*1.35),Math.min(Math.round(h*1.90),visualW));
+    }else{
+      visualW=Math.min(Math.round(w*.24),Math.round(h*2.10));
+    }
+
+    const vx=side==='right'?w-visualW:0;
+
+    x.save();
+    roundedRect(x,vx+2,2,visualW-4,h-4,Math.max(8,Math.round(h*.10)));
+    x.clip();
+
+    if(isPerson){
+      /*
+        SAFE UPPER-BODY COVER
+        We trust the generous person crop more than exact face dimensions.
+        The crop is cover-fit into the portrait plate, then modestly zoomed.
+        FACE_CENTER is only used to position the crop vertically/horizontally.
+      */
+      const baseScale=Math.max((visualW-4)/sw,(h-4)/sh);
+      const zoomFactor=zoom==='tight'?1.12:zoom==='loose'?.98:1.05;
+      const scale=baseScale*zoomFactor;
+
+      const dw=sw*scale, dh=sh*scale;
+
+      // Default to crop center, but bias toward face center when provided.
+      let anchorLocalX=sw*.50;
+      let anchorLocalY=sh*.38;
+
+      if(hasFaceCenter){
+        const facePxX=faceCenter.x*src.width;
+        const facePxY=faceCenter.y*src.height;
+        if(facePxX>=sx && facePxX<=sx+sw) anchorLocalX=facePxX-sx;
+        if(facePxY>=sy && facePxY<=sy+sh) anchorLocalY=facePxY-sy;
+      }
+
+      // Place face around 47% of visual width and 38% of banner height,
+      // leaving deliberate headroom while preserving shoulders below.
+      const targetX=vx+visualW*.48;
+      const targetY=h*.38;
+
+      let dx=targetX-anchorLocalX*scale;
+      let dy=targetY-anchorLocalY*scale;
+
+      // Safety clamps: never allow the generous crop's top edge to start below the banner top
+      // if there is extra vertical room; never allow bottom to float above banner bottom.
+      const minDx=vx+visualW-dw;
+      const maxDx=vx;
+      dx=Math.min(maxDx,Math.max(minDx,dx));
+
+      const minDy=h-dh;
+      const maxDy=0;
+      dy=Math.min(maxDy,Math.max(minDy,dy));
+
+      x.fillStyle='rgba(0,0,0,.08)';
+      x.fillRect(vx,0,visualW,h);
+      x.drawImage(src,sx,sy,sw,sh,dx,dy,dw,dh);
+    }else{
+      const scale=Math.max(visualW/sw,h/sh);
+      const dw=sw*scale, dh=sh*scale;
+      x.drawImage(src,sx,sy,sw,sh,vx+(visualW-dw)/2,(h-dh)/2,dw,dh);
+    }
+
+    x.restore();
+
+    x.strokeStyle=accent;
+    x.lineWidth=Math.max(2,Math.round(h*.022));
+    roundedRect(x,vx+2,2,visualW-4,h-4,Math.max(8,Math.round(h*.10)));
+    x.stroke();
+  }
+
+  let textX=pad, textW=w-pad*2;
+  if(hasCrop && side==='left'){
+    textX=visualW+Math.max(9,Math.round(w*.014));
+    textW=w-textX-pad;
+  }else if(hasCrop && side==='right'){
+    textX=pad;
+    textW=w-visualW-pad*2-Math.max(8,Math.round(w*.012));
+  }else{
+    const barW=Math.max(10,Math.round(w*.018));
+    x.fillStyle=accent; x.fillRect(0,0,barW,h);
+    textX=barW+Math.max(10,Math.round(w*.014));
+    textW=w-textX-pad;
+  }
+
+  const panelPad=Math.max(5,Math.round(w*.007));
+  roundedRect(x,textX-panelPad,Math.max(3,pad*.45),textW+panelPad,h-Math.max(6,pad*.9),Math.max(7,Math.round(h*.075)));
+  x.fillStyle='rgba(255,255,255,.58)'; x.fill();
+
+  const headline=(plan.headline||'').trim();
+  const detail=(plan.detail||'').trim();
+  const cta=(plan.cta||'').trim();
+
+  const copyStart=textX+Math.max(6,Math.round(w*.009));
+  const ctaReserve=cta?Math.min(Math.round(w*.20),145):0;
+  const copyW=Math.max(105,textW-ctaReserve-Math.max(8,Math.round(w*.012)));
+
+  x.textBaseline='top';
+  x.fillStyle=textColor;
+  const headStart=Math.max(17,Math.round(h*.30));
+  const headMin=Math.max(10,Math.round(h*.155));
+  const headSize=fitText(x,headline,copyW,headStart,headMin,'800');
+  x.font=`800 ${headSize}px Arial`;
+  x.fillText(headline,copyStart,pad);
+
+  if(detail){
+    const detailY=pad+headSize+Math.max(2,Math.round(h*.035));
+    const dSize=fitText(x,detail,copyW,Math.max(9,Math.round(h*.145)),Math.max(7,Math.round(h*.09)),'700');
+    x.font=`700 ${dSize}px Arial`;
+    x.fillStyle=plan.secondaryColor||'#303030';
+    x.fillText(detail,copyStart,detailY);
+  }
+
+  if(cta){
+    const ctaSize=Math.max(8,Math.round(h*.115));
+    x.font=`800 ${ctaSize}px Arial`;
+    const tw=x.measureText(cta).width;
+    const ph=Math.max(3,Math.round(h*.04)), pw=Math.max(8,Math.round(h*.06));
+    const boxW=Math.min(tw+pw*2,Math.round(w*.19)), boxH=ctaSize+ph*2;
+    const bx=side==='right'
+      ? Math.max(copyStart+copyW+4,w-visualW-boxW-Math.max(10,Math.round(w*.015)))
+      : w-pad-boxW;
+    const by=(h-boxH)/2;
+    roundedRect(x,bx,by,boxW,boxH,Math.max(5,Math.round(h*.07)));
+    x.fillStyle=accent; x.fill();
+    x.fillStyle='#111'; x.textBaseline='middle';
+    x.fillText(cta,bx+(boxW-x.measureText(cta).width)/2,by+boxH/2);
+  }
+
+  return new Promise((ok,no)=>c.toBlob(
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build exact banner')),
+    'image/png',1
+  ));
+}
+
+
+async function fitAiBannerToExact(srcUrl,w,h){
+  const img=await loadImage(srcUrl);
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const x=c.getContext('2d');
+  x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high';
+
+  /*
+    V5.2 SAFE-REGION EXTRACTION
+
+    V5.1 found the right people/content but extracted too tight a strip.
+    V5.2 extracts a taller region and scales it down to the exact banner.
+    This intentionally zooms OUT the final composition.
+  */
+
+  const targetAspect=w/h;
+  const centerY=img.height*0.50;
+
+  // Start from a taller 44% region so faces and text get breathing room.
+  let sh=img.height*0.44;
+  let sw=sh*targetAspect;
+
+  // Preserve exact target aspect while staying inside generated image.
+  if(sw>img.width){
+    sw=img.width;
+    sh=sw/targetAspect;
+  }
+
+  // Add a small extra zoom-out allowance if possible.
+  const maxSh=img.height*0.50;
+  if(sh<maxSh){
+    const candidateSh=Math.min(maxSh,sh*1.10);
+    const candidateSw=candidateSh*targetAspect;
+    if(candidateSw<=img.width){
+      sh=candidateSh;
+      sw=candidateSw;
+    }
+  }
+
+  const sx=Math.max(0,(img.width-sw)/2);
+  const sy=Math.max(0,Math.min(img.height-sh,centerY-sh/2));
+
+  // Scale the complete safe region directly to the requested banner dimensions.
+  x.drawImage(img,sx,sy,sw,sh,0,0,w,h);
+
+  return new Promise((ok,no)=>c.toBlob(
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not extract AI banner safe region')),
+    'image/png',1
+  ));
+}
+
+
+
+function wrapTextLines(ctx,text,maxWidth,maxLines){
+  const words=(text||'').trim().split(/\s+/).filter(Boolean);
+  const lines=[]; let line='';
+  for(const word of words){
+    const test=line?line+' '+word:word;
+    if(ctx.measureText(test).width<=maxWidth){
+      line=test;
+    }else{
+      if(line) lines.push(line);
+      line=word;
+      if(lines.length===maxLines-1) break;
+    }
+  }
+  if(line && lines.length<maxLines) lines.push(line);
+  return lines;
+}
+
+function fitWrappedHeadline(ctx,text,maxWidth,maxHeight,maxLines){
+  let size=Math.max(18,Math.round(maxHeight*.55));
+  const min=Math.max(11,Math.round(maxHeight*.30));
+  while(size>=min){
+    ctx.font=`800 ${size}px Arial`;
+    const lines=wrapTextLines(ctx,text,maxWidth,maxLines);
+    const lineH=size*.98;
+    if(lines.length<=maxLines && lines.length*lineH<=maxHeight &&
+       lines.every(l=>ctx.measureText(l).width<=maxWidth)){
+      return {size,lines,lineH};
+    }
+    size--;
+  }
+  ctx.font=`800 ${min}px Arial`;
+  return {size:min,lines:wrapTextLines(ctx,text,maxWidth,maxLines),lineH:min};
+}
+
+async function buildHybridBanner(data,w,h){
+  const plan=data.bannerPlan||{};
+  const src=await loadImage(data.sourceImage);
+  const subject=data.subjectAsset?await loadImage(data.subjectAsset):null;
+
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const x=c.getContext('2d');
+  x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high';
+
+  const accent=plan.accent||'#9ABB35';
+  const textColor=plan.textColor||'#111111';
+  const subjectCount=Math.max(0,Number(plan.subjectCount||0));
+  const balanced=plan.layoutIntent==='balanced' || subjectCount>=2;
+  const side=balanced?'right':(plan.subjectSide==='left'?'left':'right');
+
+  // Preserve source colour/style more strongly.
+  const bgScale=Math.max(w/src.width,h/src.height);
+  const bw=src.width*bgScale,bh=src.height*bgScale;
+  x.save();
+  x.filter=`blur(${Math.max(2,Math.round(h*.025))}px) saturate(1.58) contrast(1.08) brightness(.86)`;
+  x.globalAlpha=.90;
+  x.drawImage(src,(w-bw)/2,(h-bh)/2,bw,bh);
+  x.restore();
+
+  const veil=x.createLinearGradient(0,0,w,0);
+  if(side==='right'){
+    veil.addColorStop(0,'rgba(255,255,255,.91)');
+    veil.addColorStop(.53,'rgba(255,255,255,.73)');
+    veil.addColorStop(.76,'rgba(255,255,255,.24)');
+    veil.addColorStop(1,'rgba(255,255,255,.01)');
+  }else{
+    veil.addColorStop(0,'rgba(255,255,255,.01)');
+    veil.addColorStop(.24,'rgba(255,255,255,.24)');
+    veil.addColorStop(.47,'rgba(255,255,255,.73)');
+    veil.addColorStop(1,'rgba(255,255,255,.91)');
+  }
+  x.fillStyle=veil; x.fillRect(0,0,w,h);
+
+  const margin=Math.max(3,Math.round(h*.032));
+  const gap=Math.max(9,Math.round(w*.014));
+  let subjectW=0;
+
+  if(subject){
+    // Nearly full-height subject. Wider allowance for groups.
+    const targetH=h-Math.max(2,Math.round(h*.028)); // ~97% height
+    const maxW=balanced
+      ? Math.min(Math.round(w*.39),Math.round(h*3.25))
+      : Math.min(Math.round(w*.34),Math.round(h*3.05));
+
+    const scale=Math.min(maxW/subject.width,targetH/subject.height);
+    const dw=subject.width*scale, dh=subject.height*scale;
+    subjectW=dw;
+
+    const sx=side==='right'?w-margin-dw:margin;
+    const sy=(h-dh)/2;
+
+    x.save();
+    x.shadowColor='rgba(0,0,0,.18)';
+    x.shadowBlur=Math.max(2,Math.round(h*.03));
+    x.drawImage(subject,sx,sy,dw,dh);
+    x.restore();
+  }
+
+  let tx,tw;
+  if(side==='right'){
+    tx=margin;
+    tw=w-margin*2-(subject?subjectW+gap:0);
+  }else{
+    tx=margin+(subject?subjectW+gap:0);
+    tw=w-tx-margin;
+  }
+
+  const headline=(plan.headline||'').trim();
+  const dateTime=(plan.dateTime||plan.detail||'').trim();
+  const venue=(plan.venue||'').trim();
+  const address=(plan.address||plan.secondary||'').trim();
+  const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
+  const extra=(extraFacts.length?extraFacts.join(' · '):(plan.extraFact||'')).trim();
+
+  let cta=(plan.cta||'').trim();
+  const badCta=/^(person|people|logo|graphic|visual|subject|speaker|photo|image|portrait|none|blank)$/i;
+  const actionCta=/\b(register|buy|book|learn|rsvp|reserve|tickets?|sign\s*up|join|donate|visit|apply|read|watch|listen|shop|get\s*tickets?)\b/i;
+  if(!cta || badCta.test(cta) || !actionCta.test(cta))cta='';
+
+  let ctaReserve=0;
+  if(cta) ctaReserve=Math.min(Math.round(w*.24),Math.max(120,Math.round(w*.18)));
+  const textAvail=Math.max(180,tw-ctaReserve-(cta?gap:0));
+
+  x.textBaseline='top';
+  x.fillStyle=textColor;
+
+  // Allow headline to wrap so subject + facts can stay larger.
+  const headlineMaxH=Math.round(h*.49);
+  const fit=fitWrappedHeadline(x,headline,textAvail,headlineMaxH,2);
+  x.font=`800 ${fit.size}px Arial`;
+
+  let y=margin;
+  for(const line of fit.lines){
+    x.fillText(line,tx,y);
+    y+=fit.lineH;
+  }
+  y+=Math.max(1,Math.round(h*.008));
+
+  // Larger date/time.
+  if(dateTime){
+    const sz=fitText(x,dateTime,textAvail,
+      Math.max(12,Math.round(h*.165)),
+      Math.max(9,Math.round(h*.12)),'800');
+    x.font=`800 ${sz}px Arial`;
+    x.fillStyle=textColor;
+    x.fillText(dateTime,tx,y);
+    y+=sz+Math.max(1,Math.round(h*.012));
+  }
+
+  // Location gets its own larger line, not tiny leftovers.
+  const location=[venue,address].filter(Boolean).join(' · ');
+  if(location && y<h-margin){
+    const sz=fitText(x,location,textAvail,
+      Math.max(11,Math.round(h*.145)),
+      Math.max(8,Math.round(h*.105)),'700');
+    x.font=`700 ${sz}px Arial`;
+    x.fillStyle='rgba(20,20,20,.84)';
+    if(y+sz<=h-margin){
+      x.fillText(location,tx,y);
+      y+=sz+Math.max(1,Math.round(h*.01));
+    }
+  }
+
+  // Use remaining space for one more real source fact.
+  if(extra && y<h-margin){
+    const sz=fitText(x,extra,textAvail,
+      Math.max(10,Math.round(h*.13)),
+      Math.max(8,Math.round(h*.095)),'700');
+    x.font=`700 ${sz}px Arial`;
+    x.fillStyle='rgba(20,20,20,.78)';
+    if(y+sz<=h-margin) x.fillText(extra,tx,y);
+  }
+
+  if(cta){
+    const csize=Math.max(11,Math.round(h*.16));
+    x.font=`800 ${csize}px Arial`;
+    const measured=x.measureText(cta).width;
+    const padX=Math.max(13,Math.round(h*.13));
+    const padY=Math.max(5,Math.round(h*.06));
+    const boxW=Math.min(ctaReserve,measured+padX*2);
+    const boxH=csize+padY*2;
+    const bx=side==='right'?tx+tw-boxW:tx;
+    const by=(h-boxH)/2;
+
+    roundedRect(x,bx,by,boxW,boxH,Math.max(8,Math.round(h*.10)));
+    x.fillStyle=accent; x.fill();
+    x.fillStyle='#111'; x.textBaseline='middle';
+    x.fillText(cta,bx+(boxW-measured)/2,by+boxH/2);
+  }
+
+  return new Promise((ok,no)=>c.toBlob(
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V6.8 hybrid banner')),
+    'image/png',1
+  ));
+}
+
+
+function fitHeadlineBlock(ctx,text,maxWidth,maxHeight){
+  let size=Math.max(18,Math.round(maxHeight*.52));
+  const min=Math.max(11,Math.round(maxHeight*.27));
+  while(size>=min){
+    ctx.font=`800 ${size}px Arial`;
+    const lines=wrapTextLines(ctx,text,maxWidth,2);
+    const lh=size*.98;
+    if(lines.length<=2 && lines.length*lh<=maxHeight && lines.every(l=>ctx.measureText(l).width<=maxWidth)){
+      return {size,lines,lineH:lh};
+    }
+    size--;
+  }
+  ctx.font=`800 ${min}px Arial`;
+  return {size:min,lines:wrapTextLines(ctx,text,maxWidth,2),lineH:min};
+}
+
+async function buildVisualFirstBanner(data,w,h){
+  const plan=data.bannerPlan||{};
+  const visual=data.visualArt?await loadImage(data.visualArt):null;
+  const src=await loadImage(data.sourceImage);
+
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const x=c.getContext('2d');
+  x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high';
+
+  // 1) Use AI-generated visual artwork as the actual design foundation.
+  if(visual){
+    // Cover-crop to exact target; visual model was instructed to keep the safe text area + subject in center band.
+    const scale=Math.max(w/visual.width,h/visual.height);
+    const dw=visual.width*scale, dh=visual.height*scale;
+    x.drawImage(visual,(w-dw)/2,(h-dh)/2,dw,dh);
+  }else{
+    // Fallback to source-derived background if visual generation failed.
+    const scale=Math.max(w/src.width,h/src.height);
+    const dw=src.width*scale, dh=src.height*scale;
+    x.save();
+    x.filter=`blur(${Math.max(3,Math.round(h*.035))}px) saturate(1.35) brightness(.88)`;
+    x.drawImage(src,(w-dw)/2,(h-dh)/2,dw,dh);
+    x.restore();
+  }
+
+  const accent=plan.accent||'#9ABB35';
+  const textColor=plan.textColor||'#111111';
+  const side=plan.subjectSide==='left'?'left':'right';
+
+  // 2) Add a localized readable veil only behind text, not over the whole banner.
+  const textZoneW=Math.round(w*.60);
+  const textX=side==='right'?Math.round(w*.035):Math.round(w*.365);
+  const textRight=Math.min(w-Math.round(w*.03),textX+textZoneW);
+
+  const grad=x.createLinearGradient(textX,0,textRight,0);
+  if(side==='right'){
+    grad.addColorStop(0,'rgba(255,255,255,.94)');
+    grad.addColorStop(.72,'rgba(255,255,255,.78)');
+    grad.addColorStop(1,'rgba(255,255,255,.10)');
+  }else{
+    grad.addColorStop(0,'rgba(255,255,255,.10)');
+    grad.addColorStop(.28,'rgba(255,255,255,.78)');
+    grad.addColorStop(1,'rgba(255,255,255,.94)');
+  }
+  x.fillStyle=grad;
+  x.fillRect(textX-6,0,textRight-textX+12,h);
+
+  const margin=Math.max(4,Math.round(h*.05));
+  let tx=textX;
+  let tw=textRight-textX;
+
+  const headline=(plan.headline||'').trim();
+  const dateTime=(plan.dateTime||plan.detail||'').trim();
+  const venue=(plan.venue||'').trim();
+  const address=(plan.address||plan.secondary||'').trim();
+  const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
+  const extra=(extraFacts.length?extraFacts.join(' · '):(plan.extraFact||'')).trim();
+
+  let cta=(plan.cta||'').trim();
+  const badCta=/^(person|people|logo|graphic|visual|subject|speaker|photo|image|portrait|none|blank)$/i;
+  const actionCta=/\b(register|buy|book|learn|rsvp|reserve|tickets?|sign\s*up|join|donate|visit|apply|read|watch|listen|shop|get\s*tickets?)\b/i;
+  if(!cta || badCta.test(cta) || !actionCta.test(cta))cta='';
+
+  // Reserve a real CTA block.
+  const ctaReserve=cta?Math.min(Math.round(w*.23),Math.max(118,Math.round(w*.18))):0;
+  const copyW=Math.max(180,tw-ctaReserve-(cta?Math.round(w*.018):0));
+
+  x.textBaseline='top';
+  x.fillStyle=textColor;
+
+  // Headline gets up to two lines; wrapping beats shrinking.
+  const headFit=fitHeadlineBlock(x,headline,copyW,Math.round(h*.52));
+  x.font=`800 ${headFit.size}px Arial`;
+
+  let y=margin;
+  for(const line of headFit.lines){
+    x.fillText(line,tx,y);
+    y+=headFit.lineH;
+  }
+  y+=Math.max(1,Math.round(h*.008));
+
+  // Date/time - deliberately large.
+  if(dateTime){
+    const size=fitText(x,dateTime,copyW,Math.max(12,Math.round(h*.17)),Math.max(9,Math.round(h*.12)),'800');
+    x.font=`800 ${size}px Arial`;
+    x.fillStyle=textColor;
+    x.fillText(dateTime,tx,y);
+    y+=size+Math.max(1,Math.round(h*.012));
+  }
+
+  // Venue + address - deliberately legible.
+  const loc=[venue,address].filter(Boolean).join(' · ');
+  if(loc && y<h-margin){
+    const size=fitText(x,loc,copyW,Math.max(11,Math.round(h*.145)),Math.max(8,Math.round(h*.105)),'700');
+    x.font=`700 ${size}px Arial`;
+    x.fillStyle='rgba(15,15,15,.86)';
+    if(y+size<=h-margin){
+      x.fillText(loc,tx,y);
+      y+=size+Math.max(1,Math.round(h*.009));
+    }
+  }
+
+  if(extra && y<h-margin){
+    const required=extraFacts.length>0;
+    const maxSize=Math.max(required?12:10,Math.round(h*(required?.17:.13)));
+    const minSize=Math.max(required?9:8,Math.round(h*(required?.11:.095)));
+    let size=fitText(x,extra,copyW,maxSize,minSize,required?'800':'700');
+    x.font=`${required?'800':'700'} ${size}px Arial`;
+    x.fillStyle=required?textColor:'rgba(15,15,15,.78)';
+    if(y+size<=h-margin) x.fillText(extra,tx,y);
+  }
+
+  // Real CTA gets a large distinct button.
+  if(cta){
+    const csize=Math.max(11,Math.round(h*.16));
+    x.font=`800 ${csize}px Arial`;
+    const measured=x.measureText(cta).width;
+    const padX=Math.max(13,Math.round(h*.13));
+    const padY=Math.max(5,Math.round(h*.06));
+    const boxW=Math.min(ctaReserve,measured+padX*2);
+    const boxH=csize+padY*2;
+    const bx=side==='right'?textRight-boxW:tx;
+    const by=(h-boxH)/2;
+
+    roundedRect(x,bx,by,boxW,boxH,Math.max(8,Math.round(h*.10)));
+    x.fillStyle=accent;x.fill();
+    x.fillStyle='#111';x.textBaseline='middle';
+    x.fillText(cta,bx+(boxW-measured)/2,by+boxH/2);
+  }
+
+  return new Promise((ok,no)=>c.toBlob(
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V6.8 visual-first banner')),
+    'image/png',1
+  ));
+}
+
+
+async function trimTransparentImage(img){
+  const c=document.createElement('canvas');
+  c.width=img.width;c.height=img.height;
+  const x=c.getContext('2d',{willReadFrequently:true});
+  x.drawImage(img,0,0);
+  const d=x.getImageData(0,0,c.width,c.height).data;
+
+  let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
+  for(let y=0;y<c.height;y++){
+    for(let xx=0;xx<c.width;xx++){
+      const a=d[(y*c.width+xx)*4+3];
+      if(a>12){
+        if(xx<minX)minX=xx;if(xx>maxX)maxX=xx;
+        if(y<minY)minY=y;if(y>maxY)maxY=y;
+      }
+    }
+  }
+  if(maxX<minX||maxY<minY)return img;
+
+  // Small visual margin around actual pixels.
+  const pad=Math.max(2,Math.round(Math.max(maxX-minX,maxY-minY)*.025));
+  minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
+  maxX=Math.min(c.width-1,maxX+pad);maxY=Math.min(c.height-1,maxY+pad);
+
+  const ow=maxX-minX+1,oh=maxY-minY+1;
+  const o=document.createElement('canvas');o.width=ow;o.height=oh;
+  o.getContext('2d').drawImage(c,minX,minY,ow,oh,0,0,ow,oh);
+
+  const out=new Image();
+  out.src=o.toDataURL('image/png');
+  await new Promise((ok,no)=>{out.onload=ok;out.onerror=no;});
+  return out;
+}
+
+function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale=1,factScale=1){
+  extraFacts=Array.isArray(extraFacts)?extraFacts:[];
+  const headMaxH=Math.round(h*.50*headlineScale);
+  const headFit=fitHeadlineBlock(ctx,headline,copyW,headMaxH,2);
+  let used=outer + headFit.lines.length*headFit.lineH + Math.max(1,Math.round(h*.006));
+
+  const facts=[];
+  if(dateTime)facts.push({text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
+  if(location)facts.push({text:location,weight:'700',max:Math.max(11,Math.round(h*.17*factScale)),min:Math.max(8,Math.round(h*.105))});
+  if(extra){
+    const required=Array.isArray(extraFacts)&&extraFacts.length>0;
+    const stronglyEmphasized=emphasizeDates||emphasizeSpeakerNames;
+    facts.push({
+      text:extra,
+      weight:required?'800':'700',
+      max:Math.max(stronglyEmphasized?15:(required?12:10),Math.round(h*(stronglyEmphasized?.22:(required?.18:.145))*factScale)),
+      min:Math.max(stronglyEmphasized?11:(required?9:8),Math.round(h*(stronglyEmphasized?.14:(required?.115:.095))))
+    });
+  }
+
+  const sizes=[];
+  for(const f of facts){
+    const sz=fitText(ctx,f.text,copyW,f.max,f.min,f.weight);
+    sizes.push({...f,size:sz});
+    used+=sz+Math.max(1,Math.round(h*.012));
+  }
+  return {headFit,facts:sizes,used};
+}
+
+function anchorToCenterX(anchor,w,pad){
+  switch(anchor){
+    case 'far-left': return pad;
+    case 'left-third': return w*.28;
+    case 'center-left': return w*.40;
+    case 'center': return w*.50;
+    case 'center-right': return w*.60;
+    case 'right-third': return w*.72;
+    case 'far-right': return w-pad;
+    default: return w*.72;
+  }
+}
+
+async function buildCanvasFirstBanner(data,w,h){
+  const plan=data.bannerPlan||{};
+  const ratio=w/h;
+  const canvasClass=plan.canvasClass||((h<=55&&ratio>4.5)?'MICRO_BANNER':((h<=120&&ratio>2.4)?'COMPACT_BANNER':'LEADERBOARD'));
+  const micro=canvasClass==='MICRO_BANNER';
+  const compact=canvasClass==='COMPACT_BANNER';
+  const src=await loadImage(data.sourceImage);
+  const bg=data.backgroundArt?await loadImage(data.backgroundArt):null;
+  let subject=data.subjectAsset?await loadImage(data.subjectAsset):null;
+  if(subject) subject=await trimTransparentImage(subject);
+
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const x=c.getContext('2d');
+  x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+
+  const accent=plan.accent||'#9ABB35';
+  const textColor=plan.textColor||'#111111';
+  const subjectCount=Math.max(1,Number(plan.subjectCount||1));
+  const anchor=(plan.subjectAnchor||((plan.subjectSide==='left')?'left-third':'right-third')).toLowerCase();
+  const edgePadPct=Math.max(2,Math.min(10,Number(plan.subjectEdgePaddingPct||5)));
+  const edgePad=Math.round(w*(edgePadPct/100));
+  const outer=Math.max(4,Math.round(h*.04));
+
+  // V7.20: instruction/layout intent MUST be initialized before subject placement.
+  // Compact/leaderboard layouts use these values while deciding how much room
+  // to reserve for right-side names and other mandatory facts.
+  const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
+  const requiredRequests=(plan.requiredVisibleFacts||[]).join(' ').toLowerCase();
+  const modifyText=((plan.modifyInstructions||'')+' '+(plan.layoutDirectives||[]).join(' ')+' '+(plan.requiredFactsPlacement||'')).toLowerCase();
+  const datesRequested=/date/.test(requiredRequests);
+  const speakerNamesRequested=/speaker.*name|name.*speaker/.test(requiredRequests);
+  const emphasizeDates=datesRequested && /(emphasize_dates|big|bigger|larger|legible|readable|increase)/.test(modifyText);
+  const emphasizeSpeakerNames=speakerNamesRequested && /(emphasize_speaker_names|big|bigger|larger|legible|readable|increase)/.test(modifyText);
+  const speakerNamesRight=speakerNamesRequested && /right/.test(modifyText);
+
+  // Rich decorative background: preserve meaningful visual atmosphere from V6.6.
+  if(bg){
+    const s=Math.max(w/bg.width,h/bg.height);
+    const dw=bg.width*s,dh=bg.height*s;
+    x.drawImage(bg,(w-dw)/2,(h-dh)/2,dw,dh);
+  }else{
+    const s=Math.max(w/src.width,h/src.height);
+    const dw=src.width*s,dh=src.height*s;
+    x.save();
+    x.filter=`blur(${Math.max(2,Math.round(h*.018))}px) saturate(1.5) contrast(1.06) brightness(.91)`;
+    x.drawImage(src,(w-dw)/2,(h-dh)/2,dw,dh);
+    x.restore();
+  }
+
+  // Place subject by flexible anchor rather than hard left/right edge.
+  let subjectRect=null;
+  if(subject){
+    const requestedHeight=Math.max(78,Math.min(110,Number(plan.subjectHeightPct||(subjectCount>=2?94:98))));
+    const subjectHeightPct=micro?Math.min(requestedHeight,94):requestedHeight;
+    const targetH=Math.round(h*(subjectHeightPct/100));
+    const baseZone=Math.max(22,Math.min(50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
+    const maxSubjectW=Math.round(w*((micro?Math.min(baseZone,30):baseZone)/100));
+
+    // V7.20 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
+    const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
+    const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
+    let scale=targetH/sourceCropH;
+    if(subject.width*scale>maxSubjectW)scale=maxSubjectW/subject.width;
+
+    const dw=subject.width*scale,dh=sourceCropH*scale;
+    let cx=anchorToCenterX(anchor,w,edgePad);
+    const factsPanelW=speakerNamesRight?Math.round(w*.22):0;
+    const factsPanelX=speakerNamesRight?(w-edgePad-factsPanelW):w;
+
+    // Convert anchor to left coordinate while respecting real edge padding.
+    let dx=cx-dw/2;
+    const maxSubjectRight=speakerNamesRight?(factsPanelX-Math.max(8,Math.round(w*.012))):(w-edgePad);
+    dx=Math.max(edgePad,Math.min(maxSubjectRight-dw,dx));
+    const dy=h-dh;
+
+    subjectRect={x:dx,y:dy,w:dw,h:dh};
+
+    x.save();
+    x.shadowColor='rgba(0,0,0,.15)';
+    x.shadowBlur=Math.max(1,Math.round(h*.016));
+    if(upperBody){
+      x.drawImage(subject,0,0,subject.width,sourceCropH,dx,dy,dw,dh);
+    }else{
+      x.drawImage(subject,dx,dy,dw,dh);
+    }
+    x.restore();
+  }
+
+  // Decide text region from available space around actual anchored subject.
+  let textLeft=outer,textRight=w-outer;
+  if(subjectRect){
+    const gap=Math.max(9,Math.round(w*.014));
+    const leftSpace=subjectRect.x-gap-outer;
+    const rightSpace=w-outer-(subjectRect.x+subjectRect.w+gap);
+
+    // Pick the side with more usable width, unless subject is centered and both sides are similar.
+    const preferred=(plan.textSide||'').toLowerCase();
+    if((preferred==='left' && leftSpace>150) || (preferred!=='right' && leftSpace>=rightSpace)){
+      textLeft=outer;
+      textRight=Math.max(textLeft+150,subjectRect.x-gap);
+    }else{
+      textLeft=Math.min(w-outer-170,subjectRect.x+subjectRect.w+gap);
+      textRight=w-outer;
+    }
+  }
+
+  const textW=Math.max(170,textRight-textLeft);
+
+  // Local text veil only. Do not wash out the rest of the richer background.
+  const veil=x.createLinearGradient(textLeft,0,textRight,0);
+  const veilStrength=Math.max(35,Math.min(88,Number(plan.veilStrength||68)))/100;
+  veil.addColorStop(0,`rgba(255,255,255,${Math.min(.94,veilStrength+.16)})`);
+  veil.addColorStop(.78,`rgba(255,255,255,${veilStrength})`);
+  veil.addColorStop(1,'rgba(255,255,255,.08)');
+  x.fillStyle=veil;
+  x.fillRect(textLeft-4,0,textW+8,h);
+
+  const headline=(plan.headline||'').trim();
+  const dateTime=(plan.dateTime||plan.detail||'').trim();
+  const venue=(plan.venue||'').trim();
+  const address=(plan.address||plan.secondary||'').trim();
+  let location=[venue,address].filter(Boolean).join(' · ');
+  let extra=(extraFacts.length?extraFacts.join(' · '):(plan.extraFact||'')).trim();
+
+  let cta=(plan.cta||'').trim();
+  const badCta=/^(person|people|logo|graphic|visual|subject|speaker|photo|image|portrait|none|blank)$/i;
+  const actionCta=/\b(register|buy|book|learn|rsvp|reserve|tickets?|sign\s*up|join|donate|visit|apply|read|watch|listen|shop|get\s*tickets?)\b/i;
+  if(!cta||badCta.test(cta)||!actionCta.test(cta))cta='';
+
+  // MICRO_BANNER is a different information-density class, not a tiny leaderboard.
+  // Keep the protected fact manifest intact in data, but draw only what remains legible.
+  if(micro){
+    extra='';
+    if(cta) location=''; // headline + key fact + CTA + subject
+  }
+
+  if(speakerNamesRight)extra='';
+
+  // CTA gets reserved real estate only if genuine.
+  let ctaBox=null;
+  if(cta){
+    const csize=Math.max(micro?8:12,Math.round(h*(micro?.15:.17)));
+    x.font=`800 ${csize}px Arial`;
+    const tw=x.measureText(cta).width;
+    const padX=Math.max(11,Math.round(h*.11)),padY=Math.max(4,Math.round(h*.055));
+    const bw=Math.min(Math.round(w*(micro?.26:.22)),tw+padX*2),bh=csize+padY*2;
+    const bx=textRight-bw;
+    ctaBox={x:bx,y:(h-bh)/2,w:bw,h:bh,size:csize,textW:tw};
+  }
+
+  let copyLeft=textLeft,copyRight=textRight;
+  if(ctaBox)copyRight=ctaBox.x-Math.max(8,Math.round(w*.012));
+  const copyW=Math.max(150,copyRight-copyLeft);
+  const tx=copyLeft;
+
+  // Keep V6.7's improved adaptive text sizing.
+  x.textBaseline='top';x.fillStyle=textColor;
+  let density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,micro?.82:1,micro?.82:1);
+  const usableH=h-outer*2;
+  const usedRatio=Math.min(1,(density.used-outer)/Math.max(1,usableH));
+
+  let headlineScale=1,factScale=1;
+  if(!micro){
+    if(usedRatio<.62){headlineScale=1.20;factScale=1.22;}
+    else if(usedRatio<.72){headlineScale=1.10;factScale=1.12;}
+    else if(usedRatio<.80){headlineScale=1.05;factScale=1.06;}
+  }else{
+    headlineScale=.82;factScale=.82;
+  }
+
+  density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale,factScale);
+
+  if([dateTime,location,extra].filter(Boolean).length<=1){
+    density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,Math.max(headlineScale,1.14),Math.max(factScale,1.08));
+  }
+
+  x.fillStyle=textColor;
+  x.font=`800 ${density.headFit.size}px Arial`;
+  let y=outer;
+  for(const line of density.headFit.lines){
+    x.fillText(line,tx,y);
+    y+=density.headFit.lineH;
+  }
+  y+=Math.max(1,Math.round(h*.006));
+
+  for(let i=0;i<density.facts.length;i++){
+    const f=density.facts[i];
+    if(y+f.size>h-outer)break;
+    x.font=`${f.weight} ${f.size}px Arial`;
+    x.fillStyle=i===0?textColor:'rgba(15,15,15,.86)';
+    x.fillText(f.text,tx,y);
+    y+=f.size+Math.max(1,Math.round(h*.012));
+  }
+
+  if(ctaBox){
+    roundedRect(x,ctaBox.x,ctaBox.y,ctaBox.w,ctaBox.h,Math.max(7,Math.round(h*.085)));
+    x.fillStyle=accent;x.fill();
+    x.font=`800 ${ctaBox.size}px Arial`;
+    x.fillStyle='#111';x.textBaseline='middle';
+    x.fillText(cta,ctaBox.x+(ctaBox.w-ctaBox.textW)/2,ctaBox.y+ctaBox.h/2);
+  }
+
+  if(speakerNamesRight && extraFacts.length){
+    const panelW=Math.round(w*.22);
+    const px=w-outer-panelW,py=outer,pw=panelW,ph=h-outer*2;
+    x.save();
+    const transparentNames=(plan.speakerNamesBackground||'').toLowerCase()==='none' ||
+      /speaker_names_no_background|without[^\n]{0,20}background|no[^\n]{0,20}background/i.test(modifyText);
+    if(!transparentNames){
+      x.fillStyle='rgba(255,255,255,.84)';
+      roundedRect(x,px,py,pw,ph,Math.max(5,Math.round(h*.05)));x.fill();
+    }
+    x.textBaseline='top';x.fillStyle=textColor;
+    const gap=Math.max(2,Math.round(h*.025));
+    const maxNameSize=Math.max(12,Math.round(h*(emphasizeSpeakerNames?.18:.145)));
+    const minNameSize=Math.max(10,Math.round(h*.105));
+    let ny=py+Math.max(4,Math.round(h*.07));
+    for(const name of extraFacts){
+      if(ny>=py+ph-4)break;
+      const size=fitText(x,name,pw-12,maxNameSize,minNameSize,'800');
+      x.font=`800 ${size}px Arial`;
+      x.fillText(name,px+6,ny);
+      ny+=size+gap;
+    }
+    x.restore();
+  }
+
+  return new Promise((ok,no)=>c.toBlob(
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.20 validated creative-layout banner')),
+    'image/png',1
+  ));
+}
+
+$('submit').onclick=async()=>{
+  if(!f)return;
+  let b=$('submit');b.disabled=true;b.textContent='Reshaping…';
+  $('error').style.display='none';$('result').style.display='none';$('status').style.display='none';startProgress();
+  try{
+    let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
+    let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
+if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.20 should return a small JSON health response.');
+}
+    try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
+    if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
+    setProgress(5,'Finalizing exact output dimensions…');
+    let ex;
+    if(j.renderMode==='canvas-first-banner-composer'){
+      ex=await buildCanvasFirstBanner(j,s[1],s[2]);
+    }else if(j.renderMode==='visual-first-banner-composer'){
+      ex=await buildVisualFirstBanner(j,s[1],s[2]);
+    }else if(j.renderMode==='hybrid-banner-composer'){
+      ex=await buildHybridBanner(j,s[1],s[2]);
+    }else if(j.renderMode==='ai-banner-composer'){
+      ex=await fitAiBannerToExact(j.image,s[1],s[2]);
+    }else if(j.renderMode==='exact-banner'){
+      ex=await buildExactBanner(URL.createObjectURL(f),j.bannerPlan,s[1],s[2]);
+    }else{
+      ex=await fitExact(j.image,s[1],s[2]);
+    }
+    $('output').src=ex;$('download').href=ex;$('download').download='reshaped-'+s[0].toLowerCase().replaceAll(' ','-')+'.png';
+    lastServerResult=j;lastRenderedUrl=ex;lastDesignTarget=[s[0],s[1],s[2]];$('modifyInstructions').value='';
+    setCurrentInstruction($('instructions').value,'Initial instructions');
+    $('validation').textContent=j.validationSummary||'Completed.';$('result').style.display='block';
+    stopProgress();setProgress(5,'Finished — your image is ready.');
+    setTimeout(()=>{$('progressbox').style.display='none'},1600);
+  }catch(e){
+    stopProgress();$('progressbox').style.display='none';$('error').textContent=e.message;$('error').style.display='block';
+  }finally{b.disabled=false;b.textContent='Reshape with AI →'}
+};
+
+
+$('modifyBtn').onclick=async()=>{
+  const instructions=$('modifyInstructions').value.trim();
+  if(!f || !lastServerResult || !instructions)return;
+  const b=$('modifyBtn');
+  b.disabled=true;b.textContent='Modifying…';
+  $('error').style.display='none';
+  try{
+    const fd=new FormData();
+    const uploadFile=await v79CompressImageFile(f);
+    fd.append("image",uploadFile);
+    const target=lastDesignTarget||s;
+    fd.append("name",target[0]);
+    fd.append("width",target[1]);
+    fd.append("height",target[2]);
+    fd.append("instructions",instructions);
+    fd.append("mode","modify");
+
+    // Send the current rendered result separately. This is small at ad dimensions
+    // and lets non-canvas designs be edited in place instead of restarting from source.
+    if(lastRenderedUrl){
+      try{
+        const currentBlob=await (await fetch(lastRenderedUrl)).blob();
+        const currentFile=new File([currentBlob],"current-design.png",{type:currentBlob.type||"image/png"});
+        const optimizedCurrent=await v79CompressImageFile(currentFile);
+        fd.append("currentImage",optimizedCurrent);
+      }catch(e){
+        console.warn("Could not attach current rendered design; continuing with saved plan.",e);
+      }
+    }
+    // Keep the modify request small. Do NOT send base64/data-URL visual assets
+    // inside priorPlan; the original upload is already sent as `image`, and the
+    // browser retains the current visual assets locally for rendering.
+    const priorPlanForModify={...(lastServerResult.bannerPlan||{})};
+    delete priorPlanForModify.sourceImage;
+    delete priorPlanForModify.backgroundArt;
+    delete priorPlanForModify.subjectAsset;
+    delete priorPlanForModify.image;
+    fd.append("priorPlan",JSON.stringify(priorPlanForModify));
+
+    const r=await fetch('/api/reshape',{method:'POST',body:fd});
+    const raw=await r.text();
+    let j={};
+    try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
+    if(!r.ok)throw Error(j.error||`Modification failed (HTTP ${r.status})`);
+
+    if(j.reuseAssets){
+      j.sourceImage=j.sourceImage||lastServerResult.sourceImage;
+      j.backgroundArt=j.backgroundArt||lastServerResult.backgroundArt;
+      j.subjectAsset=j.subjectAsset||lastServerResult.subjectAsset;
+    }
+
+    // target already defined earlier in this modify request
+    let ex;
+    if(j.renderMode==='canvas-first-banner-composer'){
+      ex=await buildCanvasFirstBanner(j,target[1],target[2]);
+    }else if(j.renderMode==='visual-first-banner-composer'){
+      ex=await buildVisualFirstBanner(j,target[1],target[2]);
+    }else if(j.renderMode==='hybrid-banner-composer'){
+      ex=await buildHybridBanner(j,target[1],target[2]);
+    }else if(j.renderMode==='ai-banner-composer'){
+      ex=await fitAiBannerToExact(j.image,target[1],target[2]);
+    }else if(j.renderMode==='exact-banner'){
+      ex=await buildExactBanner(lastRenderedUrl||URL.createObjectURL(f),j.bannerPlan,target[1],target[2]);
+    }else if(j.image){
+      ex=await fitExact(j.image,target[1],target[2]);
+    }else{
+      throw Error('The modification response did not contain a renderable design.');
+    }
+
+    // Preserve the previous instruction + output before replacing the current result.
+    archiveCurrentRun();
+    currentVersionNumber++;
+
+    $('output').src=ex;
+    $('download').href=ex;
+    $('validation').textContent=j.validationSummary||'Current design modified.';
+    lastServerResult={
+      ...lastServerResult,
+      ...j,
+      sourceImage:j.sourceImage||lastServerResult.sourceImage,
+      backgroundArt:j.backgroundArt||lastServerResult.backgroundArt,
+      subjectAsset:j.subjectAsset||lastServerResult.subjectAsset,
+      bannerPlan:j.bannerPlan||lastServerResult.bannerPlan
+    };
+    lastRenderedUrl=ex;
+    lastDesignTarget=target;
+    setCurrentInstruction(instructions,'Modify instruction');
+    $('modifyInstructions').value='';
+  }catch(e){
+    $('error').textContent='Modify failed: '+e.message;
+    $('error').style.display='block';
+  }finally{
+    b.disabled=false;b.textContent='Modify current design →';
+  }
+};
+
+async function v79CompressImageFile(file){
+  // Serverless request bodies have strict size limits. Convert large uploads
+  // to a browser-resized JPEG before POSTing while preserving enough detail
+  // for OCR/vision analysis.
+  if(!file || !file.type?.startsWith("image/"))return file;
+
+  const TARGET_MAX_BYTES=1_600_000;   // leave room for multipart overhead + instructions
+  const MAX_DIM=2200;
+
+  if(file.size<=TARGET_MAX_BYTES){
+    return file;
+  }
+
+  const bitmap=await createImageBitmap(file);
+  let w=bitmap.width, h=bitmap.height;
+  const scale=Math.min(1, MAX_DIM/Math.max(w,h));
+  w=Math.max(1,Math.round(w*scale));
+  h=Math.max(1,Math.round(h*scale));
+
+  const canvas=document.createElement("canvas");
+  canvas.width=w; canvas.height=h;
+  const ctx=canvas.getContext("2d",{alpha:false});
+  ctx.drawImage(bitmap,0,0,w,h);
+
+  const toBlob=q=>new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",q));
+  let quality=.88;
+  let blob=await toBlob(quality);
+
+  // Reduce quality progressively until the upload comfortably fits.
+  while(blob && blob.size>TARGET_MAX_BYTES && quality>.52){
+    quality-=.08;
+    blob=await toBlob(quality);
+  }
+
+  // If still too large, reduce dimensions once more.
+  if(blob && blob.size>TARGET_MAX_BYTES){
+    const shrink=Math.sqrt(TARGET_MAX_BYTES/blob.size)*.92;
+    const nw=Math.max(900,Math.round(w*shrink));
+    const nh=Math.max(900,Math.round(h*shrink));
+    const c2=document.createElement("canvas");
+    c2.width=nw; c2.height=nh;
+    c2.getContext("2d",{alpha:false}).drawImage(canvas,0,0,nw,nh);
+    blob=await new Promise(resolve=>c2.toBlob(resolve,"image/jpeg",.72));
+  }
+
+  if(!blob)return file;
+  return new File([blob], (file.name||"source").replace(/\.[^.]+$/,"")+"_optimized.jpg", {
+    type:"image/jpeg",
+    lastModified:Date.now()
+  });
+}
+
+</script></body></html>

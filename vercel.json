@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/reshape.js": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "api/health.js": {
+      "maxDuration": 10,
+      "memory": 256
+    }
+  }
+}
