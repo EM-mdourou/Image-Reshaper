@@ -1,30 +1,23 @@
-# Muslim Link Image Reshaper — V7.20
+# Muslim Link Image Reshaper — V7.21
 
-V7.20 fixes the non-responsive Step 1 / Step 2 / Step 3 controls.
-
-## Root cause
-The V7.19 frontend script had two JavaScript parse-stopping redeclarations:
-
-1. `wrapTextLines` / `fitWrappedHeadline` were declared twice at top level.
-2. `const target` was declared twice inside the same Modify request block.
-
-Because the browser could not parse the application script, native textareas still worked but all JavaScript-powered controls appeared dead: upload, drag/drop, destination selection, custom dimensions, and action buttons.
-
-## V7.20 fixes
-- removes the duplicate text-layout helper declarations
-- removes the duplicate `target` declaration
-- validates the complete frontend script as classic JavaScript before packaging
-- keeps the V7.18 uploader wiring
-- keeps all V7.19 destination presets
-- explicitly wires custom dimensions
-
-All backend/history/text-priority/modify-current-design behavior from V7.19 is retained.
-
+V7.21 makes **Modify Instructions authoritative**, especially for text changes, while retaining the frontend reliability fixes introduced in V7.20.
 
 ## V7.21 — Authoritative Modify Instructions
-
-- Explicit user text instructions now have deterministic priority over extracted copy.
+- Explicit user text instructions have deterministic priority over extracted/source copy.
 - Supports natural phrases such as “add the subheading X after the heading Y”.
 - “Missing/complete to the end” instructions append the requested phrase to the current protected headline.
-- Speaker-name instructions can remove the detached box and integrate names into the artwork.
+- Speaker-name instructions can remove a detached name box and integrate names into the artwork.
 - Existing iterative version history and current-design modification workflow are preserved.
+
+## Retained from V7.20 — Frontend Reliability
+V7.20 fixed the non-responsive Step 1 / Step 2 / Step 3 controls caused by JavaScript parse-stopping redeclarations.
+
+Retained fixes include:
+- removal of duplicate text-layout helper declarations
+- removal of the duplicate `target` declaration
+- complete frontend-script validation before packaging
+- V7.18 uploader wiring
+- all V7.19 destination presets
+- explicitly wired custom dimensions
+
+All backend, history, text-priority, and modify-current-design behavior from the preceding versions remains included unless superseded by the V7.21 instruction-priority behavior above.
