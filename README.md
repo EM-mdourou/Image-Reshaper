@@ -1,38 +1,45 @@
-# Muslim Link Image Reshaper — V7.24
+# Muslim Link Image Reshaper — V7.25
 
-## Structured visual-state controls
+## V7.25 — Literal subject sizing + large-format added text
 
-V7.24 applies the same state-based approach used for exact text to subject placement.
+### Extreme-banner subject sizing
+User sizing language now maps to explicit canvas-height targets instead of one fixed 1.22 scale value.
 
-Natural-language visual instructions are converted into deterministic plan values before layout and are re-applied after the AI response so the renderer cannot quietly ignore them.
+Examples:
+- “bigger” → at least ~86% of banner height
+- “much bigger/larger” → at least ~94%
+- “occupy the entire/full height” → ~98%
+- “zoom in / head and shoulders / make faces clearer” → tight upper-body crop + ~94%
 
-Supported examples include:
-- “Place Sammy in the middle” → subject center = 50%.
-- “Make Sammy bigger / more visible” → persistent subject scale increase.
-- “Move the speakers to the right” → persistent right-side anchor.
-- “Move the speakers to the left” → persistent left-side anchor.
-- “Switch/swap the two speakers” → reverse visual order for a two-person subject asset.
+Repeated “make it bigger” instructions continue increasing the target instead of producing the same result.
 
-For a two-person isolated/group asset, V7.24 can visibly reverse the two halves in the final renderer. Truly independent arbitrary person-by-person positioning still benefits from future source isolation returning separate assets for each subject.
+When the user explicitly requests a large subject, that request can override the old narrow subject-width zone. Text and background must adapt rather than forcing portraits back to thumbnail size.
 
-## Text editor duplication fix
+Transparent margins are trimmed before hybrid-banner scaling.
 
-Manual text now has a single source of truth.
+### More reliable two-person swapping
+Instructions such as:
+- “switch the two speakers”
+- “swap the two women”
+- “switch the pictures of the 2 women”
 
-- Clicking **Apply text changes** repeatedly does not add more fields.
-- Existing manual field IDs remain stable.
-- Only **+ Add text** creates a new empty field.
-- Manual text is merged into visible extra text only at render time and deduplicated.
+now infer `subjectCount = 2` even if source analysis forgot to provide it, allowing the renderer's deterministic two-subject swap behavior to activate.
 
-## Persistent visual state
+### Large-format + Add text
+Large AI-generated formats now have a deterministic added-text compositor.
 
-Subject position, scale and order persist into later versions until a new user instruction explicitly changes them.
+If a large design has no editable extracted fields, **+ Add text** still works:
+1. Add the new field.
+2. Enter the text.
+3. Click **Apply text changes**.
+4. The exact text is composited onto the current large-format image in a readable overlay.
 
-## Retained V7.23 features
+Added text is preserved when later large-format modifications are rendered.
 
+### Retained V7.24 behavior
+- Stable text fields with no duplication on Apply
+- Structured center/left/right subject positioning
+- Persistent subject state
 - Dynamic Edit text & content panel
 - Exact authoritative text editing
-- Add/remove text
-- Complete headline preservation
 - Version history
-- Natural-language Modify workflow
