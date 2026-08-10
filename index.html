@@ -141,7 +141,7 @@ footer>br,footer>text{display:none}
 .diagtext{font-size:12px;line-height:1.45}.diagempty{font-size:12px;color:#74796d}
 @media(max-width:760px){.elementitem{grid-template-columns:1fr}.elementstatus{justify-self:start}.diagitem{grid-template-columns:1fr}}
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.27:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.28:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -184,7 +184,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.27 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.27 also fixes the compact/leaderboard instruction-layout initialization error. V7.27 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.28 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.28 also fixes the compact/leaderboard instruction-layout initialization error. V7.28 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -233,7 +233,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.27</div>
+  <div class="versionfooter">Version 7.28</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let textEditorRows=[];
 let sourceElements=[];let lastDiagnostics=[];
@@ -339,6 +339,89 @@ function applyRowsToPlan(plan,rows){
     ...Object.fromEntries(next.textElements.map(x=>[x.id,x.style]))
   };
   next.userTextLocked=true;
+  return next;
+}
+
+
+function applyVisualInstructionToPlan(plan={},instruction=''){
+  const next={...plan};
+  const t=String(instruction||'').toLowerCase();
+
+  const mentionsVisual=/\b(?:pic|picture|image|portrait|speaker|person|subject|woman|women|man|men|him|her|them|sammy|aisha|ayesha)\b/.test(t);
+
+  // Infer two subjects from user language when source analysis did not set subjectCount.
+  if(/\b(?:2|two)\s+(?:speakers?|women|people|persons?|portraits?|images?|pictures?)\b/.test(t) ||
+     /\b(?:both|the two)\s+(?:speakers?|women|people|portraits?)\b/.test(t)){
+    next.subjectCount=Math.max(2,Number(next.subjectCount||0));
+  }
+
+  // Persistent absolute positioning.
+  if(/\b(?:middle|center|centre)\b/.test(t) &&
+     /\b(?:move|place|put|position|pic|picture|image|speaker|person|subject|him|her|them)\b/.test(t)){
+    next.subjectAnchor='center';
+    next.subjectX=.50;
+    next.subjectPositionLocked=true;
+  }else if(/\b(?:right side|to the right|move right|place[\s\S]{0,20}right|put[\s\S]{0,20}right)\b/.test(t)){
+    next.subjectAnchor='right-third';
+    next.subjectX=.72;
+    next.subjectPositionLocked=true;
+  }else if(/\b(?:left side|to the left|move left|place[\s\S]{0,20}left|put[\s\S]{0,20}left)\b/.test(t)){
+    next.subjectAnchor='left-third';
+    next.subjectX=.28;
+    next.subjectPositionLocked=true;
+  }
+
+  // Literal size targets. Explicit user sizing overrides compact thumbnail defaults.
+  const fullHeight=/\b(?:entire|full|whole|almost\s+full|nearly\s+full)\s+(?:height|banner height|canvas height)\b/.test(t) ||
+                   /\boccup(?:y|ies)\b[\s\S]{0,30}\b(?:entire|full|whole)\b[\s\S]{0,15}\bheight\b/.test(t);
+  const muchBigger=/\b(?:much|a lot|significantly|substantially)\s+(?:bigger|larger)\b/.test(t);
+  const bigger=/\b(?:bigger|larger|more visible|more prominent)\b/.test(t);
+  const zoomTight=/\b(?:zoom\s+in|closer|head\s*(?:and|&)\s*shoulders?|faces?\s+(?:bigger|larger|clearer|more visible)|crop\s+tighter)\b/.test(t);
+
+  if(mentionsVisual && (fullHeight||muchBigger||bigger||zoomTight)){
+    const current=Number(next.subjectTargetHeightPct||next.subjectHeightPct||0);
+    let target=current||78;
+    if(fullHeight)target=Math.max(target,98);
+    else if(muchBigger)target=Math.max(target,94);
+    else if(zoomTight)target=Math.max(target,94);
+    else if(bigger)target=Math.max(target,86);
+
+    if(bigger && current>=86 && !fullHeight && !muchBigger)target=Math.min(100,current+7);
+
+    next.subjectTargetHeightPct=Math.min(100,target);
+    next.subjectHeightPct=next.subjectTargetHeightPct;
+    next.subjectScale=1;
+    next.subjectScaleLocked=true;
+    next.subjectSizeLocked=true;
+    next.subjectZonePct=Math.max(Number(next.subjectZonePct||0),
+      fullHeight?60:(muchBigger||zoomTight?54:48));
+
+    if(zoomTight)next.subjectCropMode='upper-body';
+  }
+
+  // Swap visual order when the request clearly targets two subjects.
+  if(/\b(?:swap|switch(?:\s+places?|\s+positions?)|change\s+places?)\b/.test(t)){
+    if(Number(next.subjectCount||0)<2 &&
+       /\b(?:2|two|both|women|speakers?|people|pictures?|images?)\b/.test(t)){
+      next.subjectCount=2;
+    }
+    if(Number(next.subjectCount||0)>=2){
+      next.subjectOrder=next.subjectOrder==='reverse'?'normal':'reverse';
+      next.subjectOrderLocked=true;
+    }
+  }
+
+  next.visualState={
+    ...(next.visualState||{}),
+    subjectAnchor:next.subjectAnchor,
+    subjectX:next.subjectX,
+    subjectScale:next.subjectScale,
+    subjectTargetHeightPct:next.subjectTargetHeightPct,
+    subjectZonePct:next.subjectZonePct,
+    subjectCropMode:next.subjectCropMode,
+    subjectCount:next.subjectCount,
+    subjectOrder:next.subjectOrder||'normal'
+  };
   return next;
 }
 
@@ -1604,7 +1687,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.27: instruction/layout intent MUST be initialized before subject placement.
+  // V7.28: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -1643,7 +1726,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.27 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.28 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -1847,7 +1930,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.27 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.28 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -1860,7 +1943,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.27 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.28 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -1931,7 +2014,7 @@ $('applyTextEdits').onclick=async()=>{
     buildSourceElementLibrary(lastServerResult);
     setDiagnostics([{status:'applied',message:'Direct text/content edits were applied exactly and stored as current design state.'}]);
     setCurrentInstruction('Direct text/content edit','Text/content edit');
-    $('validation').textContent='V7.27 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
+    $('validation').textContent='V7.28 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
   }catch(e){
     $('error').textContent='Text edit failed: '+e.message;
     $('error').style.display='block';

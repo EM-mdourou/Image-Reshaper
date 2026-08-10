@@ -1,53 +1,35 @@
-# Muslim Link Image Reshaper — V7.27
+# Muslim Link Image Reshaper — V7.28
 
-## V7.27 — Universal design state, instant text edits, style inheritance, and version branching
+## V7.28 — Runtime repair for all poster sizes
 
-### One structured design state for every size
-V7.27 normalizes every result into a universal `designState` / `bannerPlan` before it reaches the editor.
+V7.28 fixes a regression introduced in V7.27.
 
-This means the text editor no longer depends on the extreme-banner renderer. Large poster/social formats and compact banners use the same text-element model whenever text was extracted.
+### Fixed: `applyVisualInstructionToPlan is not defined`
+V7.27 still called the visual-instruction state transformer during:
+- initial generation;
+- Modify requests;
+- version branching;
 
-If no text was extracted, **+ Add text** still works and is rendered immediately.
+but the function itself was accidentally removed while the universal design-state renderer was introduced.
 
-### Instant Apply text changes
-**Apply text changes** is now a local design-state operation.
+That caused every poster size to fail immediately with:
 
-The flow is:
-1. update the current text element state;
-2. render the current design locally;
-3. save a new version;
-4. do not wait for or require a new AI generation.
+`applyVisualInstructionToPlan is not defined`
 
-This makes newly added text appear immediately on the current version.
+V7.28 restores the function and keeps the V7.27 universal design-state features intact.
 
-### Font/color/style inheritance
-Each text element now carries style metadata:
-- font family hint
-- font weight
-- color
-- alignment
-- role
+### Restored visual controls
+The repaired transformer preserves:
+- center / left / right subject positioning;
+- bigger / much bigger / full-height subject sizing;
+- tighter upper-body / face-focused crops;
+- two-person swap/order requests;
+- persistent visual state across later versions.
 
-When exact style information is unavailable, V7.27 preserves planner/user style hints and uses role-based fallbacks instead of always forcing one generic black style.
-
-Newly added text inherits from recent extra/CTA/headline styling where possible.
-
-### Version-targeted branching
-Modify instructions may reference an earlier version:
-
-- “revert to version 6 and add ...”
-- “from version 6, move the picture ...”
-- “use version 4 and make the headline larger”
-
-The referenced version becomes the base state for the new change. Later versions remain in history; the tool creates a new branch/version from the requested base.
-
-### Diagnostics
-When a version reference is used, the Modification Results panel reports which version was selected as the base.
-
-### Retained V7.26 behavior
-- Source elements panel
-- Applied / Partial / Could not apply diagnostics
-- Literal subject sizing
-- Stable text fields
-- Persistent subject state
-- Large-format added-text compositor
+### Retained V7.27 features
+- Universal design state for all sizes
+- Instant local Apply text changes
+- Text style metadata / inheritance
+- Version-targeted branching such as “from version 6…”
+- Source elements
+- Modification diagnostics
