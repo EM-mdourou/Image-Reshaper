@@ -105,8 +105,27 @@ footer>br,footer>text{display:none}
   .action{align-items:flex-start;flex-direction:column}
   .action button{width:100%}
 }
+
+.texteditor{margin-top:14px;padding-top:16px;border-top:1px solid var(--line)}
+.texteditor h4{margin:0 0 6px;font-size:16px}
+.texteditorintro{font-size:12px;line-height:1.5;color:#6a6f61;margin-bottom:12px}
+.textrows{display:flex;flex-direction:column;gap:9px}
+.textrow{display:grid;grid-template-columns:minmax(135px,.36fr) minmax(0,1fr) auto;gap:8px;align-items:center}
+.textrow input{width:100%;border:1px solid #dadbd5;border-radius:9px;padding:10px 11px;font:13px inherit;outline:none;background:#fff}
+.textrow input:focus{border-color:var(--green)}
+.textrow .textlabel{font-weight:700;background:#f7f8f3}
+.textremove{border:1px solid #d8dbcf;background:#fff;border-radius:9px;padding:9px 11px;cursor:pointer;font-weight:700}
+.textremove:hover{background:#f5f6f1}
+.texteditoractions{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:11px;flex-wrap:wrap}
+.texteditorleft{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.textadd{border:1px solid #9fba42;background:#fff;color:#4f6514;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}
+.textapply{border:0;background:#111;color:#fff;border-radius:10px;padding:11px 15px;font-weight:800;cursor:pointer}
+.textapply:disabled{opacity:.55;cursor:not-allowed}
+.textlocked{font-size:11px;color:#66704f}
+@media(max-width:760px){.textrow{grid-template-columns:1fr}.textremove{justify-self:start}}
+
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.22:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.23:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -149,7 +168,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.22 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.22 also fixes the compact/leaderboard instruction-layout initialization error. V7.22 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.23 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.23 also fixes the compact/leaderboard instruction-layout initialization error. V7.23 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -163,6 +182,18 @@ Never expose internal planner/meta/debug/schema text.`;
 </div>
 <div id="status" class="status"></div><div id="error" class="error"></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download crisp PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
 <div class="preview"><img id="output"></div><div id="validation" class="note"></div>
+<div id="textEditor" class="texteditor">
+  <h4>Edit text &amp; content</h4>
+  <div class="texteditorintro">These fields contain the text currently used by this design. Only fields that exist in the current design are shown. Edit them directly for exact wording, remove anything you do not want, or add new text. Exact text entered here is authoritative and the layout must adapt around it.</div>
+  <div id="textRows" class="textrows"></div>
+  <div class="texteditoractions">
+    <div class="texteditorleft">
+      <button id="addTextRow" class="textadd" type="button">+ Add text</button>
+      <span class="textlocked">Direct edits persist into later versions and Modify instructions.</span>
+    </div>
+    <button id="applyTextEdits" class="textapply" type="button">Apply text changes →</button>
+  </div>
+</div>
 <div id="modifyBox" class="modifybox">
   <h4>Modify this design</h4>
   <textarea id="modifyInstructions" placeholder="Example: Make the dates bigger, move the speaker names to the right, or complete the title with “... Your Future on the Ballot”."></textarea>
@@ -175,8 +206,123 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.22</div>
+  <div class="versionfooter">Version 7.23</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
+let textEditorRows=[];
+
+
+function normalizeTextEditorFromPlan(plan={}){
+  const rows=[],used=new Set();
+  const add=(key,label,value,kind='field')=>{
+    const v=String(value??'').trim();
+    if(!v)return;
+    const dedupe=key+'|'+v.toLowerCase();
+    if(used.has(dedupe))return;
+    used.add(dedupe);
+    rows.push({id:key,label,text:v,kind});
+  };
+
+  add('headline','Headline',plan.headline);
+  add('dateTime','Date / time',plan.dateTime||plan.detail);
+  add('venue','Venue',plan.venue);
+  add('address','Address / location',plan.address||plan.secondary);
+  add('cta','Call to action',plan.cta);
+
+  const extras=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
+  extras.forEach((v,i)=>{
+    let label='Additional text';
+    const req=String((plan.requiredVisibleFacts||[])[i]||'').toLowerCase();
+    if(/speaker|person|name/.test(req))label='Speaker / person';
+    else if(/date/.test(req))label='Date';
+    else if(/price|cost/.test(req))label='Price';
+    else if(/url|website|link/.test(req))label='Website / URL';
+    add('extra-'+i,label,v,'extra');
+  });
+
+  const manual=Array.isArray(plan.manualTextElements)?plan.manualTextElements:[];
+  manual.forEach((item,i)=>add('manual-'+i,item.label||'Added text',item.text||'','manual'));
+  textEditorRows=rows;
+  renderTextEditor();
+}
+
+function renderTextEditor(){
+  const box=$('textRows');
+  if(!box)return;
+  box.innerHTML='';
+  if(!textEditorRows.length){
+    const empty=document.createElement('div');
+    empty.className='texteditorintro';
+    empty.textContent='No editable text is currently in the design. Use “+ Add text” to add a new text element.';
+    box.appendChild(empty);
+    return;
+  }
+  textEditorRows.forEach((row,index)=>{
+    const wrap=document.createElement('div');
+    wrap.className='textrow';
+    wrap.dataset.index=index;
+    wrap.innerHTML=`
+      <input class="textlabel" data-role="label" value="${escapeHtml(row.label||'Text')}" aria-label="Text field label">
+      <input class="textvalue" data-role="value" value="${escapeHtml(row.text||'')}" aria-label="${escapeHtml(row.label||'Text')}">
+      <button class="textremove" type="button" data-remove="${index}">Remove</button>`;
+    box.appendChild(wrap);
+  });
+  box.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.onclick=()=>{
+      textEditorRows.splice(+btn.dataset.remove,1);
+      renderTextEditor();
+    };
+  });
+}
+
+function readTextEditorRows(){
+  const rows=[];
+  document.querySelectorAll('#textRows .textrow').forEach((el,index)=>{
+    const original=textEditorRows[index]||{};
+    const label=el.querySelector('[data-role="label"]')?.value.trim()||'Text';
+    const text=el.querySelector('[data-role="value"]')?.value.trim()||'';
+    if(text)rows.push({...original,label,text});
+  });
+  return rows;
+}
+
+function applyRowsToPlan(plan,rows){
+  const next={...plan},extras=[],manual=[];
+  let hasHeadline=false,hasDate=false,hasVenue=false,hasAddress=false,hasCta=false;
+
+  for(const row of rows){
+    const id=String(row.id||'');
+    if(id==='headline'){next.headline=row.text;hasHeadline=true;continue;}
+    if(id==='dateTime'){next.dateTime=row.text;next.detail=row.text;hasDate=true;continue;}
+    if(id==='venue'){next.venue=row.text;hasVenue=true;continue;}
+    if(id==='address'){next.address=row.text;next.secondary=row.text;hasAddress=true;continue;}
+    if(id==='cta'){next.cta=row.text;hasCta=true;continue;}
+    if(row.kind==='extra' || id.startsWith('extra-')){extras.push(row.text);continue;}
+    manual.push({label:row.label||'Added text',text:row.text});
+    extras.push(row.text);
+  }
+
+  if(!hasHeadline)next.headline='';
+  if(!hasDate){next.dateTime='';next.detail='';}
+  if(!hasVenue)next.venue='';
+  if(!hasAddress){next.address='';next.secondary='';}
+  if(!hasCta)next.cta='';
+
+  next.extraFacts=extras;
+  next.extraFact=extras.join(' · ');
+  next.manualTextElements=manual;
+  next.userTextLocked=true;
+  return next;
+}
+
+async function renderPlanLocally(data,target){
+  if(data.renderMode==='canvas-first-banner-composer')return await buildCanvasFirstBanner(data,target[1],target[2]);
+  if(data.renderMode==='visual-first-banner-composer')return await buildVisualFirstBanner(data,target[1],target[2]);
+  if(data.renderMode==='hybrid-banner-composer')return await buildHybridBanner(data,target[1],target[2]);
+  if(data.renderMode==='ai-banner-composer')return await fitAiBannerToExact(data.image,target[1],target[2]);
+  if(data.renderMode==='exact-banner')return await buildExactBanner(lastRenderedUrl||URL.createObjectURL(f),data.bannerPlan,target[1],target[2]);
+  if(data.image)return await fitExact(data.image,target[1],target[2]);
+  throw Error('The current design cannot be rendered locally.');
+}
 
 function setCurrentInstruction(text,kind='Initial generation'){
   currentRunInstruction=(text||'').trim();
@@ -215,6 +361,7 @@ function resetDesignSession(clearFile=false){
   if($('instructions'))$('instructions').value='';
   if($('modifyInstructions'))$('modifyInstructions').value='';
   if($('currentInstruction'))$('currentInstruction').style.display='none';
+  textEditorRows=[];if($('textRows'))$('textRows').innerHTML='';
   if(clearFile){
     f=null;
     $('file').value='';
@@ -585,29 +732,28 @@ async function fitAiBannerToExact(srcUrl,w,h){
 
 
 
-function wrapTextLines(ctx,text,maxWidth,maxLines){
+function wrapTextLines(ctx,text,maxWidth,maxLines=99){
   const words=(text||'').trim().split(/\s+/).filter(Boolean);
   const lines=[]; let line='';
   for(const word of words){
     const test=line?line+' '+word:word;
-    if(ctx.measureText(test).width<=maxWidth){
+    if(ctx.measureText(test).width<=maxWidth || !line){
       line=test;
     }else{
-      if(line) lines.push(line);
+      lines.push(line);
       line=word;
-      if(lines.length===maxLines-1) break;
     }
   }
-  if(line && lines.length<maxLines) lines.push(line);
+  if(line)lines.push(line);
   return lines;
 }
 
 function fitWrappedHeadline(ctx,text,maxWidth,maxHeight,maxLines){
   let size=Math.max(18,Math.round(maxHeight*.55));
-  const min=Math.max(11,Math.round(maxHeight*.30));
-  while(size>=min){
+  const hardMin=Math.max(7,Math.round(maxHeight*.18));
+  while(size>=hardMin){
     ctx.font=`800 ${size}px Arial`;
-    const lines=wrapTextLines(ctx,text,maxWidth,maxLines);
+    const lines=wrapTextLines(ctx,text,maxWidth,99);
     const lineH=size*.98;
     if(lines.length<=maxLines && lines.length*lineH<=maxHeight &&
        lines.every(l=>ctx.measureText(l).width<=maxWidth)){
@@ -615,8 +761,18 @@ function fitWrappedHeadline(ctx,text,maxWidth,maxHeight,maxLines){
     }
     size--;
   }
-  ctx.font=`800 ${min}px Arial`;
-  return {size:min,lines:wrapTextLines(ctx,text,maxWidth,maxLines),lineH:min};
+  let finalSize=hardMin;
+  while(finalSize>=6){
+    ctx.font=`800 ${finalSize}px Arial`;
+    const lines=wrapTextLines(ctx,text,maxWidth,99);
+    const lineH=finalSize*.98;
+    if(lines.length*lineH<=maxHeight && lines.every(l=>ctx.measureText(l).width<=maxWidth)){
+      return {size:finalSize,lines,lineH};
+    }
+    finalSize--;
+  }
+  ctx.font=`800 6px Arial`;
+  return {size:6,lines:wrapTextLines(ctx,text,maxWidth,99),lineH:5.9};
 }
 
 async function buildHybridBanner(data,w,h){
@@ -712,7 +868,7 @@ async function buildHybridBanner(data,w,h){
 
   // Allow headline to wrap so subject + facts can stay larger.
   const headlineMaxH=Math.round(h*.49);
-  const fit=fitWrappedHeadline(x,headline,textAvail,headlineMaxH,2);
+  const fit=fitWrappedHeadline(x,headline,textAvail,headlineMaxH,3);
   x.font=`800 ${fit.size}px Arial`;
 
   let y=margin;
@@ -782,19 +938,30 @@ async function buildHybridBanner(data,w,h){
 
 
 function fitHeadlineBlock(ctx,text,maxWidth,maxHeight){
-  let size=Math.max(18,Math.round(maxHeight*.52));
-  const min=Math.max(11,Math.round(maxHeight*.27));
-  while(size>=min){
+  let size=Math.max(18,Math.round(maxHeight*.56));
+  const hardMin=Math.max(7,Math.round(maxHeight*.18));
+  while(size>=hardMin){
     ctx.font=`800 ${size}px Arial`;
-    const lines=wrapTextLines(ctx,text,maxWidth,2);
-    const lh=size*.98;
-    if(lines.length<=2 && lines.length*lh<=maxHeight && lines.every(l=>ctx.measureText(l).width<=maxWidth)){
-      return {size,lines,lineH:lh};
+    const lines=wrapTextLines(ctx,text,maxWidth,99);
+    const lineH=size*.98;
+    if(lines.length<=3 && lines.length*lineH<=maxHeight &&
+       lines.every(l=>ctx.measureText(l).width<=maxWidth)){
+      return {size,lines,lineH};
     }
     size--;
   }
-  ctx.font=`800 ${min}px Arial`;
-  return {size:min,lines:wrapTextLines(ctx,text,maxWidth,2),lineH:min};
+  let finalSize=hardMin;
+  while(finalSize>=6){
+    ctx.font=`800 ${finalSize}px Arial`;
+    const lines=wrapTextLines(ctx,text,maxWidth,99);
+    const lineH=finalSize*.98;
+    if(lines.length*lineH<=maxHeight && lines.every(l=>ctx.measureText(l).width<=maxWidth)){
+      return {size:finalSize,lines,lineH};
+    }
+    finalSize--;
+  }
+  ctx.font=`800 6px Arial`;
+  return {size:6,lines:wrapTextLines(ctx,text,maxWidth,99),lineH:5.9};
 }
 
 async function buildVisualFirstBanner(data,w,h){
@@ -971,7 +1138,7 @@ async function trimTransparentImage(img){
 function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale=1,factScale=1,options={}){
   extraFacts=Array.isArray(extraFacts)?extraFacts:[];
   const headMaxH=Math.round(h*.50*headlineScale);
-  const headFit=fitHeadlineBlock(ctx,headline,copyW,headMaxH,2);
+  const headFit=fitHeadlineBlock(ctx,headline,copyW,headMaxH);
   let used=outer + headFit.lines.length*headFit.lineH + Math.max(1,Math.round(h*.006));
 
   const facts=[];
@@ -1033,7 +1200,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.22: instruction/layout intent MUST be initialized before subject placement.
+  // V7.23: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
@@ -1069,7 +1236,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.22 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.23 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -1260,7 +1427,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.22 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.23 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -1273,7 +1440,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.22 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.23 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -1294,6 +1461,7 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
     }
     $('output').src=ex;$('download').href=ex;$('download').download='reshaped-'+s[0].toLowerCase().replaceAll(' ','-')+'.png';
     lastServerResult=j;lastRenderedUrl=ex;lastDesignTarget=[s[0],s[1],s[2]];$('modifyInstructions').value='';
+    normalizeTextEditorFromPlan(j.bannerPlan||{});
     setCurrentInstruction($('instructions').value,'Initial instructions');
     $('validation').textContent=j.validationSummary||'Completed.';$('result').style.display='block';
     stopProgress();setProgress(5,'Finished — your image is ready.');
@@ -1303,6 +1471,44 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
   }finally{b.disabled=false;b.textContent='Reshape with AI →'}
 };
 
+
+
+$('addTextRow').onclick=()=>{
+  const n=textEditorRows.filter(r=>r.kind==='manual').length+1;
+  textEditorRows.push({id:'manual-'+Date.now(),label:'Added text '+n,text:'',kind:'manual'});
+  renderTextEditor();
+  const rows=document.querySelectorAll('#textRows .textrow');
+  rows[rows.length-1]?.querySelector('[data-role="value"]')?.focus();
+};
+
+$('applyTextEdits').onclick=async()=>{
+  if(!lastServerResult || !lastDesignTarget)return;
+  const btn=$('applyTextEdits');
+  btn.disabled=true;btn.textContent='Applying…';
+  $('error').style.display='none';
+  try{
+    const rows=readTextEditorRows();
+    const newPlan=applyRowsToPlan(lastServerResult.bannerPlan||{},rows);
+    const nextData={...lastServerResult,bannerPlan:newPlan};
+    const ex=await renderPlanLocally(nextData,lastDesignTarget);
+
+    archiveCurrentRun();
+    currentVersionNumber++;
+
+    $('output').src=ex;
+    $('download').href=ex;
+    lastRenderedUrl=ex;
+    lastServerResult=nextData;
+    normalizeTextEditorFromPlan(newPlan);
+    setCurrentInstruction('Direct text/content edit','Text/content edit');
+    $('validation').textContent='V7.23 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
+  }catch(e){
+    $('error').textContent='Text edit failed: '+e.message;
+    $('error').style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent='Apply text changes →';
+  }
+};
 
 $('modifyBtn').onclick=async()=>{
   const instructions=$('modifyInstructions').value.trim();
@@ -1390,6 +1596,7 @@ $('modifyBtn').onclick=async()=>{
     };
     lastRenderedUrl=ex;
     lastDesignTarget=target;
+    normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{});
     setCurrentInstruction(instructions,'Modify instruction');
     $('modifyInstructions').value='';
   }catch(e){
