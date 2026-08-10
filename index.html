@@ -124,8 +124,24 @@ footer>br,footer>text{display:none}
 .textlocked{font-size:11px;color:#66704f}
 @media(max-width:760px){.textrow{grid-template-columns:1fr}.textremove{justify-self:start}}
 
+
+.elementpanel,.diagpanel{margin-top:14px;padding-top:16px;border-top:1px solid var(--line)}
+.elementpanel h4,.diagpanel h4{margin:0 0 6px;font-size:16px}
+.elementintro,.diagintro{font-size:12px;line-height:1.45;color:#6a6f61;margin-bottom:10px}
+.elementsummary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.elementchip{border:1px solid #d7dbca;background:#f7f8f2;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;color:#50631d}
+.elementlist,.diaglist{display:flex;flex-direction:column;gap:8px}
+.elementitem{display:grid;grid-template-columns:minmax(150px,.32fr) minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid #e1e3da;border-radius:10px;padding:9px 10px;background:#fff}
+.elementname{font-weight:800}.elementmeta{font-size:12px;color:#6e7367}
+.elementstatus{font-size:11px;font-weight:800;border-radius:999px;padding:5px 8px;white-space:nowrap}
+.elementstatus.reusable{background:#edf6d9;color:#4c6814}.elementstatus.partial{background:#fff4d7;color:#896500}.elementstatus.unavailable{background:#fde9e5;color:#9d3727}
+.diagitem{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;border:1px solid #e2e3dd;border-radius:10px;padding:9px 10px;background:#fff}
+.diagbadge{font-size:11px;font-weight:900;border-radius:999px;padding:5px 8px;white-space:nowrap}
+.diagbadge.applied{background:#edf6d9;color:#4c6814}.diagbadge.partial{background:#fff4d7;color:#896500}.diagbadge.failed{background:#fde9e5;color:#9d3727}
+.diagtext{font-size:12px;line-height:1.45}.diagempty{font-size:12px;color:#74796d}
+@media(max-width:760px){.elementitem{grid-template-columns:1fr}.elementstatus{justify-self:start}.diagitem{grid-template-columns:1fr}}
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.25:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.26:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -168,7 +184,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.25 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.25 also fixes the compact/leaderboard instruction-layout initialization error. V7.25 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.26 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.26 also fixes the compact/leaderboard instruction-layout initialization error. V7.26 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -182,6 +198,12 @@ Never expose internal planner/meta/debug/schema text.`;
 </div>
 <div id="status" class="status"></div><div id="error" class="error"></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download crisp PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
 <div class="preview"><img id="output"></div><div id="validation" class="note"></div>
+<div id="sourceElementsPanel" class="elementpanel">
+  <h4>Source elements</h4>
+  <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div>
+  <div id="elementSummary" class="elementsummary"></div>
+  <div id="elementList" class="elementlist"></div>
+</div>
 <div id="textEditor" class="texteditor">
   <h4>Edit text &amp; content</h4>
   <div class="texteditorintro">These fields contain the text currently used by this design. Only fields that exist in the current design are shown. Edit them directly for exact wording, remove anything you do not want, or add new text. Exact text entered here is authoritative and the layout must adapt around it.</div>
@@ -202,13 +224,19 @@ Never expose internal planner/meta/debug/schema text.`;
     <button id="modifyBtn" class="modifybtn" type="button">Modify current design →</button>
   </div>
 </div>
+<div id="diagnosticsPanel" class="diagpanel">
+  <h4>Modification results</h4>
+  <div class="diagintro">Shows what was applied, what was only partially possible, and why an instruction could not be completed.</div>
+  <div id="diagnosticsList" class="diaglist"><div class="diagempty">No modification diagnostics yet.</div></div>
+</div>
 <div class="historytitle">Previous versions</div>
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.25</div>
+  <div class="versionfooter">Version 7.26</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let textEditorRows=[];
+let sourceElements=[];let lastDiagnostics=[];
 
 
 function normalizeTextEditorFromPlan(plan={}){
@@ -425,6 +453,171 @@ function renderExtraFacts(plan={}){
   return all.filter((v,i,a)=>a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);
 }
 
+
+function normalizeElementType(raw=''){
+  const s=String(raw||'').toLowerCase();
+  if(/person|speaker|host|guest|portrait|face|woman|man/.test(s))return 'person';
+  if(/logo|brand|sponsor|mark/.test(s))return 'logo';
+  if(/background|city|building|scene|artwork|decor/.test(s))return 'background';
+  if(/qr/.test(s))return 'qr';
+  if(/text|headline|title|date|venue|address|price|cta|url|website/.test(s))return 'text';
+  return 'other';
+}
+
+function buildSourceElementLibrary(data={}){
+  const plan=data.bannerPlan||{};
+  const items=[],seen=new Set();
+  const push=(item={})=>{
+    const label=String(item.label||item.name||item.text||item.id||'').trim();
+    if(!label)return;
+    const type=normalizeElementType(item.type||item.role||item.kind||label);
+    const key=type+'|'+label.toLowerCase();
+    if(seen.has(key))return;
+    seen.add(key);
+    const reusable=!!(item.asset||item.image||item.url||item.crop||item.box||item.reusable);
+    items.push({
+      id:item.id||('el-'+items.length),
+      label,type,
+      reusable,
+      availability:item.availability||(reusable?'reusable':'reference-only'),
+      asset:item.asset||item.image||item.url||'',
+      crop:item.crop||item.box||null,
+      source:'original'
+    });
+  };
+
+  (data.sourceElements||plan.sourceElements||[]).forEach(push);
+  (plan.subjects||[]).forEach((s,i)=>push({...s,type:'person',label:s.name||s.label||('Person '+(i+1))}));
+  (plan.subjectBoxes||[]).forEach((s,i)=>push({...s,type:'person',label:s.name||s.label||('Person '+(i+1))}));
+
+  const count=Math.max(0,Number(plan.subjectCount||0));
+  if(data.subjectAsset||plan.subjectAsset){
+    const asset=data.subjectAsset||plan.subjectAsset;
+    if(count>1){
+      for(let i=0;i<count;i++)push({
+        id:'person-'+(i+1),type:'person',
+        label:(plan.subjectLabels||[])[i]||('Person '+(i+1)),
+        asset,availability:'grouped',reusable:false
+      });
+    }else push({id:'primary-subject',type:'person',label:plan.subjectName||'Primary person / subject',asset,reusable:true});
+  }
+  if(data.backgroundArt)push({id:'background-art',type:'background',label:'Background artwork',asset:data.backgroundArt,reusable:true});
+  if(data.sourceImage)push({id:'source-artwork',type:'background',label:'Original artwork',asset:data.sourceImage,reusable:true});
+
+  [
+    ['headline','Headline',plan.headline],
+    ['dateTime','Date / time',plan.dateTime||plan.detail],
+    ['venue','Venue',plan.venue],
+    ['address','Address / location',plan.address||plan.secondary],
+    ['cta','Call to action',plan.cta]
+  ].forEach(([id,label,text])=>{if(text)push({id,type:'text',label,text,reusable:true});});
+  (plan.extraFacts||[]).forEach((t,i)=>push({id:'extra-'+i,type:'text',label:String(t),text:t,reusable:true}));
+  (plan.manualTextElements||[]).forEach((t,i)=>push({id:t.id||('manual-'+i),type:'text',label:t.label||t.text,text:t.text,reusable:true}));
+
+  sourceElements=items;
+  renderSourceElements();
+  return items;
+}
+
+function renderSourceElements(){
+  const summary=$('elementSummary'),list=$('elementList');
+  if(!summary||!list)return;
+  summary.innerHTML='';list.innerHTML='';
+  const groups={};
+  sourceElements.forEach(el=>groups[el.type]=(groups[el.type]||0)+1);
+  Object.entries(groups).forEach(([type,count])=>{
+    const chip=document.createElement('span');chip.className='elementchip';
+    chip.textContent=type.charAt(0).toUpperCase()+type.slice(1)+' ('+count+')';
+    summary.appendChild(chip);
+  });
+  if(!sourceElements.length){
+    list.innerHTML='<div class="elementmeta">No reusable source elements were identified.</div>';
+    return;
+  }
+  sourceElements.forEach(el=>{
+    const row=document.createElement('div');row.className='elementitem';
+    const status=el.availability==='grouped'?'partial':(el.reusable?'reusable':'unavailable');
+    const statusText=status==='reusable'?'Reusable':(status==='partial'?'Grouped / partial':'Reference only');
+    row.innerHTML=`<div class="elementname">${escapeHtml(el.label)}</div>
+      <div class="elementmeta">${escapeHtml(el.type)} · original artwork</div>
+      <div class="elementstatus ${status}">${statusText}</div>`;
+    list.appendChild(row);
+  });
+}
+
+function setDiagnostics(items=[]){
+  lastDiagnostics=Array.isArray(items)?items:[];
+  const box=$('diagnosticsList');if(!box)return;
+  box.innerHTML='';
+  if(!lastDiagnostics.length){
+    box.innerHTML='<div class="diagempty">No modification diagnostics yet.</div>';return;
+  }
+  lastDiagnostics.forEach(d=>{
+    const s=String(d.status||'applied').toLowerCase();
+    const cls=s==='failed'?'failed':(s==='partial'?'partial':'applied');
+    const label=cls==='failed'?'Could not apply':(cls==='partial'?'Partial':'Applied');
+    const row=document.createElement('div');row.className='diagitem';
+    row.innerHTML=`<div class="diagbadge ${cls}">${label}</div><div class="diagtext">${escapeHtml(d.message||'')}</div>`;
+    box.appendChild(row);
+  });
+}
+
+function requestedSourceElements(instruction=''){
+  const t=String(instruction||'').toLowerCase();
+  const found=[];
+  sourceElements.forEach(el=>{
+    const label=String(el.label||'').toLowerCase();
+    if(label.length>2 && t.includes(label))found.push(el);
+  });
+  if(/\bfeatured?\s+person\b/.test(t)){
+    const people=sourceElements.filter(x=>x.type==='person');
+    if(people[1])found.push(people[1]);
+  }
+  if(/\blogo\b/.test(t))found.push(...sourceElements.filter(x=>x.type==='logo'));
+  return [...new Map(found.map(x=>[x.id,x])).values()];
+}
+
+function diagnosticsForInstruction(beforePlan={},afterPlan={},instruction=''){
+  const t=String(instruction||'').toLowerCase(),out=[];
+  const add=(status,message)=>out.push({status,message});
+
+  if(/\b(?:move|place|put|position)\b/.test(t) && /\b(?:middle|center|centre|right|left)\b/.test(t)){
+    const changed=beforePlan.subjectX!==afterPlan.subjectX || beforePlan.subjectAnchor!==afterPlan.subjectAnchor;
+    add(changed?'applied':'partial',
+      changed?'Subject position was updated and locked in the current design state.'
+             :'A position request was detected, but a visible position change could not be verified.');
+  }
+
+  if(/\b(?:bigger|larger|more visible|full height|entire height|zoom)\b/.test(t)){
+    const changed=beforePlan.subjectTargetHeightPct!==afterPlan.subjectTargetHeightPct || beforePlan.subjectHeightPct!==afterPlan.subjectHeightPct;
+    add(changed?'applied':'partial',
+      changed?'Subject size target was increased and locked for this version.'
+             :'A size request was detected, but no independently scalable subject was available.');
+  }
+
+  if(/\b(?:swap|switch)\b/.test(t)){
+    if(Number(afterPlan.subjectCount||0)>=2)add('applied','Two-subject swap/order instruction was registered for the renderer.');
+    else add('failed','Could not switch subjects because the original artwork did not expose two distinct reusable subjects.');
+  }
+
+  if(/\b(?:add|bring back|restore|include)\b/.test(t) &&
+     /\b(?:original|source|artwork|featured|logo|person|speaker|image|picture)\b/.test(t)){
+    const matches=requestedSourceElements(instruction);
+    if(!matches.length){
+      add('failed','Could not add the requested source element because no matching element was identified in the original-artwork element library.');
+    }else{
+      matches.forEach(el=>{
+        if(el.availability==='grouped')add('partial',`“${el.label}” was detected, but it is part of a grouped subject asset and cannot yet be inserted independently.`);
+        else if(el.reusable)add('applied',`Requested source element “${el.label}” is available as a reusable asset.`);
+        else add('failed',`“${el.label}” was detected, but no clean reusable asset was isolated from the original artwork.`);
+      });
+    }
+  }
+
+  if(!out.length)add('applied','Modification completed. No unsupported element-level request was detected.');
+  return out;
+}
+
 function setCurrentInstruction(text,kind='Initial generation'){
   currentRunInstruction=(text||'').trim();
   const el=$('currentInstruction');
@@ -463,6 +656,7 @@ function resetDesignSession(clearFile=false){
   if($('modifyInstructions'))$('modifyInstructions').value='';
   if($('currentInstruction'))$('currentInstruction').style.display='none';
   textEditorRows=[];if($('textRows'))$('textRows').innerHTML='';
+  sourceElements=[];lastDiagnostics=[];if($('elementSummary'))$('elementSummary').innerHTML='';if($('elementList'))$('elementList').innerHTML='';setDiagnostics([]);
   if(clearFile){
     f=null;
     $('file').value='';
@@ -1385,7 +1579,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.25: instruction/layout intent MUST be initialized before subject placement.
+  // V7.26: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -1424,7 +1618,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.25 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.26 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -1628,7 +1822,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.25 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.26 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -1641,7 +1835,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.25 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.26 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -1663,6 +1857,8 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
     $('output').src=ex;$('download').href=ex;$('download').download='reshaped-'+s[0].toLowerCase().replaceAll(' ','-')+'.png';
     j.bannerPlan=applyVisualInstructionToPlan(j.bannerPlan||{},$('instructions').value||'');lastServerResult=j;lastRenderedUrl=ex;lastDesignTarget=[s[0],s[1],s[2]];$('modifyInstructions').value='';
     normalizeTextEditorFromPlan(j.bannerPlan||{});
+    buildSourceElementLibrary(j);
+    setDiagnostics([{status:'applied',message:'Original artwork was analyzed and a reusable source-element library was created for later modifications.'}]);
     setCurrentInstruction($('instructions').value,'Initial instructions');
     $('validation').textContent=j.validationSummary||'Completed.';$('result').style.display='block';
     stopProgress();setProgress(5,'Finished — your image is ready.');
@@ -1701,8 +1897,10 @@ $('applyTextEdits').onclick=async()=>{
     lastRenderedUrl=ex;
     lastServerResult=nextData;
     normalizeTextEditorFromPlan(newPlan);
+    buildSourceElementLibrary(lastServerResult);
+    setDiagnostics([{status:'applied',message:'Direct text/content edits were applied exactly and stored as current design state.'}]);
     setCurrentInstruction('Direct text/content edit','Text/content edit');
-    $('validation').textContent='V7.25 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
+    $('validation').textContent='V7.26 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
   }catch(e){
     $('error').textContent='Text edit failed: '+e.message;
     $('error').style.display='block';
@@ -1712,6 +1910,7 @@ $('applyTextEdits').onclick=async()=>{
 };
 
 $('modifyBtn').onclick=async()=>{
+  const beforeModifyPlan={...(lastServerResult?.bannerPlan||{})};
   const instructions=$('modifyInstructions').value.trim();
   if(!f || !lastServerResult || !instructions)return;
   const b=$('modifyBtn');
@@ -1805,6 +2004,8 @@ $('modifyBtn').onclick=async()=>{
     lastRenderedUrl=ex;
     lastDesignTarget=target;
     normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{});
+    buildSourceElementLibrary(lastServerResult);
+    setDiagnostics(diagnosticsForInstruction(beforeModifyPlan,lastServerResult.bannerPlan||{},instructions));
     setCurrentInstruction(instructions,'Modify instruction');
     $('modifyInstructions').value='';
   }catch(e){

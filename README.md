@@ -1,45 +1,47 @@
-# Muslim Link Image Reshaper — V7.25
+# Muslim Link Image Reshaper — V7.26
 
-## V7.25 — Literal subject sizing + large-format added text
+## V7.26 — Source element library + modification diagnostics
 
-### Extreme-banner subject sizing
-User sizing language now maps to explicit canvas-height targets instead of one fixed 1.22 scale value.
+### Source elements
+After the first generation, the app builds a reusable library of elements identified from the original artwork.
+
+The new **Source elements** panel groups what is available, including:
+- People / speakers
+- Logos
+- Background artwork
+- Text
+- Other identified elements
+
+Each item is labelled:
+- **Reusable** — available as a reusable asset/reference
+- **Grouped / partial** — detected but contained inside a combined asset
+- **Reference only** — detected but not isolated cleanly
+
+The source-element library is intended to support later instructions such as:
+- add / restore an element from the original artwork
+- move an element
+- make an element larger
+- remove an element
+- swap two people
+- bring back a logo or featured person
+
+### Modification results
+Every Modify run now shows a **Modification results** panel with:
+- Applied
+- Partial
+- Could not apply
 
 Examples:
-- “bigger” → at least ~86% of banner height
-- “much bigger/larger” → at least ~94%
-- “occupy the entire/full height” → ~98%
-- “zoom in / head and shoulders / make faces clearer” → tight upper-body crop + ~94%
+- Applied: subject position was updated and locked.
+- Partial: requested person is part of a grouped subject image and cannot yet be inserted independently.
+- Could not apply: no matching reusable element was identified in the original artwork.
 
-Repeated “make it bigger” instructions continue increasing the target instead of producing the same result.
+The diagnostic messages are based on actual element/state availability checks so the application no longer silently ignores unsupported requests.
 
-When the user explicitly requests a large subject, that request can override the old narrow subject-width zone. Text and background must adapt rather than forcing portraits back to thumbnail size.
-
-Transparent margins are trimmed before hybrid-banner scaling.
-
-### More reliable two-person swapping
-Instructions such as:
-- “switch the two speakers”
-- “swap the two women”
-- “switch the pictures of the 2 women”
-
-now infer `subjectCount = 2` even if source analysis forgot to provide it, allowing the renderer's deterministic two-subject swap behavior to activate.
-
-### Large-format + Add text
-Large AI-generated formats now have a deterministic added-text compositor.
-
-If a large design has no editable extracted fields, **+ Add text** still works:
-1. Add the new field.
-2. Enter the text.
-3. Click **Apply text changes**.
-4. The exact text is composited onto the current large-format image in a readable overlay.
-
-Added text is preserved when later large-format modifications are rendered.
-
-### Retained V7.24 behavior
-- Stable text fields with no duplication on Apply
-- Structured center/left/right subject positioning
+### Retained V7.25 behavior
+- Literal subject-height controls
+- Large-format added-text compositor
+- Stable text fields with no duplication
+- Dynamic Edit text & content
 - Persistent subject state
-- Dynamic Edit text & content panel
-- Exact authoritative text editing
 - Version history
