@@ -141,7 +141,7 @@ footer>br,footer>text{display:none}
 .diagtext{font-size:12px;line-height:1.45}.diagempty{font-size:12px;color:#74796d}
 @media(max-width:760px){.elementitem{grid-template-columns:1fr}.elementstatus{justify-self:start}.diagitem{grid-template-columns:1fr}}
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.26:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.27:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -184,7 +184,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.26 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.26 also fixes the compact/leaderboard instruction-layout initialization error. V7.26 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.27 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.27 also fixes the compact/leaderboard instruction-layout initialization error. V7.27 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -233,51 +233,32 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.26</div>
+  <div class="versionfooter">Version 7.27</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let textEditorRows=[];
 let sourceElements=[];let lastDiagnostics=[];
+let versionStates=[];let currentDesignState=null;
 
 
 function normalizeTextEditorFromPlan(plan={}){
-  const rows=[],used=new Set();
-  const add=(key,label,value,kind='field')=>{
-    const v=String(value??'').trim();
-    if(!v)return;
-    const dedupe=key+'|'+v.toLowerCase();
-    if(used.has(dedupe))return;
-    used.add(dedupe);
-    rows.push({id:key,label,text:v,kind});
-  };
-
-  add('headline','Headline',plan.headline);
-  add('dateTime','Date / time',plan.dateTime||plan.detail);
-  add('venue','Venue',plan.venue);
-  add('address','Address / location',plan.address||plan.secondary);
-  add('cta','Call to action',plan.cta);
-
-  const extras=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
-  extras.forEach((v,i)=>{
-    let label='Additional text';
-    const req=String((plan.requiredVisibleFacts||[])[i]||'').toLowerCase();
-    if(/speaker|person|name/.test(req))label='Speaker / person';
-    else if(/date/.test(req))label='Date';
-    else if(/price|cost/.test(req))label='Price';
-    else if(/url|website|link/.test(req))label='Website / URL';
-    add('extra-'+i,label,v,'extra');
-  });
-
-  const manual=Array.isArray(plan.manualTextElements)?plan.manualTextElements:[];
-  manual.forEach((item,i)=>{
-    const txt=String(item?.text||'').trim();
-    if(!txt)return;
-    const alreadyShown=rows.some(r=>String(r.text||'').trim().toLowerCase()===txt.toLowerCase());
-    if(!alreadyShown)add(item.id||('manual-'+i),item.label||'Added text',txt,'manual');
-  });
-  textEditorRows=rows;
+  const p={...plan};
+  if(!Array.isArray(p.textElements)||!p.textElements.length){
+    const normalized=normalizeDesignState({bannerPlan:p});
+    p.textElements=normalized.bannerPlan.textElements||[];
+    p.textStyles=normalized.bannerPlan.textStyles||{};
+  }
+  textEditorRows=(p.textElements||[])
+    .filter(x=>x && x.visible!==false && String(x.text||'').trim())
+    .map(x=>({
+      id:x.id,
+      label:x.label||'Text',
+      text:String(x.text||''),
+      kind:(x.role==='manual'?'manual':(x.role==='extra'?'extra':'field')),
+      role:x.role||x.id,
+      style:{...defaultTextStyleForRole(x.role||x.id),...(x.style||{})}
+    }));
   renderTextEditor();
 }
-
 function renderTextEditor(){
   const box=$('textRows');
   if(!box)return;
@@ -285,7 +266,7 @@ function renderTextEditor(){
   if(!textEditorRows.length){
     const empty=document.createElement('div');
     empty.className='texteditorintro';
-    empty.textContent='No editable text is currently in the design. Use “+ Add text” to add a new text element.';
+    empty.textContent='No text fields were extracted for this design. You can still use “+ Add text”; new text will be applied immediately to the current image.';
     box.appendChild(empty);
     return;
   }
@@ -293,10 +274,12 @@ function renderTextEditor(){
     const wrap=document.createElement('div');
     wrap.className='textrow';
     wrap.dataset.index=index;
+    const style=row.style||defaultTextStyleForRole(row.role||'body');
     wrap.innerHTML=`
       <input class="textlabel" data-role="label" value="${escapeHtml(row.label||'Text')}" aria-label="Text field label">
       <input class="textvalue" data-role="value" value="${escapeHtml(row.text||'')}" aria-label="${escapeHtml(row.label||'Text')}">
       <button class="textremove" type="button" data-remove="${index}">Remove</button>`;
+    wrap.dataset.style=JSON.stringify(style);
     box.appendChild(wrap);
   });
   box.querySelectorAll('[data-remove]').forEach(btn=>{
@@ -313,134 +296,73 @@ function readTextEditorRows(){
     const original=textEditorRows[index]||{};
     const label=el.querySelector('[data-role="label"]')?.value.trim()||'Text';
     const text=el.querySelector('[data-role="value"]')?.value.trim()||'';
-    if(text)rows.push({...original,label,text});
+    if(text){
+      let style=original.style||defaultTextStyleForRole(original.role||'body');
+      try{style={...style,...JSON.parse(el.dataset.style||'{}')};}catch{}
+      rows.push({...original,label,text,style});
+    }
   });
   return rows;
 }
 
 function applyRowsToPlan(plan,rows){
-  const next={...plan},extras=[],manual=[];
-  let hasHeadline=false,hasDate=false,hasVenue=false,hasAddress=false,hasCta=false;
+  const next={...plan};
+  next.textStyles=inferTextStylesFromPlan(next);
+  next.textElements=rows.map(row=>({
+    id:row.id,
+    label:row.label||'Text',
+    text:row.text,
+    role:row.role||(row.kind==='manual'?'manual':row.id),
+    visible:true,
+    style:{...defaultTextStyleForRole(row.role||row.id),...(row.style||{})}
+  }));
 
-  for(const row of rows){
-    const id=String(row.id||'');
-    if(id==='headline'){next.headline=row.text;hasHeadline=true;continue;}
-    if(id==='dateTime'){next.dateTime=row.text;next.detail=row.text;hasDate=true;continue;}
-    if(id==='venue'){next.venue=row.text;hasVenue=true;continue;}
-    if(id==='address'){next.address=row.text;next.secondary=row.text;hasAddress=true;continue;}
-    if(id==='cta'){next.cta=row.text;hasCta=true;continue;}
-    if(row.kind==='extra' || id.startsWith('extra-')){extras.push(row.text);continue;}
-    // Manual rows live in ONE collection only. They are merged for rendering later.
-    manual.push({id:row.id||('manual-'+Date.now()),label:row.label||'Added text',text:row.text});
-  }
+  const byId=Object.fromEntries(next.textElements.map(x=>[x.id,x]));
+  next.headline=byId.headline?.text||'';
+  next.dateTime=byId.dateTime?.text||'';
+  next.detail=next.dateTime;
+  next.venue=byId.venue?.text||'';
+  next.address=byId.address?.text||'';
+  next.secondary=next.address;
+  next.cta=byId.cta?.text||'';
 
-  if(!hasHeadline)next.headline='';
-  if(!hasDate){next.dateTime='';next.detail='';}
-  if(!hasVenue)next.venue='';
-  if(!hasAddress){next.address='';next.secondary='';}
-  if(!hasCta)next.cta='';
-
+  const extras=next.textElements.filter(x=>x.role==='extra').map(x=>x.text);
+  const manual=next.textElements.filter(x=>x.role==='manual').map(x=>({
+    id:x.id,label:x.label,text:x.text,style:x.style
+  }));
   next.extraFacts=extras;
   next.extraFact=extras.join(' · ');
   next.manualTextElements=manual;
+
+  next.textStyles={
+    ...next.textStyles,
+    ...Object.fromEntries(next.textElements.map(x=>[x.id,x.style]))
+  };
   next.userTextLocked=true;
   return next;
 }
 
+async function renderUniversalDesignState(data,target){
+  const [name,w,h]=target;
+  const plan=data.bannerPlan||{};
+  const hasText=Array.isArray(plan.textElements)&&plan.textElements.length;
 
-function applyVisualInstructionToPlan(plan={},instruction=''){
-  const next={...plan};
-  const t=String(instruction||'').toLowerCase();
+  // Use native structured banner renderer when available.
+  if(data.renderMode==='canvas-first-banner-composer')return await buildCanvasFirstBanner(data,w,h);
+  if(data.renderMode==='visual-first-banner-composer')return await buildVisualFirstBanner(data,w,h);
+  if(data.renderMode==='hybrid-banner-composer')return await buildHybridBanner(data,w,h);
+  if(data.renderMode==='ai-banner-composer')return await fitAiBannerToExact(data.image,w,h);
+  if(data.renderMode==='exact-banner')return await buildExactBanner(lastRenderedUrl||URL.createObjectURL(f),plan,w,h);
 
-  const mentionsVisual=/\b(?:pic|picture|image|portrait|speaker|person|subject|woman|women|man|men|him|her|them|sammy|aisha|ayesha)\b/.test(t);
-
-  // Infer a two-subject group from the user's language even when the source planner
-  // forgot to populate subjectCount. This makes swap/switch instructions deterministic.
-  if(/\b(?:2|two)\s+(?:speakers?|women|people|persons?|portraits?|images?|pictures?)\b/.test(t) ||
-     /\b(?:both|the two)\s+(?:speakers?|women|people|portraits?)\b/.test(t)){
-    next.subjectCount=Math.max(2,Number(next.subjectCount||0));
+  // Large/full image path: preserve visual image and deterministically overlay user-added text.
+  if(data.image){
+    return await compositeAddedTextOverImage(data.image,plan,w,h);
   }
-
-  // Persistent absolute positioning.
-  if(/\b(?:middle|center|centre)\b/.test(t) && /\b(?:move|place|put|position|pic|picture|image|speaker|person|subject|him|her|them)\b/.test(t)){
-    next.subjectAnchor='center';
-    next.subjectX=.50;
-    next.subjectPositionLocked=true;
-  }else if(/\b(?:right side|to the right|move right|place[\s\S]{0,20}right|put[\s\S]{0,20}right)\b/.test(t)){
-    next.subjectAnchor='right-third';
-    next.subjectX=.72;
-    next.subjectPositionLocked=true;
-  }else if(/\b(?:left side|to the left|move left|place[\s\S]{0,20}left|put[\s\S]{0,20}left)\b/.test(t)){
-    next.subjectAnchor='left-third';
-    next.subjectX=.28;
-    next.subjectPositionLocked=true;
-  }
-
-  // Literal size targets. User sizing overrides the default thumbnail zone.
-  const fullHeight=/\b(?:entire|full|whole|almost\s+full|nearly\s+full)\s+(?:height|banner height|canvas height)\b/.test(t) ||
-                   /\boccup(?:y|ies)\b[\s\S]{0,30}\b(?:entire|full|whole)\b[\s\S]{0,15}\bheight\b/.test(t);
-  const muchBigger=/\b(?:much|a lot|significantly|substantially)\s+(?:bigger|larger)\b/.test(t);
-  const bigger=/\b(?:bigger|larger|more visible|more prominent)\b/.test(t);
-  const zoomTight=/\b(?:zoom\s+in|closer|head\s*(?:and|&)\s*shoulders?|faces?\s+(?:bigger|larger|clearer|more visible)|crop\s+tighter)\b/.test(t);
-
-  if(mentionsVisual && (fullHeight||muchBigger||bigger||zoomTight)){
-    const current=Number(next.subjectTargetHeightPct||next.subjectHeightPct||0);
-    let target=current||78;
-    if(fullHeight) target=Math.max(target,98);
-    else if(muchBigger) target=Math.max(target,94);
-    else if(zoomTight) target=Math.max(target,94);
-    else if(bigger) target=Math.max(target,86);
-
-    // Repeated "bigger" requests continue to have an effect.
-    if(bigger && current>=86 && !fullHeight && !muchBigger)target=Math.min(100,current+7);
-
-    next.subjectTargetHeightPct=Math.min(100,target);
-    next.subjectHeightPct=next.subjectTargetHeightPct;
-    next.subjectScale=1;
-    next.subjectScaleLocked=true;
-    next.subjectSizeLocked=true;
-
-    // Explicit subject sizing gets more horizontal room than the default thumbnail zone.
-    next.subjectZonePct=Math.max(Number(next.subjectZonePct||0),
-      fullHeight?60:(muchBigger||zoomTight?54:48));
-
-    if(zoomTight)next.subjectCropMode='upper-body';
-  }
-
-  // Swap visual order whenever user clearly refers to two subjects.
-  if(/\b(?:swap|switch(?:\s+places?|\s+positions?)|change\s+places?)\b/.test(t)){
-    if(Number(next.subjectCount||0)<2 &&
-       /\b(?:2|two|both|women|speakers?|people|pictures?|images?)\b/.test(t)){
-      next.subjectCount=2;
-    }
-    if(Number(next.subjectCount||0)>=2){
-      next.subjectOrder=next.subjectOrder==='reverse'?'normal':'reverse';
-      next.subjectOrderLocked=true;
-    }
-  }
-
-  next.visualState={
-    ...(next.visualState||{}),
-    subjectAnchor:next.subjectAnchor,
-    subjectX:next.subjectX,
-    subjectScale:next.subjectScale,
-    subjectTargetHeightPct:next.subjectTargetHeightPct,
-    subjectZonePct:next.subjectZonePct,
-    subjectCropMode:next.subjectCropMode,
-    subjectCount:next.subjectCount,
-    subjectOrder:next.subjectOrder||'normal'
-  };
-  return next;
+  throw Error('The current design cannot be rendered locally.');
 }
 
 async function renderPlanLocally(data,target){
-  if(data.renderMode==='canvas-first-banner-composer')return await buildCanvasFirstBanner(data,target[1],target[2]);
-  if(data.renderMode==='visual-first-banner-composer')return await buildVisualFirstBanner(data,target[1],target[2]);
-  if(data.renderMode==='hybrid-banner-composer')return await buildHybridBanner(data,target[1],target[2]);
-  if(data.renderMode==='ai-banner-composer')return await fitAiBannerToExact(data.image,target[1],target[2]);
-  if(data.renderMode==='exact-banner')return await buildExactBanner(lastRenderedUrl||URL.createObjectURL(f),data.bannerPlan,target[1],target[2]);
-  if(data.image)return await compositeAddedTextOverImage(data.image,data.bannerPlan||{},target[1],target[2]);
-  throw Error('The current design cannot be rendered locally.');
+  return await renderUniversalDesignState(data,target);
 }
 
 
@@ -453,6 +375,109 @@ function renderExtraFacts(plan={}){
   return all.filter((v,i,a)=>a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);
 }
 
+
+
+function defaultTextStyleForRole(role='body'){
+  const r=String(role||'body').toLowerCase();
+  if(r==='headline')return {fontFamily:'Arial',fontWeight:800,color:'#111111',align:'left',role:r};
+  if(r==='cta')return {fontFamily:'Arial',fontWeight:800,color:'#111111',align:'center',role:r};
+  if(r==='dateTime'||r==='venue'||r==='address')return {fontFamily:'Arial',fontWeight:700,color:'#222222',align:'left',role:r};
+  return {fontFamily:'Arial',fontWeight:600,color:'#222222',align:'left',role:r};
+}
+
+function inferTextStylesFromPlan(plan={}){
+  const styleMap={...(plan.textStyles||{})};
+  const roles=['headline','dateTime','venue','address','cta'];
+  for(const role of roles){
+    if(!styleMap[role])styleMap[role]=defaultTextStyleForRole(role);
+  }
+  // Keep user- or planner-supplied style hints when available.
+  const hints=plan.styleHints||plan.typography||{};
+  if(hints.headlineColor)styleMap.headline={...styleMap.headline,color:hints.headlineColor};
+  if(hints.ctaColor)styleMap.cta={...styleMap.cta,color:hints.ctaColor};
+  if(hints.fontFamily){
+    Object.keys(styleMap).forEach(k=>styleMap[k]={...styleMap[k],fontFamily:hints.fontFamily});
+  }
+  return styleMap;
+}
+
+function normalizeDesignState(data={}){
+  const plan={...(data.bannerPlan||{})};
+  plan.textStyles=inferTextStylesFromPlan(plan);
+
+  const textElements=[];
+  const addText=(id,label,text,role=id)=>{
+    const t=String(text||'').trim();
+    if(!t)return;
+    const existing=(plan.textElements||[]).find(x=>x.id===id);
+    textElements.push({
+      id,label,text:t,role,
+      style:{...defaultTextStyleForRole(role),...(plan.textStyles?.[id]||{}),...(existing?.style||{})},
+      visible:existing?.visible!==false
+    });
+  };
+  addText('headline','Headline',plan.headline,'headline');
+  addText('dateTime','Date / time',plan.dateTime||plan.detail,'dateTime');
+  addText('venue','Venue',plan.venue,'venue');
+  addText('address','Address / location',plan.address||plan.secondary,'address');
+  addText('cta','Call to action',plan.cta,'cta');
+  (plan.extraFacts||[]).forEach((t,i)=>{
+    const existing=(plan.textElements||[]).find(x=>x.id===`extra-${i}`);
+    textElements.push({
+      id:`extra-${i}`,label:'Additional text',text:String(t),role:'extra',
+      style:{...defaultTextStyleForRole('body'),...(existing?.style||{})},
+      visible:existing?.visible!==false
+    });
+  });
+  (plan.manualTextElements||[]).forEach((t,i)=>{
+    const id=t.id||`manual-${i}`;
+    const existing=(plan.textElements||[]).find(x=>x.id===id);
+    textElements.push({
+      id,label:t.label||'Added text',text:String(t.text||''),role:'manual',
+      style:{...defaultTextStyleForRole('body'),...(t.style||{}),...(existing?.style||{})},
+      visible:existing?.visible!==false
+    });
+  });
+
+  plan.textElements=textElements;
+  plan.designStateVersion=1;
+  return {...data,bannerPlan:plan};
+}
+
+function captureCurrentVersionState(instruction='',kind='Generated'){
+  if(!lastServerResult||!lastDesignTarget)return;
+  const snap={
+    version:currentVersionNumber,
+    instruction:String(instruction||''),
+    kind,
+    renderedUrl:lastRenderedUrl,
+    target:[...lastDesignTarget],
+    data:JSON.parse(JSON.stringify(lastServerResult))
+  };
+  const existing=versionStates.findIndex(v=>v.version===snap.version);
+  if(existing>=0)versionStates[existing]=snap; else versionStates.push(snap);
+}
+
+function referencedVersionNumber(instruction=''){
+  const t=String(instruction||'').toLowerCase();
+  const m=t.match(/\b(?:from|revert(?:\s+to)?|use|start\s+from|go\s+back\s+to)\s+version\s+(\d+)\b/);
+  return m?Number(m[1]):null;
+}
+
+function baseStateForInstruction(instruction=''){
+  const ver=referencedVersionNumber(instruction);
+  if(!ver)return null;
+  return versionStates.find(v=>v.version===ver)||null;
+}
+
+function inheritStyleForNewText(plan={},label='Added text'){
+  const styles=plan.textStyles||{};
+  const manual=plan.textElements?.filter(x=>x.role==='manual'||x.role==='extra')||[];
+  if(manual.length)return {...manual[manual.length-1].style};
+  if(styles.cta)return {...styles.cta,role:'manual'};
+  if(styles.headline)return {...styles.headline,fontWeight:700,role:'manual'};
+  return defaultTextStyleForRole('body');
+}
 
 function normalizeElementType(raw=''){
   const s=String(raw||'').toLowerCase();
@@ -656,7 +681,7 @@ function resetDesignSession(clearFile=false){
   if($('modifyInstructions'))$('modifyInstructions').value='';
   if($('currentInstruction'))$('currentInstruction').style.display='none';
   textEditorRows=[];if($('textRows'))$('textRows').innerHTML='';
-  sourceElements=[];lastDiagnostics=[];if($('elementSummary'))$('elementSummary').innerHTML='';if($('elementList'))$('elementList').innerHTML='';setDiagnostics([]);
+  sourceElements=[];lastDiagnostics=[];versionStates=[];currentDesignState=null;if($('elementSummary'))$('elementSummary').innerHTML='';if($('elementList'))$('elementList').innerHTML='';setDiagnostics([]);
   if(clearFile){
     f=null;
     $('file').value='';
@@ -1579,7 +1604,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.26: instruction/layout intent MUST be initialized before subject placement.
+  // V7.27: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -1618,7 +1643,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.26 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.27 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -1822,7 +1847,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.26 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.27 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -1835,7 +1860,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.26 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.27 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -1858,6 +1883,7 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
     j.bannerPlan=applyVisualInstructionToPlan(j.bannerPlan||{},$('instructions').value||'');lastServerResult=j;lastRenderedUrl=ex;lastDesignTarget=[s[0],s[1],s[2]];$('modifyInstructions').value='';
     normalizeTextEditorFromPlan(j.bannerPlan||{});
     buildSourceElementLibrary(j);
+    captureCurrentVersionState($('instructions').value||'','Initial generation');
     setDiagnostics([{status:'applied',message:'Original artwork was analyzed and a reusable source-element library was created for later modifications.'}]);
     setCurrentInstruction($('instructions').value,'Initial instructions');
     $('validation').textContent=j.validationSummary||'Completed.';$('result').style.display='block';
@@ -1872,7 +1898,11 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
 
 $('addTextRow').onclick=()=>{
   const n=textEditorRows.filter(r=>r.kind==='manual').length+1;
-  textEditorRows.push({id:'manual-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),label:'Added text '+n,text:'',kind:'manual'});
+  const inherited=inheritStyleForNewText(lastServerResult?.bannerPlan||{},'Added text '+n);
+  textEditorRows.push({
+    id:'manual-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+    label:'Added text '+n,text:'',kind:'manual',role:'manual',style:inherited
+  });
   renderTextEditor();
   const rows=document.querySelectorAll('#textRows .textrow');
   rows[rows.length-1]?.querySelector('[data-role="value"]')?.focus();
@@ -1886,8 +1916,8 @@ $('applyTextEdits').onclick=async()=>{
   try{
     const rows=readTextEditorRows();
     const newPlan=applyRowsToPlan(lastServerResult.bannerPlan||{},rows);
-    const nextData={...lastServerResult,bannerPlan:newPlan};
-    const ex=await renderPlanLocally(nextData,lastDesignTarget);
+    const nextData=normalizeDesignState({...lastServerResult,bannerPlan:newPlan});
+    const ex=await renderUniversalDesignState(nextData,lastDesignTarget);
 
     archiveCurrentRun();
     currentVersionNumber++;
@@ -1896,11 +1926,12 @@ $('applyTextEdits').onclick=async()=>{
     $('download').href=ex;
     lastRenderedUrl=ex;
     lastServerResult=nextData;
+    captureCurrentVersionState('Direct text/content edit','Text/content edit');
     normalizeTextEditorFromPlan(newPlan);
     buildSourceElementLibrary(lastServerResult);
     setDiagnostics([{status:'applied',message:'Direct text/content edits were applied exactly and stored as current design state.'}]);
     setCurrentInstruction('Direct text/content edit','Text/content edit');
-    $('validation').textContent='V7.26 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
+    $('validation').textContent='V7.27 applied exact text/content edits directly to the current design state. The renderer is not allowed to rewrite or shorten these values.';
   }catch(e){
     $('error').textContent='Text edit failed: '+e.message;
     $('error').style.display='block';
@@ -1910,8 +1941,16 @@ $('applyTextEdits').onclick=async()=>{
 };
 
 $('modifyBtn').onclick=async()=>{
+  let explicitBaseState=null;
+
   const beforeModifyPlan={...(lastServerResult?.bannerPlan||{})};
   const instructions=$('modifyInstructions').value.trim();
+    explicitBaseState=baseStateForInstruction(instructions);
+    const baseData=explicitBaseState?JSON.parse(JSON.stringify(explicitBaseState.data)):lastServerResult;
+    if(explicitBaseState){
+      setDiagnostics([{status:'applied',message:`Version ${explicitBaseState.version} was selected as the base for this new branch.`}]);
+    }
+
   if(!f || !lastServerResult || !instructions)return;
   const b=$('modifyBtn');
   b.disabled=true;b.textContent='Modifying…';
@@ -1942,7 +1981,7 @@ $('modifyBtn').onclick=async()=>{
     // Keep the modify request small. Do NOT send base64/data-URL visual assets
     // inside priorPlan; the original upload is already sent as `image`, and the
     // browser retains the current visual assets locally for rendering.
-    const priorPlanForModify=applyVisualInstructionToPlan(lastServerResult.bannerPlan||{},instructions);
+    const priorPlanForModify=applyVisualInstructionToPlan(baseData.bannerPlan||{},instructions);
     delete priorPlanForModify.sourceImage;
     delete priorPlanForModify.backgroundArt;
     delete priorPlanForModify.subjectAsset;
@@ -1956,12 +1995,12 @@ $('modifyBtn').onclick=async()=>{
     if(!r.ok)throw Error(j.error||`Modification failed (HTTP ${r.status})`);
 
     if(j.reuseAssets){
-      j.sourceImage=j.sourceImage||lastServerResult.sourceImage;
-      j.backgroundArt=j.backgroundArt||lastServerResult.backgroundArt;
-      j.subjectAsset=j.subjectAsset||lastServerResult.subjectAsset;
+      j.sourceImage=j.sourceImage||baseData.sourceImage;
+      j.backgroundArt=j.backgroundArt||baseData.backgroundArt;
+      j.subjectAsset=j.subjectAsset||baseData.subjectAsset;
     }
     j.bannerPlan=applyVisualInstructionToPlan(
-      {...(j.bannerPlan||lastServerResult.bannerPlan||{}), ...priorPlanForModify},
+      {...(j.bannerPlan||baseData.bannerPlan||{}), ...priorPlanForModify},
       instructions
     );
 
@@ -2003,6 +2042,7 @@ $('modifyBtn').onclick=async()=>{
     };
     lastRenderedUrl=ex;
     lastDesignTarget=target;
+    captureCurrentVersionState(instructions,explicitBaseState?`Branched from version ${explicitBaseState.version}`:'Modify instruction');
     normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{});
     buildSourceElementLibrary(lastServerResult);
     setDiagnostics(diagnosticsForInstruction(beforeModifyPlan,lastServerResult.bannerPlan||{},instructions));

@@ -1,47 +1,53 @@
-# Muslim Link Image Reshaper — V7.26
+# Muslim Link Image Reshaper — V7.27
 
-## V7.26 — Source element library + modification diagnostics
+## V7.27 — Universal design state, instant text edits, style inheritance, and version branching
 
-### Source elements
-After the first generation, the app builds a reusable library of elements identified from the original artwork.
+### One structured design state for every size
+V7.27 normalizes every result into a universal `designState` / `bannerPlan` before it reaches the editor.
 
-The new **Source elements** panel groups what is available, including:
-- People / speakers
-- Logos
-- Background artwork
-- Text
-- Other identified elements
+This means the text editor no longer depends on the extreme-banner renderer. Large poster/social formats and compact banners use the same text-element model whenever text was extracted.
 
-Each item is labelled:
-- **Reusable** — available as a reusable asset/reference
-- **Grouped / partial** — detected but contained inside a combined asset
-- **Reference only** — detected but not isolated cleanly
+If no text was extracted, **+ Add text** still works and is rendered immediately.
 
-The source-element library is intended to support later instructions such as:
-- add / restore an element from the original artwork
-- move an element
-- make an element larger
-- remove an element
-- swap two people
-- bring back a logo or featured person
+### Instant Apply text changes
+**Apply text changes** is now a local design-state operation.
 
-### Modification results
-Every Modify run now shows a **Modification results** panel with:
-- Applied
-- Partial
-- Could not apply
+The flow is:
+1. update the current text element state;
+2. render the current design locally;
+3. save a new version;
+4. do not wait for or require a new AI generation.
 
-Examples:
-- Applied: subject position was updated and locked.
-- Partial: requested person is part of a grouped subject image and cannot yet be inserted independently.
-- Could not apply: no matching reusable element was identified in the original artwork.
+This makes newly added text appear immediately on the current version.
 
-The diagnostic messages are based on actual element/state availability checks so the application no longer silently ignores unsupported requests.
+### Font/color/style inheritance
+Each text element now carries style metadata:
+- font family hint
+- font weight
+- color
+- alignment
+- role
 
-### Retained V7.25 behavior
-- Literal subject-height controls
-- Large-format added-text compositor
-- Stable text fields with no duplication
-- Dynamic Edit text & content
+When exact style information is unavailable, V7.27 preserves planner/user style hints and uses role-based fallbacks instead of always forcing one generic black style.
+
+Newly added text inherits from recent extra/CTA/headline styling where possible.
+
+### Version-targeted branching
+Modify instructions may reference an earlier version:
+
+- “revert to version 6 and add ...”
+- “from version 6, move the picture ...”
+- “use version 4 and make the headline larger”
+
+The referenced version becomes the base state for the new change. Later versions remain in history; the tool creates a new branch/version from the requested base.
+
+### Diagnostics
+When a version reference is used, the Modification Results panel reports which version was selected as the base.
+
+### Retained V7.26 behavior
+- Source elements panel
+- Applied / Partial / Could not apply diagnostics
+- Literal subject sizing
+- Stable text fields
 - Persistent subject state
-- Version history
+- Large-format added-text compositor
