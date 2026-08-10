@@ -106,7 +106,7 @@ footer>br,footer>text{display:none}
   .action button{width:100%}
 }
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.21:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.22:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -149,7 +149,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.21 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.21 also fixes the compact/leaderboard instruction-layout initialization error. V7.21 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.22 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.22 also fixes the compact/leaderboard instruction-layout initialization error. V7.22 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -175,7 +175,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.21</div>
+  <div class="versionfooter">Version 7.22</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 
 function setCurrentInstruction(text,kind='Initial generation'){
@@ -968,7 +968,7 @@ async function trimTransparentImage(img){
   return out;
 }
 
-function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale=1,factScale=1){
+function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale=1,factScale=1,options={}){
   extraFacts=Array.isArray(extraFacts)?extraFacts:[];
   const headMaxH=Math.round(h*.50*headlineScale);
   const headFit=fitHeadlineBlock(ctx,headline,copyW,headMaxH,2);
@@ -979,7 +979,7 @@ function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,
   if(location)facts.push({text:location,weight:'700',max:Math.max(11,Math.round(h*.17*factScale)),min:Math.max(8,Math.round(h*.105))});
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
-    const stronglyEmphasized=emphasizeDates||emphasizeSpeakerNames;
+    const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
     facts.push({
       text:extra,
       weight:required?'800':'700',
@@ -1033,7 +1033,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.21: instruction/layout intent MUST be initialized before subject placement.
+  // V7.22: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
@@ -1069,7 +1069,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.21 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.22 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -1169,7 +1169,7 @@ async function buildCanvasFirstBanner(data,w,h){
 
   // Keep V6.7's improved adaptive text sizing.
   x.textBaseline='top';x.fillStyle=textColor;
-  let density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,micro?.82:1,micro?.82:1);
+  let density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,micro?.82:1,micro?.82:1,{emphasizeDates,emphasizeSpeakerNames});
   const usableH=h-outer*2;
   const usedRatio=Math.min(1,(density.used-outer)/Math.max(1,usableH));
 
@@ -1182,10 +1182,10 @@ async function buildCanvasFirstBanner(data,w,h){
     headlineScale=.82;factScale=.82;
   }
 
-  density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale,factScale);
+  density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale,factScale,{emphasizeDates,emphasizeSpeakerNames});
 
   if([dateTime,location,extra].filter(Boolean).length<=1){
-    density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,Math.max(headlineScale,1.14),Math.max(factScale,1.08));
+    density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,Math.max(headlineScale,1.14),Math.max(factScale,1.08),{emphasizeDates,emphasizeSpeakerNames});
   }
 
   x.fillStyle=textColor;
@@ -1260,7 +1260,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.21 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.22 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -1273,7 +1273,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.21 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.22 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);

@@ -1,23 +1,23 @@
-# Muslim Link Image Reshaper — V7.21
+# Muslim Link Image Reshaper — V7.22
 
-V7.21 makes **Modify Instructions authoritative**, especially for text changes, while retaining the frontend reliability fixes introduced in V7.20.
+## V7.22 — structured modification state
 
-## V7.21 — Authoritative Modify Instructions
-- Explicit user text instructions have deterministic priority over extracted/source copy.
-- Supports natural phrases such as “add the subheading X after the heading Y”.
-- “Missing/complete to the end” instructions append the requested phrase to the current protected headline.
-- Speaker-name instructions can remove a detached name box and integrate names into the artwork.
-- Existing iterative version history and current-design modification workflow are preserved.
+This version changes Modify from a prompt-only workflow into a state-patch workflow.
 
-## Retained from V7.20 — Frontend Reliability
-V7.20 fixed the non-responsive Step 1 / Step 2 / Step 3 controls caused by JavaScript parse-stopping redeclarations.
+### Fixed
+- Fixed `emphasizeDates is not defined` in compact/leaderboard rendering.
+- Newest Modify instruction is parsed into a structured patch before layout.
+- Text changes are applied deterministically to the current design state, not left to the image model.
+- Requests like `add the text "on the Ballot" so it's "Your Future on the Ballot"` merge the requested final phrase into the current protected headline.
+- Explicit `change headline/title/name to "..."` requests replace the headline exactly.
+- Speaker-name and date requests persist in current design state.
+- `make dates bigger` or `make speaker names legible` can modify facts already added in an earlier version without asking to add them again.
+- Speaker-name placement/style directives remain persistent.
 
-Retained fixes include:
-- removal of duplicate text-layout helper declarations
-- removal of the duplicate `target` declaration
-- complete frontend-script validation before packaging
-- V7.18 uploader wiring
-- all V7.19 destination presets
-- explicitly wired custom dimensions
+### Priority model
+1. Newest user Modify instruction
+2. Current design state
+3. Verified source facts
+4. AI art/layout decisions
 
-All backend, history, text-priority, and modify-current-design behavior from the preceding versions remains included unless superseded by the V7.21 instruction-priority behavior above.
+The AI may choose layout, wrapping, position, scale, and visual treatment, but it must not undo explicit user text changes.

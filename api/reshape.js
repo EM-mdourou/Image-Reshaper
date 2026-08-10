@@ -80,7 +80,7 @@ async function vision(key,data,prompt,opts={}){
 
   const recovery=`${prompt}
 
-V7.21 RECOVERY MODE:
+V7.22 RECOVERY MODE:
 Return the requested answer as visible plain text now.
 Do not return only reasoning.
 Do not omit the answer.
@@ -93,7 +93,7 @@ Use only information visible in the attached source image.`;
   if(extraction||opts.allowModelFallback){
     text=await run("fallback","gpt-4.1",null,opts.fallbackMaxOutput||3600,recovery);
     if(text){
-      console.warn("V7.21 source-analysis fallback to gpt-4.1 succeeded.");
+      console.warn("V7.22 source-analysis fallback to gpt-4.1 succeeded.");
       return text;
     }
   }
@@ -405,7 +405,7 @@ Rules:
   return Object.freeze({headline,detail,secondary,cta});
 }
 function applyProtectedFacts(composer,manifest){
-  // V7.21: the layout model has zero authority to author display copy.
+  // V7.22: the layout model has zero authority to author display copy.
   composer.headline=manifest.headline||"";
   composer.detail=manifest.detail||"";
   composer.secondary=manifest.secondary||"";
@@ -695,7 +695,7 @@ function augmentInstructionManifestFromRaw(raw="",manifest={}){
     }
   }
 
-  // V7.21: newest user instruction is authoritative for deterministic text/styling.
+  // V7.22: newest user instruction is authoritative for deterministic text/styling.
   const appendAfter=t.match(/\b(?:add|insert|put|place|include|append)\b[\s\S]{0,55}?\b(?:subheading|subtitle|text|words?|phrase)\b[\s\S]{0,30}?["“]([^"”]+)["”][\s\S]{0,90}?\b(?:after|right\s+after|following)\b[\s\S]{0,55}?\b(?:the\s+)?(?:heading|headline|title|words?)\b[\s\S]{0,30}?["“]([^"”]+)["”]/i);
   if(appendAfter?.[1]&&appendAfter?.[2]){
     m.headlineOverride=mergeHeadlineCompletion(cleanDisplayFact(appendAfter[2]),cleanDisplayFact(appendAfter[1]));
@@ -784,6 +784,71 @@ function explicitTextOverridesFromRaw(raw=""){
   const secondary=q("venue|address|location|secondary"); if(secondary?.[1])out.secondary=cq(secondary[1]);
   const cta=q("cta|button|call to action"); if(cta?.[1])out.cta=cq(cta[1]);
   return out;
+}
+
+
+function structuredDesignPatchFromRaw(raw="",currentFacts={}){
+  const t=String(raw||"").trim();
+  const q=[...t.matchAll(/["“]([^"”]{1,220})["”]/g)].map(m=>cleanDisplayFact(m[1])).filter(Boolean);
+  const patch={text:{},facts:{},layout:{},style:{},sourceElements:[]};
+
+  // Exact replacement requests.
+  let m=t.match(/\b(?:headline|title|name)\b[\s\S]{0,70}?\b(?:should\s+be|should\s+say|change(?:\s+it)?\s+to|replace(?:\s+it)?\s+with|set(?:\s+it)?\s+to|correct(?:\s+it)?\s+to)\b[\s\S]{0,25}?["“]([^"”]+)["”]/i);
+  if(m?.[1])patch.text.headline={op:"set",value:cleanDisplayFact(m[1])};
+
+  // Natural correction: add "X" so it's "Y". Y is the desired visible phrase;
+  // merge it with the current headline so source prefix such as "Ottawa Votes:" survives.
+  if(!patch.text.headline && q.length>=2 && /\b(?:so\s+(?:it'?s|it\s+is|it\s+reads|it\s+becomes)|so\s+the\s+(?:headline|title)\s+(?:is|reads))\b/i.test(t)){
+    patch.text.headline={op:"merge",value:q[q.length-1]};
+  }
+
+  // Add/append quoted text to the existing headline.
+  if(!patch.text.headline && /\b(?:add|append|include|insert|put)\b/i.test(t) && /\b(?:text|words?|phrase|subheading|subtitle|headline|title)\b/i.test(t) && q.length){
+    patch.text.headline={op:"merge",value:q[0]};
+  }
+
+  // "missing ... 'X'" or "complete ... 'X'" also means merge X into current headline.
+  if(!patch.text.headline && /\b(?:missing|complete|finish|full\s+headline|to\s+the\s+end)\b/i.test(t) && q.length){
+    patch.text.headline={op:"merge",value:q[q.length-1]};
+  }
+
+  // Deterministic factual/source-element requests persist into design state.
+  if(/\b(?:add|show|include|display|put|place)\b[\s\S]{0,40}\bspeakers?'?\s+names?\b|\bspeaker names?\b/i.test(t)){
+    patch.facts.requireSpeakerNames=true;
+  }
+  if(/\b(?:add|show|include|display|put|place)\b[\s\S]{0,40}\bdates?\b/i.test(t))patch.facts.requireDates=true;
+  if(/\bdates?\b/i.test(t)&&/\b(?:big|bigger|larger|legible|readable|more\s+legible|increase)\b/i.test(t))patch.layout.emphasizeDates=true;
+  if(/\bspeakers?'?\s+names?\b|\bspeaker names?\b/i.test(t)&&/\b(?:big|bigger|larger|legible|readable|more\s+legible|increase)\b/i.test(t))patch.layout.emphasizeSpeakerNames=true;
+  if(/\bspeakers?'?\s+names?\b|\bspeaker names?\b/i.test(t)&&/\b(?:right(?:\s+side)?|on\s+the\s+right)\b/i.test(t))patch.layout.speakerNamesPlacement="right side";
+  if(/\bspeakers?'?\s+names?\b|\bspeaker names?\b/i.test(t)&&/\b(?:part\s+of\s+the\s+design|integrat(?:e|ed)|inline|not\s+(?:a\s+)?block|not\s+(?:a\s+)?list)\b/i.test(t))patch.style.speakerNamesMode="inline";
+  if(/\b(?:remove|no|without|delete)\b[\s\S]{0,35}\b(?:background|box|panel)\b/i.test(t)&&/\b(?:speaker|speakers|names?|label)\b/i.test(t))patch.style.speakerNamesBackground="none";
+
+  return patch;
+}
+
+function applyStructuredDesignPatchToFacts(facts,patch={}){
+  let next={...(facts||{})};
+  const hp=patch?.text?.headline;
+  if(hp?.value){
+    next.headline=hp.op==="set"?cleanDisplayFact(hp.value):mergeHeadlineCompletion(next.headline||"",hp.value);
+  }
+  return Object.freeze(next);
+}
+
+function applyStructuredPatchToManifest(manifest={},patch={}){
+  const m={...manifest};
+  m.requiredVisibleFacts=[...(m.requiredVisibleFacts||[])];
+  m.layoutDirectives=[...(m.layoutDirectives||[])];
+  m.designDirectives=[...(m.designDirectives||[])];
+  const add=(arr,v)=>{if(v&&!arr.some(x=>String(x).toLowerCase()===String(v).toLowerCase()))arr.push(v)};
+  if(patch?.facts?.requireSpeakerNames)add(m.requiredVisibleFacts,"speaker names");
+  if(patch?.facts?.requireDates)add(m.requiredVisibleFacts,"all visible dates");
+  if(patch?.layout?.emphasizeDates)add(m.layoutDirectives,"EMPHASIZE_DATES");
+  if(patch?.layout?.emphasizeSpeakerNames)add(m.layoutDirectives,"EMPHASIZE_SPEAKER_NAMES");
+  if(patch?.layout?.speakerNamesPlacement)m.requiredFactsPlacement=patch.layout.speakerNamesPlacement;
+  if(patch?.style?.speakerNamesMode==="inline")add(m.designDirectives,"SPEAKER_NAMES_INLINE");
+  if(patch?.style?.speakerNamesBackground==="none")add(m.designDirectives,"SPEAKER_NAMES_NO_BACKGROUND");
+  return Object.freeze(m);
 }
 
 function applyAuthoritativeUserText(facts,raw=""){
@@ -1177,7 +1242,7 @@ Art-direction rules:
 export default async function handler(req,res){
 const len=Number(req.headers?.["content-length"]||0);
 if(req.method==="POST" && len>4_000_000){
-  return res.status(413).json({error:"Upload is too large for the serverless function. V7.21 should compress the source image in the browser before upload; please refresh and try again."});
+  return res.status(413).json({error:"Upload is too large for the serverless function. V7.22 should compress the source image in the browser before upload; please refresh and try again."});
 }
 
 if(req.method==='GET')return res.status(200).json({ok:true,route:'/api/reshape',version:'7.8'});
@@ -1240,8 +1305,9 @@ For banner output, visual interest is required: use a focused source visual and 
     if((tr>2.4 && h<=160) || tr<0.2){
       const sourceData=`data:${im.type||"image/png"};base64,${im.data.toString("base64")}`;
 
-      // V7.21 MODIFY MODE: update the LAST generated plan rather than starting over.
+      // V7.22 MODIFY MODE: update the LAST generated plan rather than starting over.
       if(requestMode==="modify" && priorPlan){
+        const structuredPatch=structuredDesignPatchFromRaw(extra,{headline:priorPlan.headline||"",detail:priorPlan.detail||priorPlan.dateTime||"",secondary:priorPlan.secondary||priorPlan.address||"",cta:priorPlan.cta||""});
         let modifyManifest;
         try{
           modifyManifest=await interpretUserInstructions(key,sourceData,extra);
@@ -1257,6 +1323,8 @@ For banner output, visual interest is required: use a focused source visual and 
           });
         }
 
+        modifyManifest=applyStructuredPatchToManifest(modifyManifest,structuredPatch);
+
         let modifyFacts=Object.freeze({
           headline:drawableFact(priorPlan.headline||""),
           detail:drawableFact(priorPlan.detail||priorPlan.dateTime||""),
@@ -1268,8 +1336,9 @@ For banner output, visual interest is required: use a focused source visual and 
         modifyFacts=applyInstructionManifestToFacts(modifyFacts,modifyManifest);
         modifyFacts=applyUserFactOverrides(modifyFacts,extra);
         modifyFacts=applyAuthoritativeUserText(modifyFacts,extra);
+        modifyFacts=applyStructuredDesignPatchToFacts(modifyFacts,structuredPatch);
 
-        if(!explicitTextOverridesFromRaw(extra).headline && modifyManifest?.headlineCompletionPhrase){
+        if(!structuredPatch?.text?.headline && !explicitTextOverridesFromRaw(extra).headline && modifyManifest?.headlineCompletionPhrase){
           modifyFacts=Object.freeze({
             ...modifyFacts,
             headline:mergeHeadlineCompletion(modifyFacts.headline,modifyManifest.headlineCompletionPhrase)
@@ -1292,6 +1361,7 @@ For banner output, visual interest is required: use a focused source visual and 
         modified.requiredVisibleFacts=modifyManifest?.requiredVisibleFacts||modified.requiredVisibleFacts||[];
         modified.requiredFactsPlacement=modifyManifest?.requiredFactsPlacement||modified.requiredFactsPlacement||"";
         modified.modifyInstructions=extra;
+        modified.lastStructuredPatch=structuredPatch;
 
         res.setHeader("Cache-Control","no-store");
 return res.status(200).json({
@@ -1299,11 +1369,12 @@ return res.status(200).json({
           width:w,height:h,
           bannerPlan:modified,
           reuseAssets:true,
-          validationSummary:"V7.21 modified the current design. The newest user instruction had absolute priority and current visual assets were preserved."
+          validationSummary:"V7.22 modified the current design using a structured state patch. The newest user instruction was applied deterministically before layout, and current visual assets were preserved."
         });
       }
 
-      // V7.21 stage 0: understand Optional Instructions as a first-class manifest.
+      // V7.22 stage 0: understand Optional Instructions as a first-class manifest.
+      const initialStructuredPatch=structuredDesignPatchFromRaw(extra,{});
       let instructionManifest;
       try{
         instructionManifest=await interpretUserInstructions(key,sourceData,extra);
@@ -1314,7 +1385,9 @@ return res.status(200).json({
         instructionManifest=augmentInstructionManifestFromRaw(extra,{headlineOverride:"",headlineCompletionPhrase:"",detailOverride:"",secondaryOverride:"",ctaOverride:"",requestedSourceElements:[],sourceElementPlacement:"",requiredVisibleFacts:[],requiredFactsPlacement:"",layoutDirectives:[],designDirectives:[],preserveExactPhrases:[]});
       }
 
-      // V7.21 stage 1: extract factual display copy before any layout/design reasoning.
+      instructionManifest=applyStructuredPatchToManifest(instructionManifest,initialStructuredPatch);
+
+      // V7.22 stage 1: extract factual display copy before any layout/design reasoning.
       let protectedFacts;
       try{ protectedFacts=await buildProtectedFactManifest(key,sourceData,w,h); }
       catch(e){
@@ -1323,20 +1396,21 @@ return res.status(200).json({
         protectedFacts=Object.freeze({headline:fallback.headline||"",detail:fallback.detail||"",secondary:"",cta:fallback.cta||""});
       }
 
-      // V7.21: interpreted user corrections outrank extraction; regex parser remains as fallback.
+      // V7.22: interpreted user corrections outrank extraction; regex parser remains as fallback.
       protectedFacts=applyInstructionManifestToFacts(protectedFacts,instructionManifest);
       protectedFacts=applyUserFactOverrides(protectedFacts,extra);
       protectedFacts=applyAuthoritativeUserText(protectedFacts,extra);
+      protectedFacts=applyStructuredDesignPatchToFacts(protectedFacts,initialStructuredPatch);
 
-      // V7.21: resolve natural-language "missing ending" headline requests against the ORIGINAL source.
-      if(!explicitTextOverridesFromRaw(extra).headline && instructionManifest?.headlineCompletionPhrase){
+      // V7.22: resolve natural-language "missing ending" headline requests against the ORIGINAL source.
+      if(!initialStructuredPatch?.text?.headline && !explicitTextOverridesFromRaw(extra).headline && instructionManifest?.headlineCompletionPhrase){
         const completeHeadline=await resolveHeadlineCompletion(
           key,sourceData,protectedFacts.headline,instructionManifest.headlineCompletionPhrase
         );
         protectedFacts=Object.freeze({...protectedFacts,headline:completeHeadline});
       }
 
-      // V7.21: facts the user explicitly asks to see become protected display facts,
+      // V7.22: facts the user explicitly asks to see become protected display facts,
       // rather than optional art-direction suggestions.
       const requiredFacts=await extractRequiredVisibleFacts(
         key,sourceData,instructionManifest?.requiredVisibleFacts||[]
@@ -1355,7 +1429,7 @@ return res.status(200).json({
         composer={headline:"",detail:"",secondary:"",cta:"",visual:"none",subjectDescription:"",subjectSide:"right",style:"",accent:"#9ABB35",textColor:"#111111"};
       }
 
-      // V7.21 stage 2: protected facts are re-applied AFTER planning. Planner metadata can never become drawable copy.
+      // V7.22 stage 2: protected facts are re-applied AFTER planning. Planner metadata can never become drawable copy.
       const invPlan=bannerPlanFromInventory(inventory,extra);
       composer=applyProtectedFacts(composer,protectedFacts);
       composer.requestedSourceElements=instructionManifest?.requestedSourceElements||[];
@@ -1380,7 +1454,7 @@ return res.status(200).json({
       try{ composer=await artDirectorRefinePlan(key,sourceData,w,h,composer,instructionManifest); }
       catch(e){ console.error("Art-director refinement failed; using first-pass plan:",e?.message||e); }
 
-      // V7.21 stage 3: lock again after art direction and fail closed on any copy mutation/leak.
+      // V7.22 stage 3: lock again after art direction and fail closed on any copy mutation/leak.
       composer=applyProtectedFacts(composer,protectedFacts);
       const copyAudit=validateProtectedFacts(composer,protectedFacts);
       if(!copyAudit.ok) throw Error("Protected display-copy validation failed: "+copyAudit.failures.join(", "));
@@ -1414,7 +1488,7 @@ return res.status(200).json({
         backgroundArt:visualArt,
         subjectAsset,
         bannerPlan:composer,
-        validationSummary:`V7.21 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
+        validationSummary:`V7.22 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
         modelInfo:{planner:PLANNER_MODEL,reasoning:PLANNER_REASONING,api:"responses",imageRequested:IMAGE_MODEL,imageFallback:IMAGE_MODEL_FALLBACK}
       });
     }
@@ -1492,12 +1566,12 @@ HIGHEST-PRIORITY USER OVERRIDE RULE:
 // The original upload still remains available above for source inventory/fact verification.
 let editInput=(requestMode==="modify"&&currentIm)?currentIm:im;
 let editMime=editInput.type||mime;
-let b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt,sp.size);let val="PASS";try{let val=await vision(key,`data:image/png;base64,${b}`,`Compare this generated adaptation against this source inventory:\n${inventory}\nEvaluate whether any clearly new/unrequested element was invented (especially QR codes, barcodes, logos, badges, people, URLs or CTAs), whether important content appears clipped at the canvas edges, whether major source elements appear missing, whether a visible source address was dropped while its venue was retained, and whether equivalent speaker cards/footer groups are conspicuously off-center or unequal, and whether a wide target has excessive blank side zones or looks like a narrow portrait poster inside a landscape frame, or squeezes the whole source into tiny unreadable content instead of creating a real banner, or resembles a cropped horizontal slice through a larger poster, OR simply places/shrinks the original source poster inside the new destination instead of genuinely recomposing it. For 300x250, 320x100, 320x50 and other small ad sizes, explicitly flag LETTERBOXED/PRESERVED-looking results that do not use the destination geometry intentionally. Return exactly PASS or RETRY: <brief reasons>.`,{mode:"extract",effort:"none",recoveryEffort:"none",maxOutput:1000,recoveryMaxOutput:1400,allowModelFallback:true});}catch(e){console.warn("V7.21 visual QA unavailable; preserving successful render:",e?.message||e);val="PASS";}let retried=false;if(/^RETRY:/i.test(val.trim())){retried=true;b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt+`\n\nVALIDATION FAILURE FROM FIRST ATTEMPT:\n${val}\nCorrect these failures. Remove every invented element and pull all important content further inside the safe zone.`,sp.size)}res.setHeader('Cache-Control','no-store');return res.status(200).json({image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:'contain',validationSummary:retried?'V7.21 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='modify'?'V7.21 modified the current rendered design and preserved unrequested content.':'V7.21 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.')})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
+let b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt,sp.size);let val="PASS";try{let val=await vision(key,`data:image/png;base64,${b}`,`Compare this generated adaptation against this source inventory:\n${inventory}\nEvaluate whether any clearly new/unrequested element was invented (especially QR codes, barcodes, logos, badges, people, URLs or CTAs), whether important content appears clipped at the canvas edges, whether major source elements appear missing, whether a visible source address was dropped while its venue was retained, and whether equivalent speaker cards/footer groups are conspicuously off-center or unequal, and whether a wide target has excessive blank side zones or looks like a narrow portrait poster inside a landscape frame, or squeezes the whole source into tiny unreadable content instead of creating a real banner, or resembles a cropped horizontal slice through a larger poster, OR simply places/shrinks the original source poster inside the new destination instead of genuinely recomposing it. For 300x250, 320x100, 320x50 and other small ad sizes, explicitly flag LETTERBOXED/PRESERVED-looking results that do not use the destination geometry intentionally. Return exactly PASS or RETRY: <brief reasons>.`,{mode:"extract",effort:"none",recoveryEffort:"none",maxOutput:1000,recoveryMaxOutput:1400,allowModelFallback:true});}catch(e){console.warn("V7.22 visual QA unavailable; preserving successful render:",e?.message||e);val="PASS";}let retried=false;if(/^RETRY:/i.test(val.trim())){retried=true;b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt+`\n\nVALIDATION FAILURE FROM FIRST ATTEMPT:\n${val}\nCorrect these failures. Remove every invented element and pull all important content further inside the safe zone.`,sp.size)}res.setHeader('Cache-Control','no-store');return res.status(200).json({image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:'contain',validationSummary:retried?'V7.22 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='modify'?'V7.22 modified the current rendered design and preserved unrequested content.':'V7.22 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.')})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
 
 
 /*
 
-CONTROLLED CREATIVE FREEDOM — V7.21:
+CONTROLLED CREATIVE FREEDOM — V7.22:
 The final canvas is exactly 728x90 and MUST be treated as the design surface from the first decision.
 Do NOT use a rigid left/right/thirds template. Compose the whole advertisement as an art director.
 You may place the main source subject left, right, center, off-center, between text groups, or partially integrated with typography/background when visually strong.
