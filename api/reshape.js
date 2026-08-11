@@ -238,26 +238,56 @@ function universalPlanFromInventory(inventory,userInstructions=''){
   const p=bannerPlanFromInventory(inventory,userInstructions);
   const cleanLine=s=>String(s||'').replace(/^\s*[-*]\s*/,'').trim();
   const lines=String(inventory||'').split(/\r?\n/).map(cleanLine).filter(Boolean);
-  const isMeta=line=>/^(?:portrait|photo|image|picture)\s+of\b/i.test(line)||/\b(?:lower left|lower right|upper left|upper right|circular photo|rectangular photo|placed above|placed below|wearing a|linked fact group|fact group|visual description)\b/i.test(line);
-  const semantic=[],people=[],prices=[];let venue='',address='',dateTime='',cta='';
-  for(const line0 of lines){
-    const line=line0.replace(/^[\"“”']+|[\"“”']+$/g,'').trim(); if(!line)continue;
-    const person=line.match(/^(?:portrait|photo|image|picture)\s+of\s+([A-Z][A-Za-zÀ-ÿ'’-]+(?:\s+[A-Z][A-Za-zÀ-ÿ'’-]+){1,3})\b/i);
-    if(person){people.push(person[1]);continue;}
-    if(/\$\s*\d+/.test(line)){prices.push(line);continue;}
-    if(/\b(?:am|pm)\b/i.test(line)&&/\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|\d{1,2})\b/i.test(line)){if(!dateTime)dateTime=line.replace(/^[A-Z][A-Z /_-]{2,32}:\s*/i,'').trim();continue;}
-    if(/\b\d+\s+[A-Za-zÀ-ÿ'.-]+(?:\s+[A-Za-zÀ-ÿ'.-]+){0,5}\s+(?:St|Street|Rd|Road|Ave|Avenue|Dr|Drive|Blvd|Boulevard|Station|Way|Lane|Ln)\b/i.test(line)){if(!address)address=line.replace(/^[A-Z][A-Z /_-]{2,32}:\s*/i,'').trim();continue;}
-    if(/\bvenue\b/i.test(line)&&!/\b(?:linked fact group|venue name\s*\+\s*address)\b/i.test(line)){const v=line.replace(/^[A-Z][A-Z /_-]{2,32}:\s*/i,'').trim();if(v&&!/^none\b/i.test(v))venue=v;continue;}
-    if(/\b(?:register|rsvp|buy tickets?|learn more|book now|sign up|secure your|reserve)\b/i.test(line)){if(!cta)cta=line.replace(/^[A-Z][A-Z /_-]{2,32}:\s*/i,'').trim();continue;}
-    if(!isMeta(line)&&!/\b(?:linked fact group|venue name\s*\+\s*address)\b/i.test(line))semantic.push(line.replace(/^[A-Z][A-Z /_-]{2,32}:\s*/i,'').trim());
+  const isMeta=s=>/^portrait of\b/i.test(s)||/^photo of\b/i.test(s)||/^image of\b/i.test(s)||
+    /\bplaced above the text\b/i.test(s)||/^venue name \+ address\b/i.test(s)||/^linked fact group\b/i.test(s);
+
+  const valueAfterColon=line=>{
+    const i=line.indexOf(':');
+    return (i>=0?line.slice(i+1):line).trim();
+  };
+  const pick=patterns=>{
+    for(const line of lines){
+      if(patterns.some(re=>re.test(line))){
+        const v=valueAfterColon(line);
+        if(v&&!/^none\b/i.test(v)&&!isMeta(v))return v;
+      }
+    }
+    return '';
+  };
+
+  const people=[];
+  for(const line of lines){
+    const m=line.match(/(?:portrait|photo|image)\s+of\s+([A-Z][A-Za-z'’-]+(?:\s+[A-Z][A-Za-z'’-]+){1,3})/);
+    if(m&&!people.includes(m[1]))people.push(m[1]);
   }
-  p.dateTime=dateTime||p.detail||'';p.detail=p.dateTime;p.address=address||'';p.secondary=p.address;p.venue=venue||'';p.cta=cta||p.cta||'';
-  p.subjectLabels=[...(p.subjectLabels||[]),...people].filter((v,i,a)=>v&&a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);if(p.subjectLabels.length)p.subjectCount=Math.max(Number(p.subjectCount||0),p.subjectLabels.length);
-  p.priceFacts=prices;p.extraFacts=[...semantic,...prices].filter((v,i,a)=>v&&a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);p.sourceManifest=inventory;
-  const accent=p.accentColor||'#60791c',family=p.fontFamily||'Arial';
-  p.textStyles=p.textStyles||{headline:{fontFamily:family,fontWeight:800,color:p.textColor||accent,align:'left'},dateTime:{fontFamily:family,fontWeight:700,color:p.textColor||accent,align:'left'},venue:{fontFamily:family,fontWeight:700,color:p.textColor||accent,align:'left'},address:{fontFamily:family,fontWeight:650,color:p.textColor||accent,align:'left'},cta:{fontFamily:family,fontWeight:800,color:accent,align:'center'},body:{fontFamily:family,fontWeight:650,color:accent,align:'left'}};
+  const prices=lines.filter(l=>/\$\s*\d+/.test(l))
+    .map(l=>valueAfterColon(l).replace(/[“”"]/g,'').trim())
+    .filter((v,i,a)=>v&&a.indexOf(v)===i).slice(0,6);
+
+  const address=pick([/^ADDRESS:/i,/\baddress\b/i]);
+  const venue=pick([/^VENUE:/i,/\bvenue\b/i]);
+  const url=pick([/\bhttps?:\/\//i,/\bwww\./i,/\.(?:com|org|ca|net)\b/i]);
+
+  p.dateTime=p.detail||pick([/^DATE(?:\s*\/\s*TIME)?:/i,/^TIME:/i])||'';
+  p.address=/^venue name \+ address/i.test(address)?'':address;
+  p.secondary=p.address;
+  p.venue=/^venue name \+ address/i.test(venue)?'':venue;
+  p.priceFacts=prices;
+  p.extraFacts=url?[url]:[];
+  p.subjects=people.map((name,i)=>({id:'person-'+(i+1),name,label:name,type:'person',availability:'grouped',reusable:false}));
+  p.subjectCount=Math.max(Number(p.subjectCount||0),p.subjects.length);
+  p.subjectLabels=p.subjects.map(x=>x.name);
+  p.sourceManifest=inventory;
+  p.textStyles=p.textStyles||{
+    headline:{fontFamily:'Arial',fontWeight:800,color:p.textColor||'#111111',align:'left'},
+    dateTime:{fontFamily:'Arial',fontWeight:700,color:p.accentColor||'#60791c',align:'left'},
+    venue:{fontFamily:'Arial',fontWeight:700,color:p.accentColor||'#60791c',align:'left'},
+    address:{fontFamily:'Arial',fontWeight:650,color:p.accentColor||'#60791c',align:'left'},
+    cta:{fontFamily:'Arial',fontWeight:800,color:p.accentColor||'#60791c',align:'center'}
+  };
   return p;
 }
+
 
 async function subjectCropPlan(key,dataUrl,w,h,userInstructions=""){
   const prompt=`You are selecting ONE meaningful visual subject from a poster for an extreme banner ${w}x${h}px.
@@ -1303,7 +1333,11 @@ Rules:
   return res.status(200).json({verified,status:verified?"PASS":"FAIL",reason:verdict.replace(/^(PASS|FAIL):\s*/i,'').trim()});
 }
 
-let inventory=await vision(key,src,`Analyze this source poster/flyer/brochure and return a concise SOURCE FACT MANIFEST with these sections:
+let inventory;
+if(requestMode==="regenerate" && priorPlan?.sourceManifest){
+  inventory=String(priorPlan.sourceManifest);
+}else{
+  inventory=await vision(key,src,`Analyze this source poster/flyer/brochure and return a concise SOURCE FACT MANIFEST with these sections:
 
 CRITICAL FACTS:
 - exact event/campaign headline and subheadline text
@@ -1330,6 +1364,10 @@ DECORATIVE:
 - purely decorative elements that may be reduced if space is tight
 
 CRITICAL RULES:
+- PEOPLE/PORTRAITS must identify actual displayed person names when readable; do not turn portrait descriptions into editable text.
+- Venue and address must be returned as actual values, never placeholder phrases like "venue name + address".
+- Prices must remain separate price-label facts.
+- Visual-description prose such as "portrait of...", "lower left", "rectangular photo", or "placed above the text" is metadata, NOT editable display copy.
 - Only report elements actually visible. Never infer or invent missing content.
 - Treat each price-label pair as a separate fact. Example: "$15 Early Bird" and "$20 Regular" are two distinct facts.
 - If there are zero prices, report zero. If there are multiple prices, report all of them.
@@ -1356,12 +1394,47 @@ BANNER_TEXT: readable source-compatible text color as a 6-digit hex value
 For BANNER_CROP, tightly crop only one logo, one person, or one graphic. Never select the full poster.
 If the source visibly contains a person, logo, or strong graphic, prefer using ONE of them rather than BANNER_VISUAL:none unless the user explicitly requests text-only.
 For banner output, visual interest is required: use a focused source visual and source-derived color whenever possible.`,{mode:"extract",effort:"none",recoveryEffort:"none",maxOutput:3600,recoveryMaxOutput:4200,allowModelFallback:true});
+}
+if(requestMode==="regenerate" && priorPlan){
+  const exactCurrent=[
+    priorPlan.headline&&`Headline: ${priorPlan.headline}`,
+    (priorPlan.dateTime||priorPlan.detail)&&`Date/time: ${priorPlan.dateTime||priorPlan.detail}`,
+    priorPlan.venue&&`Venue: ${priorPlan.venue}`,
+    (priorPlan.address||priorPlan.secondary)&&`Address: ${priorPlan.address||priorPlan.secondary}`,
+    priorPlan.cta&&`CTA: ${priorPlan.cta}`,
+    ...(Array.isArray(priorPlan.manualTextElements)?priorPlan.manualTextElements.map(x=>`User text: ${x.text}`):[])
+  ].filter(Boolean).join(" | ");
+  extra=`Create a meaningfully different composition/layout from the previous version. Preserve all current/source facts exactly. ${exactCurrent} ${extra||""}`.slice(0,3000);
+}
 let universalPlan=universalPlanFromInventory(inventory,extra);
 let sp=spec(w,h),s=sp.safe,tr=w/h,formatClass=tr>5?'EXTREME_BANNER':tr>2.4?'WIDE_BANNER':tr<.45?'EXTREME_TALL':tr<.65?'TALL_NARROW':'STANDARD',useSafeCrop=false;
     if((tr>2.4 && h<=160) || tr<0.2){
       const sourceData=`data:${im.type||"image/png"};base64,${im.data.toString("base64")}`;
 
       // V7.30 MODIFY MODE: update the LAST generated plan rather than starting over.
+      if(requestMode==="regenerate" && priorPlan){
+        const regenerated={...priorPlan};
+        const variant=(Number(priorPlan.layoutVariant||0)+1)%4;
+        regenerated.layoutVariant=variant;
+        regenerated.subjectAnchor=['left-third','right-third','center','right-third'][variant];
+        regenerated.subjectX=[.28,.72,.50,.68][variant];
+        regenerated.subjectPositionLocked=true;
+        regenerated.ctaPlacement=['right','center','left','right'][variant];
+        regenerated.regeneratedFromVersion=true;
+        regenerated.sourceManifest=priorPlan.sourceManifest||inventory;
+        regenerated.manualTextElements=Array.isArray(priorPlan.manualTextElements)?priorPlan.manualTextElements:[];
+        regenerated.textElements=Array.isArray(priorPlan.textElements)?priorPlan.textElements:regenerated.textElements;
+        regenerated.textStyles=priorPlan.textStyles||regenerated.textStyles;
+        regenerated.userTextLocked=!!priorPlan.userTextLocked;
+        res.setHeader("Cache-Control","no-store");
+        return res.status(200).json({
+          renderMode:"canvas-first-banner-composer",
+          width:w,height:h,bannerPlan:regenerated,reuseAssets:true,
+          sourceManifest:inventory,
+          validationSummary:"V7.30 created an alternate banner layout from the cached design/source analysis without re-running source analysis."
+        });
+      }
+
       if(requestMode==="modify" && priorPlan){
         const structuredPatch=structuredDesignPatchFromRaw(extra,{headline:priorPlan.headline||"",detail:priorPlan.detail||priorPlan.dateTime||"",secondary:priorPlan.secondary||priorPlan.address||"",cta:priorPlan.cta||""});
         let modifyManifest;
@@ -1666,8 +1739,8 @@ let editInput=(requestMode==="modify"&&currentIm)?currentIm:im;
 let editMime=editInput.type||mime;
 let b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt,sp.size);let val="PASS";try{let val=await vision(key,`data:image/png;base64,${b}`,`Compare this generated adaptation against this source inventory:\n${inventory}\nEvaluate whether any clearly new/unrequested element was invented (especially QR codes, barcodes, logos, badges, people, URLs or CTAs), whether important content appears clipped at the canvas edges, whether major source elements appear missing, whether a visible source address was dropped while its venue was retained, and whether equivalent speaker cards/footer groups are conspicuously off-center or unequal, and whether a wide target has excessive blank side zones or looks like a narrow portrait poster inside a landscape frame, or squeezes the whole source into tiny unreadable content instead of creating a real banner, or resembles a cropped horizontal slice through a larger poster, OR simply places/shrinks the original source poster inside the new destination instead of genuinely recomposing it. For 300x250, 320x100, 320x50 and other small ad sizes, explicitly flag LETTERBOXED/PRESERVED-looking results that do not use the destination geometry intentionally. Return exactly PASS or RETRY: <brief reasons>.`,{mode:"extract",effort:"none",recoveryEffort:"none",maxOutput:1000,recoveryMaxOutput:1400,allowModelFallback:true});}catch(e){console.warn("V7.30 visual QA unavailable; preserving successful render:",e?.message||e);val="PASS";}let retried=false;if(/^RETRY:/i.test(val.trim())){retried=true;b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt+`\n\nVALIDATION FAILURE FROM FIRST ATTEMPT:\n${val}\nCorrect these failures. Remove every invented element and pull all important content further inside the safe zone.`,sp.size)}res.setHeader('Cache-Control','no-store');
 let responsePlan={...universalPlan};
-if(requestMode==='modify' && priorPlan){responsePlan={...universalPlan,...priorPlan};responsePlan.manualTextElements=Array.isArray(priorPlan.manualTextElements)?priorPlan.manualTextElements:[];responsePlan.textElements=Array.isArray(priorPlan.textElements)?priorPlan.textElements:responsePlan.textElements;responsePlan.textStyles=priorPlan.textStyles||responsePlan.textStyles;responsePlan.userTextLocked=!!priorPlan.userTextLocked;}
-return res.status(200).json({image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:'contain',bannerPlan:responsePlan,sourceManifest:inventory,validationSummary:retried?'V7.30 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='modify'?'V7.30 modified the current rendered design and preserved unrequested content.':'V7.30 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.')})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
+if((requestMode==='modify'||requestMode==='regenerate') && priorPlan){responsePlan={...universalPlan,...priorPlan};responsePlan.manualTextElements=Array.isArray(priorPlan.manualTextElements)?priorPlan.manualTextElements:[];responsePlan.textElements=Array.isArray(priorPlan.textElements)?priorPlan.textElements:responsePlan.textElements;responsePlan.textStyles=priorPlan.textStyles||responsePlan.textStyles;responsePlan.userTextLocked=!!priorPlan.userTextLocked;}
+return res.status(200).json({image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:'contain',bannerPlan:responsePlan,sourceManifest:inventory,validationSummary:retried?'V7.30 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='regenerate'?'V7.30 created a different layout using cached source/design state.':(requestMode==='modify'?'V7.30 modified the current rendered design and preserved unrequested content.':'V7.30 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.'))})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
 
 
 /*

@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Muslim Link Image Reshaper</title><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Image Reshaper</title><style>
 :root{--green:#9ABB35;--green-dark:#5f741b;--ink:#111;--muted:#6d6d6d;--paper:#fff;--soft:#f7f8f4;--line:#dedfd9;--charcoal:#151515}
 *{box-sizing:border-box}
 body{margin:0;background:#fff;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -9,11 +9,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:28px;ma
 header>div{margin-left:auto;text-align:right}
 h1{font-size:22px;margin:0;font-weight:800}
 header p{margin:6px 0 0;color:var(--muted);font-size:14px}
-.hero{background:linear-gradient(135deg,#111,#252525);border-radius:20px;padding:36px 52px;color:#fff;margin-bottom:24px;box-shadow:0 12px 30px #00000010}
+.hero{background:linear-gradient(135deg,#111,#252525);border-radius:16px;padding:20px 34px;color:#fff;margin-bottom:18px;box-shadow:0 8px 22px #0000000d}
 .hero .eyebrow{font-size:11px;letter-spacing:.4px;color:var(--green);font-weight:800;margin-bottom:10px}
-.hero h2{font-size:clamp(34px,4.4vw,58px);line-height:1.02;margin:0 0 14px;letter-spacing:-1.6px}
+.hero h2{font-size:clamp(26px,3.2vw,40px);line-height:1.04;margin:0 0 8px;letter-spacing:-1px}
 .hero h2 span{color:var(--green)}
-.hero p{max-width:760px;color:#f0f0f0;line-height:1.55;margin:0;font-size:17px}
+.hero p{max-width:760px;color:#f0f0f0;line-height:1.45;margin:0;font-size:14px}
 .grid{display:grid;grid-template-columns:1fr 1.3fr;gap:18px;margin-top:20px}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 5px 18px #00000008}
 .cardhead{display:flex;align-items:center;gap:10px;margin-bottom:18px}
@@ -140,6 +140,48 @@ footer>br,footer>text{display:none}
 .diagbadge.applied{background:#edf6d9;color:#4c6814}.diagbadge.partial{background:#fff4d7;color:#896500}.diagbadge.failed{background:#fde9e5;color:#9d3727}
 .diagtext{font-size:12px;line-height:1.45}.diagempty{font-size:12px;color:#74796d}
 @media(max-width:760px){.elementitem{grid-template-columns:1fr}.elementstatus{justify-self:start}.diagitem{grid-template-columns:1fr}}
+
+.setupgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(430px,.9fr);gap:18px;margin-top:18px;align-items:start}
+.setupside{display:flex;flex-direction:column;gap:14px}
+.setupside .card{padding:15px}
+.setupside .head{margin-bottom:10px}
+.setupside .head h3{font-size:15px}
+.setupside .step{padding:5px 7px;font-size:10px}
+.setupside .presets{grid-template-columns:repeat(3,1fr);gap:7px}
+.setupside .preset{min-height:48px;padding:8px 9px}
+.setupside .preset b{font-size:11px}
+.setupside .preset small{font-size:9px;margin-top:2px}
+.setupside .customsize{margin-top:10px;padding-top:10px}
+.setupside .customrow{gap:7px}
+.setupside .customrow input{padding:8px;font-size:12px}
+.setupside .customrow button{padding:9px 11px;font-size:11px}
+.setupside textarea{height:76px;padding:10px;font-size:12px}
+.setupside .hint{font-size:10px;line-height:1.35}
+.actionbuttons{display:flex;gap:9px;align-items:center}
+button.regenbtn{border:1px solid #111;border-radius:10px;background:#fff;color:#111;padding:14px 18px;font-weight:850;cursor:pointer}
+button.regenbtn:hover{background:#f4f4f1}
+button.regenbtn:disabled{opacity:.4;cursor:not-allowed}
+details.elementpanel,details.texteditor{margin-top:14px;padding-top:0;border-top:1px solid var(--line)}
+details.elementpanel>summary,details.texteditor>summary{cursor:pointer;font-weight:850;font-size:16px;list-style:none;padding:15px 2px 10px;display:flex;align-items:center;justify-content:space-between}
+details.elementpanel>summary::-webkit-details-marker,details.texteditor>summary::-webkit-details-marker{display:none}
+details.elementpanel>summary:after,details.texteditor>summary:after{content:"▾";font-size:13px;color:#657521;transition:transform .15s ease}
+details.elementpanel:not([open])>summary:after,details.texteditor:not([open])>summary:after{transform:rotate(-90deg)}
+.accordionbody{padding:0 0 8px}
+.modifygrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:18px;align-items:start;margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+.modifygrid .modifybox,.modifygrid .diagpanel{margin:0;padding:0;border:0}
+.modifygrid .diagpanel{background:#f7f8f3;border-radius:12px;padding:14px}
+.modifygrid .diagpanel h4{margin-top:0}
+@media(max-width:1000px){
+  .setupgrid{grid-template-columns:1fr}
+  .setupside .presets{grid-template-columns:repeat(3,1fr)}
+  .modifygrid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .setupside .presets{grid-template-columns:1fr 1fr}
+  .actionbuttons{width:100%;flex-direction:column}
+  .actionbuttons button{width:100%}
+}
+
 </style><script>
 window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.30:
 Treat 728x90 as the final canvas before all layout decisions.
@@ -155,14 +197,14 @@ Never expose internal planner/meta/debug/schema text.`;
 </script>
 </head><body><main><header>
   <img class="brandlogo" src="/assets/muslim-link-logo.png" alt="Muslim Link">
-  <div><h1>Muslim Link Image Reshaper</h1><p>Resize posters, flyers and promotional graphics intelligently.</p></div>
+  <div><h1>Image Reshaper</h1><p>Resize posters, flyers and promotional graphics intelligently.</p></div>
 </header><section class="hero">
   <div>
     <div class="eyebrow">AI-POWERED IMAGE ADAPTATION</div>
     <h2>Preserve the design. <span>Change the shape.</span></h2>
     <p>Upload your artwork, choose a preset or custom size, and let AI intelligently recompose it for the destination format.</p>
   </div>
-</section><div class="grid"><section class="card"><div class="head"><span class="step">01</span><h3>Upload your artwork</h3></div><div id="drop" class="drop"><div class="up">↑</div><strong>Drag & drop your image here</strong><small>or click to browse · PNG, JPG, WEBP</small></div><input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden><div id="filename" class="filename"></div><button id="clearAll" class="clearbtn" type="button" style="display:none">Clear / start over</button></section><section class="card"><div class="head"><span class="step">02</span><h3>Choose the destination</h3></div><div id="presets" class="presets">
+</section><div class="setupgrid"><section class="card uploadcard"><div class="head"><span class="step">01</span><h3>Upload your artwork</h3></div><div id="drop" class="drop"><div class="up">↑</div><strong>Drag & drop your image here</strong><small>or click to browse · PNG, JPG, WEBP</small></div><input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden><div id="filename" class="filename"></div><button id="clearAll" class="clearbtn" type="button" style="display:none">Clear / start over</button></section><div class="setupside"><section class="card compactcard"><div class="head"><span class="step">02</span><h3>Choose the destination</h3></div><div id="presets" class="presets">
 <button type="button" class="preset" data-name="News" data-width="850" data-height="638"><b>News</b><small>850 × 638 px</small></button>
 <button type="button" class="preset" data-name="Opportunities" data-width="850" data-height="350"><b>Opportunities</b><small>850 × 350 px</small></button>
 <button type="button" class="preset" data-name="Action Alerts" data-width="850" data-height="500"><b>Action Alerts</b><small>850 × 500 px</small></button>
@@ -184,7 +226,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section></div><section class="card instructions"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.30 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.30 also fixes the compact/leaderboard instruction-layout initialization error. V7.30 also includes a backend health check at /api/reshape (GET).</div></section><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><button id="submit" class="primary" disabled>Reshape with AI →</button></div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.30 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.30 also fixes the compact/leaderboard instruction-layout initialization error. V7.30 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -196,16 +238,19 @@ Never expose internal planner/meta/debug/schema text.`;
     <div class="pstep"><span class="dot"></span>Finalize output</div>
   </div>
 </div>
-<div id="status" class="status"></div><div id="error" class="error"></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download crisp PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
+<div id="status" class="status"></div><div id="error" class="error"></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
 <div class="preview"><img id="output"></div><div id="validation" class="note"></div>
-<div id="sourceElementsPanel" class="elementpanel">
-  <h4>Source elements</h4>
-  <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div>
-  <div id="elementSummary" class="elementsummary"></div>
-  <div id="elementList" class="elementlist"></div>
-</div>
-<div id="textEditor" class="texteditor">
-  <h4>Edit text &amp; content</h4>
+<details id="sourceElementsPanel" class="elementpanel" open>
+  <summary>Source elements</summary>
+  <div class="accordionbody">
+    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div>
+    <div id="elementSummary" class="elementsummary"></div>
+    <div id="elementList" class="elementlist"></div>
+  </div>
+</details>
+<details id="textEditor" class="texteditor" open>
+  <summary>Edit text &amp; content</summary>
+  <div class="accordionbody">
   <div class="texteditorintro">These fields contain the text currently used by this design. Only fields that exist in the current design are shown. Edit them directly for exact wording, remove anything you do not want, or add new text. Exact text entered here is authoritative and the layout must adapt around it.</div>
   <div id="textRows" class="textrows"></div>
   <div class="texteditoractions">
@@ -215,7 +260,9 @@ Never expose internal planner/meta/debug/schema text.`;
     </div>
     <button id="applyTextEdits" class="textapply" type="button">Apply text changes →</button>
   </div>
-</div>
+  </div>
+</details>
+<div class="modifygrid">
 <div id="modifyBox" class="modifybox">
   <h4>Modify this design</h4>
   <textarea id="modifyInstructions" placeholder="Example: Make the dates bigger, move the speaker names to the right, or complete the title with “... Your Future on the Ballot”."></textarea>
@@ -229,6 +276,7 @@ Never expose internal planner/meta/debug/schema text.`;
   <div class="diagintro">Shows what was applied, what was only partially possible, and why an instruction could not be completed.</div>
   <div id="diagnosticsList" class="diaglist"><div class="diagempty">No modification diagnostics yet.</div></div>
 </div>
+</div>
 <div class="historytitle">Previous versions</div>
 <div id="historyList" class="historylist"></div>
 </section><footer>
@@ -241,7 +289,7 @@ let versionStates=[];let currentDesignState=null;
 
 
 function normalizeTextEditorFromPlan(plan={}){
-  const p={...plan};
+  const p=semanticNormalizePlan({...plan});
   if(!Array.isArray(p.textElements)||!p.textElements.length){
     const normalized=normalizeDesignState({bannerPlan:p});
     p.textElements=normalized.bannerPlan.textElements||[];
@@ -477,8 +525,9 @@ async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
     const style={...themeStyleForManualText(plan),...(item.style||{})};
     const family=style.fontFamily||'Arial';
     const weight=style.fontWeight||800;
-    let color=style.color||themeStyleForManualText(plan).color;
-    if(color==='#111111'||color==='#000000')color=themeStyleForManualText(plan).color;
+    const themeStyle=themeStyleForManualText(plan);
+    let color=style.color||themeStyle.color;
+    if(['#111111','#000000','#222222','#333333','black'].includes(String(color).toLowerCase()))color=themeStyle.color;
     let size=Math.max(compact?10:15,Math.round(h*(compact?.14:.032)));
     const minSize=Math.max(compact?8:11,Math.round(size*.68));
 
@@ -541,29 +590,14 @@ function defaultTextStyleForRole(role='body'){
   return {fontFamily:'Arial',fontWeight:650,color:'#536b20',align:'left',role:r};
 }
 
-
-function themeStyleForRole(plan={},role='body'){
-  const styles=inferTextStylesFromPlan(plan);
-  const direct=styles[String(role||'body')]||styles.body||{};
-  const manual=themeStyleForManualText(plan);
-  let color=direct.color||manual.color||'#60791c';
-  if(color==='#111111'||color==='#000000')color=plan.accentColor||plan.accent||manual.color||'#60791c';
-  return {fontFamily:direct.fontFamily||manual.fontFamily||'Arial',fontWeight:direct.fontWeight||manual.fontWeight||700,color,align:direct.align||'left',role:String(role||'body')};
-}
-function canvasFontFromStyle(size,style={}){ return `${style.fontWeight||700} ${size}px ${style.fontFamily||'Arial'}`; }
 function themeStyleForManualText(plan={}){
   const styles=inferTextStylesFromPlan(plan);
   const hints=plan.styleHints||plan.typography||{};
-  const accent=plan.accentColor||plan.accent||styles.cta?.color||'#60791c';
-  const family=hints.fontFamily||styles.headline?.fontFamily||styles.cta?.fontFamily||'Arial';
-  const candidate=styles.cta?.color||accent;
-  return {
-    fontFamily:family,
-    fontWeight:800,
-    color:candidate && candidate!=='#111111' && candidate!=='#000000' ? candidate : (accent||'#60791c'),
-    align:'left',
-    role:'manual'
-  };
+  const blackish=new Set(['#111111','#000000','#222222','#333333','black','rgb(0, 0, 0)']);
+  const palette=[plan.accentColor,plan.accent,plan.themeColor,plan.primaryColor,styles.dateTime?.color,styles.address?.color,styles.cta?.color].filter(Boolean);
+  const color=palette.find(c=>!blackish.has(String(c).toLowerCase()))||'#60791c';
+  const family=hints.fontFamily||plan.fontFamily||styles.headline?.fontFamily||styles.cta?.fontFamily||'Arial';
+  return {fontFamily:family,fontWeight:Number(styles.headline?.fontWeight||800),color,align:'left',role:'manual'};
 }
 
 function inferTextStylesFromPlan(plan={}){
@@ -583,7 +617,7 @@ function inferTextStylesFromPlan(plan={}){
 }
 
 function normalizeDesignState(data={}){
-  const plan=semanticizePlan(data.bannerPlan||{});
+  const plan=semanticNormalizePlan({...(data.bannerPlan||{})});
   plan.textStyles=inferTextStylesFromPlan(plan);
 
   const textElements=[];
@@ -603,11 +637,9 @@ function normalizeDesignState(data={}){
   addText('address','Address / location',plan.address||plan.secondary,'address');
   addText('cta','Call to action',plan.cta,'cta');
   (plan.extraFacts||[]).forEach((t,i)=>{
-    const c=classifySemanticFact(t);
-    if(c.type==='ignore'||c.type==='person')return;
     const existing=(plan.textElements||[]).find(x=>x.id===`extra-${i}`);
     textElements.push({
-      id:`extra-${i}`,label:c.type==='price'?'Price':(c.label||'Additional text'),text:String(c.value||t),role:c.type==='price'?'price':'extra',
+      id:`extra-${i}`,label:'Additional text',text:String(t),role:'extra',
       style:{...defaultTextStyleForRole('body'),...(existing?.style||{})},
       visible:existing?.visible!==false
     });
@@ -664,55 +696,56 @@ function inheritStyleForNewText(plan={},label='Added text'){
 }
 
 
-function isMetaAnalysisText(text=''){
-  const t=String(text||'').trim();
-  if(!t)return true;
-  return /^(?:portrait|photo|image|picture)\s+of\b/i.test(t) ||
-         /\b(?:lower left|lower right|upper left|upper right|placed above|placed below|circular photo|rectangular photo|wearing a|light-colored|dark back)\b/i.test(t) ||
-         /\b(?:linked fact group|fact group|source fact|detected text|visual description|analysis)\b/i.test(t);
+function looksLikeAnalysisMeta(text=''){
+  const s=String(text||'').trim();
+  if(!s)return true;
+  return /^portrait of\b/i.test(s)||/^photo of\b/i.test(s)||/^image of\b/i.test(s)||
+    /\bplaced above the text\b/i.test(s)||/\blower left\b|\blower right\b|\bupper left\b|\bupper right\b/i.test(s)||
+    /\brectangular photo\b|\bcircular photo\b/i.test(s)||/^venue name \+ address\b/i.test(s)||
+    /^linked fact group\b/i.test(s)||/^source fact\b/i.test(s)||/^visual description\b/i.test(s);
 }
-function cleanSemanticValue(text=''){
-  let t=String(text||'').trim();
-  t=t.replace(/^[\"“”']+|[\"“”']+$/g,'').trim();
-  t=t.replace(/^[A-Z][A-Z /_-]{2,32}:\s*/,'').trim();
-  if(/\b(?:linked fact group|fact group)\b/i.test(t))return '';
-  return t;
+function parsePersonNameFromDescription(text=''){
+  const s=String(text||'').trim();
+  let m=s.match(/(?:portrait|photo|image)\s+of\s+([A-Z][A-Za-z'’-]+(?:\s+[A-Z][A-Za-z'’-]+){1,3})/);
+  if(m)return m[1].trim();
+  m=s.match(/\b([A-Z][A-Za-z'’-]+\s+[A-Z][A-Za-z'’-]+)\b/);
+  return m?m[1].trim():'';
 }
-function classifySemanticFact(text=''){
-  const raw=cleanSemanticValue(text);
-  if(!raw)return {type:'ignore',value:''};
-  const portrait=raw.match(/^(?:portrait|photo|image|picture)\s+of\s+([A-Z][A-Za-zÀ-ÿ'’-]+(?:\s+[A-Z][A-Za-zÀ-ÿ'’-]+){1,3})\b/i);
-  if(portrait)return {type:'person',value:portrait[1],label:portrait[1]};
-  if(/\$\s*\d+/.test(raw))return {type:'price',value:raw,label:'Price'};
-  if(/\bhttps?:\/\/|\bwww\.|\.(?:com|org|ca|net)\b/i.test(raw))return {type:'url',value:raw,label:'Website / URL'};
-  if(/\b(?:am|pm)\b/i.test(raw) && /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|\d{1,2})\b/i.test(raw))return {type:'dateTime',value:raw,label:'Date / time'};
-  if(/\b\d+\s+[A-Za-zÀ-ÿ'.-]+(?:\s+[A-Za-zÀ-ÿ'.-]+){0,5}\s+(?:St|Street|Rd|Road|Ave|Avenue|Dr|Drive|Blvd|Boulevard|Station|Way|Lane|Ln)\b/i.test(raw))return {type:'address',value:raw,label:'Address / location'};
-  if(/\b(?:register|rsvp|buy tickets?|learn more|book now|sign up|secure your|reserve)\b/i.test(raw))return {type:'cta',value:raw,label:'Call to action'};
-  if(isMetaAnalysisText(raw))return {type:'ignore',value:''};
-  return {type:'text',value:raw,label:'Additional text'};
+function semanticRoleFromText(label='',text=''){
+  const s=(String(label||'')+' '+String(text||'')).toLowerCase();
+  if(/portrait|photo|image|speaker|host|guest|person/.test(s))return 'person';
+  if(/\$\s*\d+/.test(s)||/\bearly bird\b|\bregular\b|\bprice\b/.test(s))return 'price';
+  if(/\bvenue\b/.test(s))return 'venue';
+  if(/\baddress\b|\bstation rd\b|\bstreet\b|\broad\b|\bavenue\b|\bblvd\b|\bdrive\b/.test(s))return 'address';
+  return 'extra';
 }
-function semanticizePlan(plan={}){
-  const p={...plan};
-  const people=[],prices=[],extras=[];
-  let venue=p.venue||'',address=p.address||p.secondary||'',dateTime=p.dateTime||p.detail||'',cta=p.cta||'';
-  const candidates=[...(Array.isArray(p.extraFacts)?p.extraFacts:[]),...(Array.isArray(p.semanticCandidates)?p.semanticCandidates:[])];
-  for(const fact of candidates){
-    const c=classifySemanticFact(fact);
-    if(c.type==='ignore')continue;
-    if(c.type==='person'){people.push(c.value);continue;}
-    if(c.type==='price'){prices.push(c.value);continue;}
-    if(c.type==='address'){if(!address)address=c.value;continue;}
-    if(c.type==='dateTime'){if(!dateTime)dateTime=c.value;continue;}
-    if(c.type==='cta'){if(!cta)cta=c.value;continue;}
-    if(c.type==='text'||c.type==='url')extras.push(c.value);
+function semanticNormalizePlan(plan={}){
+  const p={...plan},clean=[],people=[],prices=[];
+  for(const raw of (Array.isArray(p.extraFacts)?p.extraFacts:[])){
+    const t=String(raw||'').trim();if(!t)continue;
+    const role=semanticRoleFromText('',t);
+    if(role==='person'){
+      const n=parsePersonNameFromDescription(t);
+      if(n)people.push({id:'person-'+(people.length+1),name:n,label:n,type:'person',availability:'grouped',reusable:false});
+      continue;
+    }
+    if(looksLikeAnalysisMeta(t))continue;
+    if(role==='price'){prices.push(t.replace(/[“”"]/g,'').trim());continue;}
+    clean.push(t);
   }
-  p.subjectLabels=[...(p.subjectLabels||[]),...people].filter((v,i,a)=>v&&a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);
-  if(p.subjectLabels.length&&!p.subjectCount)p.subjectCount=p.subjectLabels.length;
-  p.priceFacts=prices;
-  p.extraFacts=[...extras,...prices].filter((v,i,a)=>v&&a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);
-  p.venue=cleanSemanticValue(venue);p.address=cleanSemanticValue(address);p.secondary=p.address;p.dateTime=cleanSemanticValue(dateTime);p.detail=p.dateTime;p.cta=cleanSemanticValue(cta);
-  if(/\b(?:linked fact group|venue name\s*\+\s*address)\b/i.test(p.venue))p.venue='';
-  if(/\b(?:linked fact group|venue name\s*\+\s*address)\b/i.test(p.address)){p.address='';p.secondary='';}
+  p.extraFacts=clean;p.priceFacts=prices;
+  if(people.length){
+    const old=Array.isArray(p.subjects)?p.subjects:[];
+    p.subjects=[...old,...people].filter((x,i,a)=>{
+      const k=String(x.name||x.label||'').toLowerCase();
+      return k&&a.findIndex(y=>String(y.name||y.label||'').toLowerCase()===k)===i;
+    });
+    p.subjectCount=Math.max(Number(p.subjectCount||0),p.subjects.length);
+    p.subjectLabels=p.subjects.map(x=>x.name||x.label).filter(Boolean);
+  }
+  if(/^venue name \+ address/i.test(String(p.venue||'')))p.venue='';
+  if(/^venue name \+ address/i.test(String(p.address||'')))p.address='';
+  if(/^venue name \+ address/i.test(String(p.secondary||'')))p.secondary='';
   return p;
 }
 function normalizeElementType(raw=''){
@@ -726,7 +759,7 @@ function normalizeElementType(raw=''){
 }
 
 function buildSourceElementLibrary(data={}){
-  const plan=semanticizePlan(data.bannerPlan||{});
+  const plan=data.bannerPlan||{};
   const items=[],seen=new Set();
   const push=(item={})=>{
     const label=String(item.label||item.name||item.text||item.id||'').trim();
@@ -747,9 +780,19 @@ function buildSourceElementLibrary(data={}){
     });
   };
 
-  (data.sourceElements||plan.sourceElements||[]).forEach(push);
-  (plan.subjects||[]).forEach((s,i)=>push({...s,type:'person',label:s.name||s.label||(plan.subjectLabels||[])[i]||('Person '+(i+1))}));
-  (plan.subjectBoxes||[]).forEach((s,i)=>push({...s,type:'person',label:s.name||s.label||(plan.subjectLabels||[])[i]||('Person '+(i+1))}));
+  const normalizedSourceElements=(data.sourceElements||plan.sourceElements||[]).map(el=>{
+    const raw=String(el?.label||el?.text||'').trim();
+    const role=semanticRoleFromText(el?.label||'',el?.text||'');
+    if(role==='person'){
+      const n=parsePersonNameFromDescription(raw);
+      return {...el,type:'person',label:n||el.label||'Person'};
+    }
+    if(looksLikeAnalysisMeta(raw))return null;
+    return el;
+  }).filter(Boolean);
+  normalizedSourceElements.forEach(push);
+  (plan.subjects||[]).forEach((s,i)=>push({...s,type:'person',label:s.name||s.label||('Person '+(i+1))}));
+  (plan.subjectBoxes||[]).forEach((s,i)=>push({...s,type:'person',label:s.name||s.label||('Person '+(i+1))}));
 
   const count=Math.max(0,Number(plan.subjectCount||0));
   if(data.subjectAsset||plan.subjectAsset){
@@ -772,7 +815,7 @@ function buildSourceElementLibrary(data={}){
     ['address','Address / location',plan.address||plan.secondary],
     ['cta','Call to action',plan.cta]
   ].forEach(([id,label,text])=>{if(text)push({id,type:'text',label,text,reusable:true});});
-  (plan.extraFacts||[]).forEach((t,i)=>{ const c=classifySemanticFact(t); if(c.type==='ignore')return; if(c.type==='person')push({id:'person-extra-'+i,type:'person',label:c.value,reusable:false,availability:'reference-only'}); else if(c.type==='price')push({id:'price-'+i,type:'text',label:c.value,text:c.value,reusable:true}); else push({id:'extra-'+i,type:'text',label:c.value||String(t),text:c.value||t,reusable:true}); });
+  (plan.extraFacts||[]).forEach((t,i)=>push({id:'extra-'+i,type:'text',label:String(t),text:t,reusable:true}));
   (plan.manualTextElements||[]).forEach((t,i)=>push({id:t.id||('manual-'+i),type:'text',label:t.label||t.text,text:t.text,reusable:true}));
 
   sourceElements=items;
@@ -937,6 +980,7 @@ function resetDesignSession(clearFile=false){
   lastServerResult=null;lastRenderedUrl=null;currentRunInstruction='';historyRunNumber=0;currentVersionNumber=1;lastDesignTarget=null;
   if($('historyList'))$('historyList').innerHTML='';
   if($('result'))$('result').style.display='none';
+  if($('regenerate'))$('regenerate').disabled=true;
   if($('error'))$('error').style.display='none';
   if($('instructions'))$('instructions').value='';
   if($('modifyInstructions'))$('modifyInstructions').value='';
@@ -2087,6 +2131,7 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
     setDiagnostics([{status:'applied',message:'Original artwork was analyzed and a reusable source-element library was created for later modifications.'}]);
     setCurrentInstruction($('instructions').value,'Initial instructions');
     $('validation').textContent=j.validationSummary||'Completed.';$('result').style.display='block';
+    $('regenerate').disabled=false;
     stopProgress();setProgress(5,'Finished — your image is ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1600);
   }catch(e){
@@ -2095,6 +2140,90 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
 };
 
 
+
+
+$('regenerate').onclick=async()=>{
+  if(!f||!lastServerResult||!lastDesignTarget)return;
+  const b=$('regenerate');
+  b.disabled=true;b.textContent='Re-generating…';
+  $('error').style.display='none';startProgress();
+  try{
+    const target=lastDesignTarget;
+    const fd=new FormData();
+    const uploadFile=await v79CompressImageFile(f);
+    fd.append('image',uploadFile);
+    fd.append('name',target[0]);
+    fd.append('width',target[1]);
+    fd.append('height',target[2]);
+    fd.append('mode','regenerate');
+
+    const preserved=(lastServerResult.bannerPlan?.textElements||[])
+      .filter(x=>x.visible!==false&&String(x.text||'').trim())
+      .map(x=>`${x.label||x.role}: ${x.text}`).join(' | ');
+    fd.append('instructions',
+      'Create a meaningfully different layout/composition from the current version. '+
+      'Preserve every factual/user-edited item exactly. User content is mandatory. '+
+      (preserved?('MANDATORY CURRENT COPY: '+preserved):'')
+    );
+
+    const prior={...(lastServerResult.bannerPlan||{})};
+    delete prior.sourceImage;delete prior.backgroundArt;delete prior.subjectAsset;delete prior.image;
+    fd.append('priorPlan',JSON.stringify(prior));
+
+    let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
+    try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
+    if(!r.ok)throw Error(j.error||`Re-generation failed (HTTP ${r.status})`);
+
+    if(j.reuseAssets){
+      j.sourceImage=j.sourceImage||lastServerResult.sourceImage;
+      j.backgroundArt=j.backgroundArt||lastServerResult.backgroundArt;
+      j.subjectAsset=j.subjectAsset||lastServerResult.subjectAsset;
+    }
+    j.bannerPlan=semanticNormalizePlan({...lastServerResult.bannerPlan,...(j.bannerPlan||{})});
+    // Keep exact direct-edit/manual text state authoritative.
+    if(lastServerResult.bannerPlan?.userTextLocked){
+      j.bannerPlan.textElements=lastServerResult.bannerPlan.textElements||j.bannerPlan.textElements;
+      j.bannerPlan.manualTextElements=lastServerResult.bannerPlan.manualTextElements||[];
+      j.bannerPlan.textStyles=lastServerResult.bannerPlan.textStyles||j.bannerPlan.textStyles;
+      j.bannerPlan.userTextLocked=true;
+    }
+
+    const ex=await renderUniversalDesignState(j,target);
+
+    archiveCurrentRun();
+    currentVersionNumber++;
+
+    $('output').src=ex;$('download').href=ex;
+    lastRenderedUrl=ex;
+    lastServerResult={...lastServerResult,...j,bannerPlan:j.bannerPlan};
+    lastDesignTarget=target;
+
+    const mandatoryTexts=(lastServerResult.bannerPlan?.textElements||[])
+      .filter(x=>x.visible!==false).map(x=>x.text).filter(Boolean);
+    const qa=await validateRenderedResult(ex,'Re-generated a meaningfully different layout while preserving all current content.',mandatoryTexts);
+
+    captureCurrentVersionState('Re-generated with a different layout','Re-generated layout');
+    normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{});
+    buildSourceElementLibrary(lastServerResult);
+    setCurrentInstruction('Re-generated with a different layout','Re-generated layout');
+    setDiagnostics([{
+      status:qa.verified?'applied':'partial',
+      message:qa.verified
+        ? 'A new layout was created from the cached analysis/current design state, and the final PNG passed content verification.'
+        : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
+    }]);
+    $('validation').textContent=qa.verified
+      ? 'V7.30 re-generated a different composition using the existing analyzed design state.'
+      : 'V7.30 re-generated a different composition, but final-image validation could not confirm every item.';
+    stopProgress();setProgress(5,'Finished — alternate layout ready.');
+    setTimeout(()=>{$('progressbox').style.display='none'},1200);
+  }catch(e){
+    stopProgress();$('progressbox').style.display='none';
+    $('error').textContent='Re-generation failed: '+e.message;$('error').style.display='block';
+  }finally{
+    b.disabled=false;b.textContent='Re-generate';
+  }
+};
 
 $('addTextRow').onclick=()=>{
   const n=textEditorRows.filter(r=>r.kind==='manual').length+1;
