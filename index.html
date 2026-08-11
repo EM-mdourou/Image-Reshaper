@@ -183,7 +183,7 @@ details.elementpanel:not([open])>summary:after,details.texteditor:not([open])>su
 }
 
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.30:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.31:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -226,7 +226,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.30 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.30 also fixes the compact/leaderboard instruction-layout initialization error. V7.30 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.31 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.31 also fixes the compact/leaderboard instruction-layout initialization error. V7.31 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -281,7 +281,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.30</div>
+  <div class="versionfooter">Version 7.31</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let textEditorRows=[];
 let sourceElements=[];let lastDiagnostics=[];
@@ -474,6 +474,58 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
 }
 
 
+
+function estimateTextFootprint(plan={}){
+  const els=(plan.textElements||[]).filter(x=>x&&x.visible!==false&&String(x.text||'').trim());
+  let chars=0,manual=0;
+  els.forEach(el=>{const n=String(el.text||'').length;chars+=n;if(el.role==='manual'||el.required)manual+=n;});
+  return {count:els.length,chars,manual};
+}
+function textPlanChangedMaterially(oldPlan={},newPlan={}){
+  const a=estimateTextFootprint(oldPlan),b=estimateTextFootprint(newPlan);
+  if(a.count!==b.count||Math.abs(a.chars-b.chars)>=8||Math.abs(a.manual-b.manual)>=1)return true;
+  const om=Object.fromEntries((oldPlan.textElements||[]).map(x=>[x.id,String(x.text||'')]));
+  const nm=Object.fromEntries((newPlan.textElements||[]).map(x=>[x.id,String(x.text||'')]));
+  return Object.keys({...om,...nm}).some(id=>om[id]!==nm[id]);
+}
+async function requestLayoutReplan(baseData,newPlan,target,reason='Text/content change'){
+  const [name,w,h]=target,fd=new FormData();
+  const uploadFile=await v79CompressImageFile(f);
+  fd.append('image',uploadFile);fd.append('name',name);fd.append('width',w);fd.append('height',h);fd.append('mode','replan');
+
+  const locked=(newPlan.textElements||[]).filter(x=>x.visible!==false&&String(x.text||'').trim())
+    .map(x=>({id:x.id,label:x.label||x.role||'Text',text:x.text,role:x.role||x.id,style:x.style||{}}));
+  const prior={...(baseData.bannerPlan||{}),...newPlan,textElements:locked,
+    manualTextElements:Array.isArray(newPlan.manualTextElements)?newPlan.manualTextElements:[],
+    textStyles:newPlan.textStyles||baseData.bannerPlan?.textStyles||{},userTextLocked:true,logosImmutable:true};
+  delete prior.sourceImage;delete prior.backgroundArt;delete prior.subjectAsset;delete prior.image;
+  fd.append('priorPlan',JSON.stringify(prior));
+  fd.append('instructions',`Re-plan the current composition because of this authoritative user change: ${reason}. `+
+    `All user-edited text is mandatory. Use whitespace anywhere on the canvas and move/resize non-logo visuals if needed. `+
+    `Preserve every logo exactly; logos may not be redrawn, recolored, restyled, distorted or merged.`);
+
+  const r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text();let j={};
+  try{j=raw?JSON.parse(raw):{}}catch{j={error:raw||`HTTP ${r.status}`}}
+  if(!r.ok)throw Error(j.error||`Layout replanning failed (${r.status})`);
+  if(j.reuseAssets){
+    j.sourceImage=j.sourceImage||baseData.sourceImage;
+    j.backgroundArt=j.backgroundArt||baseData.backgroundArt;
+    j.subjectAsset=j.subjectAsset||baseData.subjectAsset;
+    j.logoAssets=j.logoAssets||baseData.logoAssets;
+  }
+  j.bannerPlan=normalizeDesignState({...baseData,...j,bannerPlan:{...(baseData.bannerPlan||{}),...(j.bannerPlan||{}),
+    textElements:locked,manualTextElements:prior.manualTextElements,textStyles:prior.textStyles,userTextLocked:true,logosImmutable:true}}).bannerPlan;
+  return j;
+}
+function resolveCanvasTextStyle(plan={},role='body',fallbackColor='#111111'){
+  const styles=inferTextStylesFromPlan(plan),rs=styles[role]||styles.body||{};
+  const blackish=new Set(['#111111','#000000','#222222','#333333','black','rgb(0, 0, 0)']);
+  const palette=[rs.color,plan.accentColor,plan.themeColor,plan.primaryColor,plan.accent,styles.dateTime?.color,styles.address?.color,styles.cta?.color].filter(Boolean);
+  let color=palette.find(c=>!blackish.has(String(c).toLowerCase()));
+  if(!color)color=role==='headline'?(rs.color||fallbackColor):(plan.accentColor||'#60791c');
+  return {color,fontFamily:rs.fontFamily||plan.fontFamily||plan.typography?.fontFamily||'Arial',
+    fontWeight:Number(rs.fontWeight||((role==='headline'||role==='cta')?800:700)),align:rs.align||'left'};
+}
 function mandatoryUserTextElements(plan={}){
   return (Array.isArray(plan.manualTextElements)?plan.manualTextElements:[])
     .filter(x=>x && String(x.text||'').trim())
@@ -539,11 +591,13 @@ async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
     const textH=Math.round(size*1.18);
     let tx=z.x+pad;if(z.align==='right')tx=z.x+z.w-pad;if(z.align==='center')tx=z.x+z.w/2;
     const ty=z.y+Math.max(pad,(z.h-textH)/2);
-    const plateColor=colorLuma(color)<.45?'rgba(255,255,255,.78)':'rgba(20,20,20,.64)';
-    const plateX=z.align==='right'?tx-textW-pad:(z.align==='center'?tx-textW/2-pad:tx-pad);
-    x.fillStyle=plateColor;
-    roundedRect(x,Math.max(1,plateX),Math.max(1,ty-pad*.55),Math.min(w-2,textW+pad*2),textH+pad*1.1,Math.max(4,Math.round(h*.025)));
-    x.fill();
+    if(style.background||plan.manualTextPlate){
+      const plateColor=style.background||plan.manualTextPlate;
+      const plateX=z.align==='right'?tx-textW-pad:(z.align==='center'?tx-textW/2-pad:tx-pad);
+      x.fillStyle=plateColor;
+      roundedRect(x,Math.max(1,plateX),Math.max(1,ty-pad*.55),Math.min(w-2,textW+pad*2),textH+pad*1.1,Math.max(4,Math.round(h*.025)));
+      x.fill();
+    }
     x.fillStyle=color;
     x.shadowColor=colorLuma(color)<.45?'rgba(255,255,255,.8)':'rgba(0,0,0,.5)';
     x.shadowBlur=Math.max(1,Math.round(h*.008));
@@ -574,7 +628,7 @@ async function renderPlanLocally(data,target){
 
 
 function renderExtraFacts(plan={}){
-  // V7.30: user-added/manual text is NOT lower-priority extra copy.
+  // V7.31: user-added/manual text is NOT lower-priority extra copy.
   // It is rendered separately as a mandatory free-placement layer.
   const extras=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
   return extras.filter((v,i,a)=>a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);
@@ -1847,7 +1901,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.30: instruction/layout intent MUST be initialized before subject placement.
+  // V7.31: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -1886,7 +1940,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.30 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.31 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2090,7 +2144,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.30 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.31 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2103,7 +2157,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.30 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.31 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2166,7 +2220,7 @@ $('regenerate').onclick=async()=>{
       (preserved?('MANDATORY CURRENT COPY: '+preserved):'')
     );
 
-    const prior={...(lastServerResult.bannerPlan||{})};
+    const prior={...(lastServerResult.bannerPlan||{}),logosImmutable:true};
     delete prior.sourceImage;delete prior.backgroundArt;delete prior.subjectAsset;delete prior.image;
     fd.append('priorPlan',JSON.stringify(prior));
 
@@ -2178,6 +2232,7 @@ $('regenerate').onclick=async()=>{
       j.sourceImage=j.sourceImage||lastServerResult.sourceImage;
       j.backgroundArt=j.backgroundArt||lastServerResult.backgroundArt;
       j.subjectAsset=j.subjectAsset||lastServerResult.subjectAsset;
+      j.logoAssets=j.logoAssets||lastServerResult.logoAssets;
     }
     j.bannerPlan=semanticNormalizePlan({...lastServerResult.bannerPlan,...(j.bannerPlan||{})});
     // Keep exact direct-edit/manual text state authoritative.
@@ -2213,8 +2268,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V7.30 re-generated a different composition using the existing analyzed design state.'
-      : 'V7.30 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V7.31 re-generated a different composition using the existing analyzed design state.'
+      : 'V7.31 re-generated a different composition, but final-image validation could not confirm every item.';
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1200);
   }catch(e){
@@ -2246,9 +2301,12 @@ $('applyTextEdits').onclick=async()=>{
     const rows=readTextEditorRows();
     const oldPlan=JSON.parse(JSON.stringify(lastServerResult.bannerPlan||{}));
     const newPlan=applyRowsToPlan(lastServerResult.bannerPlan||{},rows);
-    const nextData=normalizeDesignState({...lastServerResult,bannerPlan:newPlan});
-    const ex=await renderUniversalDesignState(nextData,lastDesignTarget);
+    let nextData=normalizeDesignState({...lastServerResult,bannerPlan:newPlan});
     const changeSummary=describeTextChanges(oldPlan,nextData.bannerPlan||newPlan);
+    if(textPlanChangedMaterially(oldPlan,nextData.bannerPlan||newPlan)){
+      nextData=await requestLayoutReplan(lastServerResult,nextData.bannerPlan,lastDesignTarget,changeSummary);
+    }
+    const ex=await renderUniversalDesignState(nextData,lastDesignTarget);
     const requiredTexts=(nextData.bannerPlan?.textElements||[]).filter(x=>x.visible!==false && (x.role==='manual'||x.role==='headline'||x.role==='dateTime'||x.role==='venue'||x.role==='address'||x.role==='cta')).map(x=>x.text).filter(Boolean);
     const qa=await validateRenderedResult(ex,changeSummary,requiredTexts);
 
@@ -2265,7 +2323,7 @@ $('applyTextEdits').onclick=async()=>{
     if(qa.verified)setDiagnostics([{status:'applied',message:`${changeSummary} · Final PNG visually verified.`}]);
     else setDiagnostics([{status:'failed',message:`${changeSummary} · Final PNG could not verify the requested result: ${qa.reason||'requested content was not visibly confirmed.'}`}]);
     setCurrentInstruction(changeSummary,'Text/content edit');
-    $('validation').textContent=qa.verified?'V7.30 final-image validation visually confirmed the requested text/content changes.':'V7.30 saved the requested text/content state, but final-image validation did not confirm every requested item.';
+    $('validation').textContent=qa.verified?'V7.31 final-image validation visually confirmed the requested text/content changes.':'V7.31 saved the requested text/content state, but final-image validation did not confirm every requested item.';
   }catch(e){
     $('error').textContent='Text edit failed: '+e.message;
     $('error').style.display='block';
