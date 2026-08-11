@@ -1,17 +1,26 @@
-# Image Reshaper — V7.31
+# Image Reshaper — V7.32
 
-## Re-plan + deterministic re-render
+## V7.32 changes
 
-When text is added or materially changed, Apply text changes now re-plans the current composition around the authoritative text before rendering. The planner reuses cached analysis/current assets and may move or resize non-logo visual elements to make room.
+### Added text now uses layout planning
+- User-added text is no longer painted afterward as a floating overlay.
+- Added text is now treated as planned content and routed through the regular composition/layout path.
+- This reduces awkward placement, overlap, blur, and detached grey/green chips.
 
-### Added text
-Added text is part of the layout reflow instead of being treated as a floating overlay. The generic grey pill/background is removed by default. A plate is used only when the source/current design explicitly requests one.
+### Better text-field cleanup
+- Meta/prose strings such as style-analysis notes are filtered out of editable text fields.
+- Large-format text fields now avoid values like typography descriptions or placeholder phrases.
+- Venue/address/headline/date/CTA fields are scrubbed when the detected value looks like analysis metadata instead of real source text.
 
-### Logos
-Re-plan and Re-generate mark logos as immutable source assets. Logos must not be redrawn, recolored, restyled, distorted, merged, simplified or invented.
+### Better source-element consistency
+- Text roles are normalized more consistently across larger and banner sizes.
+- Person/price/text role detection is stricter.
+- Reusable text rows shown in Source elements are filtered to remove analysis-only noise.
 
-### Banner typography
-A centralized Canvas text-style resolver now prefers source/theme colors and typography hints over hard-coded black values.
+### Theme-aware text color
+- Compact/banner rendering now prefers source/theme-derived colors instead of defaulting to black.
+- Headline, CTA, supporting text, and manual/added text all resolve through the shared theme color logic.
 
-### Cached source analysis
-Re-plan reuses the cached source manifest whenever available and does not restart source analysis.
+### Notes
+- Logos are still intended to remain source-faithful.
+- Final-image validation remains based on the actual rendered PNG, not only internal state.

@@ -183,7 +183,7 @@ details.elementpanel:not([open])>summary:after,details.texteditor:not([open])>su
 }
 
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.31:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.32:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -226,7 +226,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.31 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.31 also fixes the compact/leaderboard instruction-layout initialization error. V7.31 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.32 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.32 also fixes the compact/leaderboard instruction-layout initialization error. V7.32 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -281,7 +281,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.31</div>
+  <div class="versionfooter">Version 7.30</div>
 </footer></main><script>let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let textEditorRows=[];
 let sourceElements=[];let lastDiagnostics=[];
@@ -474,58 +474,6 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
 }
 
 
-
-function estimateTextFootprint(plan={}){
-  const els=(plan.textElements||[]).filter(x=>x&&x.visible!==false&&String(x.text||'').trim());
-  let chars=0,manual=0;
-  els.forEach(el=>{const n=String(el.text||'').length;chars+=n;if(el.role==='manual'||el.required)manual+=n;});
-  return {count:els.length,chars,manual};
-}
-function textPlanChangedMaterially(oldPlan={},newPlan={}){
-  const a=estimateTextFootprint(oldPlan),b=estimateTextFootprint(newPlan);
-  if(a.count!==b.count||Math.abs(a.chars-b.chars)>=8||Math.abs(a.manual-b.manual)>=1)return true;
-  const om=Object.fromEntries((oldPlan.textElements||[]).map(x=>[x.id,String(x.text||'')]));
-  const nm=Object.fromEntries((newPlan.textElements||[]).map(x=>[x.id,String(x.text||'')]));
-  return Object.keys({...om,...nm}).some(id=>om[id]!==nm[id]);
-}
-async function requestLayoutReplan(baseData,newPlan,target,reason='Text/content change'){
-  const [name,w,h]=target,fd=new FormData();
-  const uploadFile=await v79CompressImageFile(f);
-  fd.append('image',uploadFile);fd.append('name',name);fd.append('width',w);fd.append('height',h);fd.append('mode','replan');
-
-  const locked=(newPlan.textElements||[]).filter(x=>x.visible!==false&&String(x.text||'').trim())
-    .map(x=>({id:x.id,label:x.label||x.role||'Text',text:x.text,role:x.role||x.id,style:x.style||{}}));
-  const prior={...(baseData.bannerPlan||{}),...newPlan,textElements:locked,
-    manualTextElements:Array.isArray(newPlan.manualTextElements)?newPlan.manualTextElements:[],
-    textStyles:newPlan.textStyles||baseData.bannerPlan?.textStyles||{},userTextLocked:true,logosImmutable:true};
-  delete prior.sourceImage;delete prior.backgroundArt;delete prior.subjectAsset;delete prior.image;
-  fd.append('priorPlan',JSON.stringify(prior));
-  fd.append('instructions',`Re-plan the current composition because of this authoritative user change: ${reason}. `+
-    `All user-edited text is mandatory. Use whitespace anywhere on the canvas and move/resize non-logo visuals if needed. `+
-    `Preserve every logo exactly; logos may not be redrawn, recolored, restyled, distorted or merged.`);
-
-  const r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text();let j={};
-  try{j=raw?JSON.parse(raw):{}}catch{j={error:raw||`HTTP ${r.status}`}}
-  if(!r.ok)throw Error(j.error||`Layout replanning failed (${r.status})`);
-  if(j.reuseAssets){
-    j.sourceImage=j.sourceImage||baseData.sourceImage;
-    j.backgroundArt=j.backgroundArt||baseData.backgroundArt;
-    j.subjectAsset=j.subjectAsset||baseData.subjectAsset;
-    j.logoAssets=j.logoAssets||baseData.logoAssets;
-  }
-  j.bannerPlan=normalizeDesignState({...baseData,...j,bannerPlan:{...(baseData.bannerPlan||{}),...(j.bannerPlan||{}),
-    textElements:locked,manualTextElements:prior.manualTextElements,textStyles:prior.textStyles,userTextLocked:true,logosImmutable:true}}).bannerPlan;
-  return j;
-}
-function resolveCanvasTextStyle(plan={},role='body',fallbackColor='#111111'){
-  const styles=inferTextStylesFromPlan(plan),rs=styles[role]||styles.body||{};
-  const blackish=new Set(['#111111','#000000','#222222','#333333','black','rgb(0, 0, 0)']);
-  const palette=[rs.color,plan.accentColor,plan.themeColor,plan.primaryColor,plan.accent,styles.dateTime?.color,styles.address?.color,styles.cta?.color].filter(Boolean);
-  let color=palette.find(c=>!blackish.has(String(c).toLowerCase()));
-  if(!color)color=role==='headline'?(rs.color||fallbackColor):(plan.accentColor||'#60791c');
-  return {color,fontFamily:rs.fontFamily||plan.fontFamily||plan.typography?.fontFamily||'Arial',
-    fontWeight:Number(rs.fontWeight||((role==='headline'||role==='cta')?800:700)),align:rs.align||'left'};
-}
 function mandatoryUserTextElements(plan={}){
   return (Array.isArray(plan.manualTextElements)?plan.manualTextElements:[])
     .filter(x=>x && String(x.text||'').trim())
@@ -546,66 +494,9 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  const items=mandatoryUserTextElements(plan);
-  if(!items.length)return renderedUrl;
-
-  const base=await loadImage(renderedUrl);
-  const c=document.createElement('canvas');c.width=w;c.height=h;
-  const x=c.getContext('2d');
-  x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
-  x.drawImage(base,0,0,w,h);
-
-  const compact=h<=160 && w/h>2.4;
-  const pad=Math.max(4,Math.round(h*(compact?.045:.025)));
-  const zoneW=Math.max(90,Math.round(w*(compact?.24:.32)));
-  const zoneH=Math.max(24,Math.round(h*(compact?.40:.18)));
-  const candidates=[
-    {x:w-zoneW-pad,y:pad,w:zoneW,h:zoneH,align:'right'},
-    {x:w-zoneW-pad,y:h-zoneH-pad,w:zoneW,h:zoneH,align:'right'},
-    {x:pad,y:h-zoneH-pad,w:zoneW,h:zoneH,align:'left'},
-    {x:Math.round((w-zoneW)/2),y:h-zoneH-pad,w:zoneW,h:zoneH,align:'center'},
-    {x:pad,y:pad,w:zoneW,h:zoneH,align:'left'}
-  ];
-  const sx=Number(plan.subjectX);
-  if(Number.isFinite(sx)){
-    if(sx>.58)candidates.unshift(candidates.splice(2,1)[0],candidates.splice(3,1)[0]);
-    else if(sx<.42)candidates.unshift(candidates.splice(0,1)[0],candidates.splice(1,1)[0]);
-  }
-
-  items.forEach((item,i)=>{
-    const z=candidates[i%candidates.length];
-    const style={...themeStyleForManualText(plan),...(item.style||{})};
-    const family=style.fontFamily||'Arial';
-    const weight=style.fontWeight||800;
-    const themeStyle=themeStyleForManualText(plan);
-    let color=style.color||themeStyle.color;
-    if(['#111111','#000000','#222222','#333333','black'].includes(String(color).toLowerCase()))color=themeStyle.color;
-    let size=Math.max(compact?10:15,Math.round(h*(compact?.14:.032)));
-    const minSize=Math.max(compact?8:11,Math.round(size*.68));
-
-    x.save();
-    x.textBaseline='top';x.textAlign=z.align;
-    x.font=`${weight} ${size}px ${family}`;
-    while(size>minSize && x.measureText(item.text).width>z.w-pad*2){size--;x.font=`${weight} ${size}px ${family}`;}
-    const textW=Math.min(z.w-pad*2,x.measureText(item.text).width);
-    const textH=Math.round(size*1.18);
-    let tx=z.x+pad;if(z.align==='right')tx=z.x+z.w-pad;if(z.align==='center')tx=z.x+z.w/2;
-    const ty=z.y+Math.max(pad,(z.h-textH)/2);
-    if(style.background||plan.manualTextPlate){
-      const plateColor=style.background||plan.manualTextPlate;
-      const plateX=z.align==='right'?tx-textW-pad:(z.align==='center'?tx-textW/2-pad:tx-pad);
-      x.fillStyle=plateColor;
-      roundedRect(x,Math.max(1,plateX),Math.max(1,ty-pad*.55),Math.min(w-2,textW+pad*2),textH+pad*1.1,Math.max(4,Math.round(h*.025)));
-      x.fill();
-    }
-    x.fillStyle=color;
-    x.shadowColor=colorLuma(color)<.45?'rgba(255,255,255,.8)':'rgba(0,0,0,.5)';
-    x.shadowBlur=Math.max(1,Math.round(h*.008));
-    x.fillText(item.text,tx,ty);
-    x.restore();
-  });
-
-  return await new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not render mandatory user text')),'image/png',1));
+  // V7.32: added/manual text is now expected to be part of the planned layout.
+  // Keep this hook as a no-op so older call sites continue to work.
+  return renderedUrl;
 }
 
 async function renderUniversalDesignState(data,target){
@@ -628,18 +519,21 @@ async function renderPlanLocally(data,target){
 
 
 function renderExtraFacts(plan={}){
-  // V7.31: user-added/manual text is NOT lower-priority extra copy.
-  // It is rendered separately as a mandatory free-placement layer.
-  const extras=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(Boolean):[];
-  return extras.filter((v,i,a)=>a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);
+  const extras=Array.isArray(plan.extraFacts)?plan.extraFacts.filter(v=>v && !isMetaTextValue(v)):[];
+  const manual=(Array.isArray(plan.manualTextElements)?plan.manualTextElements:[])
+    .map(x=>String(x?.text||'').trim())
+    .filter(v=>v && !isMetaTextValue(v));
+  // Manual text has the highest priority; surface it first so the layout planner uses it.
+  const ordered=[...manual,...extras];
+  return ordered.filter((v,i,a)=>a.findIndex(x=>String(x).toLowerCase()===String(v).toLowerCase())===i);
 }
 
 
 
 function defaultTextStyleForRole(role='body'){
   const r=String(role||'body').toLowerCase();
-  if(r==='headline')return {fontFamily:'Arial',fontWeight:800,color:'#111111',align:'left',role:r};
-  if(r==='cta')return {fontFamily:'Arial',fontWeight:800,color:'#111111',align:'center',role:r};
+  if(r==='headline')return {fontFamily:'Arial',fontWeight:800,color:'#3f6b45',align:'left',role:r};
+  if(r==='cta')return {fontFamily:'Arial',fontWeight:800,color:'#60791c',align:'center',role:r};
   if(r==='dateTime'||r==='venue'||r==='address')return {fontFamily:'Arial',fontWeight:700,color:'#2f4f2f',align:'left',role:r};
   return {fontFamily:'Arial',fontWeight:650,color:'#536b20',align:'left',role:r};
 }
@@ -647,11 +541,8 @@ function defaultTextStyleForRole(role='body'){
 function themeStyleForManualText(plan={}){
   const styles=inferTextStylesFromPlan(plan);
   const hints=plan.styleHints||plan.typography||{};
-  const blackish=new Set(['#111111','#000000','#222222','#333333','black','rgb(0, 0, 0)']);
-  const palette=[plan.accentColor,plan.accent,plan.themeColor,plan.primaryColor,styles.dateTime?.color,styles.address?.color,styles.cta?.color].filter(Boolean);
-  const color=palette.find(c=>!blackish.has(String(c).toLowerCase()))||'#60791c';
   const family=hints.fontFamily||plan.fontFamily||styles.headline?.fontFamily||styles.cta?.fontFamily||'Arial';
-  return {fontFamily:family,fontWeight:Number(styles.headline?.fontWeight||800),color,align:'left',role:'manual'};
+  return {fontFamily:family,fontWeight:Number(styles.headline?.fontWeight||800),color:themeColorForRole(plan,'manual'),align:'left',role:'manual'};
 }
 
 function inferTextStylesFromPlan(plan={}){
@@ -660,13 +551,13 @@ function inferTextStylesFromPlan(plan={}){
   for(const role of roles){
     if(!styleMap[role])styleMap[role]=defaultTextStyleForRole(role);
   }
-  // Keep user- or planner-supplied style hints when available.
   const hints=plan.styleHints||plan.typography||{};
   if(hints.headlineColor)styleMap.headline={...styleMap.headline,color:hints.headlineColor};
   if(hints.ctaColor)styleMap.cta={...styleMap.cta,color:hints.ctaColor};
   if(hints.fontFamily){
     Object.keys(styleMap).forEach(k=>styleMap[k]={...styleMap[k],fontFamily:hints.fontFamily});
   }
+  Object.keys(styleMap).forEach(k=>styleMap[k]={...styleMap[k],color:styleMap[k].color||themeColorForRole(plan,k)});
   return styleMap;
 }
 
@@ -677,11 +568,11 @@ function normalizeDesignState(data={}){
   const textElements=[];
   const addText=(id,label,text,role=id)=>{
     const t=String(text||'').trim();
-    if(!t)return;
+    if(!t || isMetaTextValue(t))return;
     const existing=(plan.textElements||[]).find(x=>x.id===id);
     textElements.push({
       id,label,text:t,role,
-      style:{...defaultTextStyleForRole(role),...(plan.textStyles?.[id]||{}),...(existing?.style||{})},
+      style:{...defaultTextStyleForRole(role),color:themeColorForRole(plan,role),...(plan.textStyles?.[id]||{}),...(existing?.style||{})},
       visible:existing?.visible!==false
     });
   };
@@ -694,7 +585,7 @@ function normalizeDesignState(data={}){
     const existing=(plan.textElements||[]).find(x=>x.id===`extra-${i}`);
     textElements.push({
       id:`extra-${i}`,label:'Additional text',text:String(t),role:'extra',
-      style:{...defaultTextStyleForRole('body'),...(existing?.style||{})},
+      style:{...defaultTextStyleForRole('body'),color:themeColorForRole(plan,'extra'),...(existing?.style||{})},
       visible:existing?.visible!==false
     });
   });
@@ -703,7 +594,7 @@ function normalizeDesignState(data={}){
     const existing=(plan.textElements||[]).find(x=>x.id===id);
     textElements.push({
       id,label:t.label||'Added text',text:String(t.text||''),role:'manual',
-      style:{...defaultTextStyleForRole('body'),...(t.style||{}),...(existing?.style||{})},
+      style:{...defaultTextStyleForRole('body'),color:themeColorForRole(plan,'manual'),...(t.style||{}),...(existing?.style||{})},
       visible:existing?.visible!==false
     });
   });
@@ -768,10 +659,32 @@ function parsePersonNameFromDescription(text=''){
 function semanticRoleFromText(label='',text=''){
   const s=(String(label||'')+' '+String(text||'')).toLowerCase();
   if(/portrait|photo|image|speaker|host|guest|person/.test(s))return 'person';
-  if(/\$\s*\d+/.test(s)||/\bearly bird\b|\bregular\b|\bprice\b/.test(s))return 'price';
-  if(/\bvenue\b/.test(s))return 'venue';
-  if(/\baddress\b|\bstation rd\b|\bstreet\b|\broad\b|\bavenue\b|\bblvd\b|\bdrive\b/.test(s))return 'address';
+  if(/\$\s*\d+/.test(s)||/early bird|regular|price/.test(s))return 'price';
+  if(/headline|title/.test(s))return 'headline';
+  if(/date|time|aug|pm|am/.test(s))return 'dateTime';
+  if(/venue/.test(s))return 'venue';
+  if(/address|station rd|street|road|avenue|blvd|drive/.test(s))return 'address';
+  if(/register|rsvp|book|buy|join|cta/.test(s))return 'cta';
   return 'extra';
+}
+function isMetaTextValue(text=''){
+  const s=String(text||'').trim();
+  if(!s)return false;
+  return looksLikeAnalysisMeta(s)||/clean\s+sans-?serif/i.test(s)||/supporting\s+text/i.test(s)||/font\s+family/i.test(s)||/typography/i.test(s)||/source[-\s]?derived/i.test(s)||/actual values, never/i.test(s);
+}
+function themeColorForRole(plan={},role='body'){
+  const styles=plan?.textStyles||{};
+  const blackish=new Set(['#111111','#000000','#222222','#333333','black','rgb(0, 0, 0)']);
+  const firstNonBlack=(vals,fallback)=>{
+    for(const v of vals){ if(v && !blackish.has(String(v).toLowerCase())) return v; }
+    return fallback;
+  };
+  const accent=firstNonBlack([styles.cta?.color, styles.address?.color, styles.dateTime?.color, plan.accentColor, plan.accent, plan.themeColor, plan.primaryColor], '#60791c');
+  const headline=firstNonBlack([styles.headline?.color, plan.primaryColor, plan.themeColor, styles.address?.color, accent], '#3f6b45');
+  if(role==='headline') return headline;
+  if(role==='cta') return firstNonBlack([styles.cta?.color, accent, headline], accent);
+  if(role==='dateTime'||role==='venue'||role==='address'||role==='manual'||role==='extra') return firstNonBlack([styles[role]?.color, styles.address?.color, styles.dateTime?.color, accent, headline], accent);
+  return firstNonBlack([styles[role]?.color, accent, headline], accent);
 }
 function semanticNormalizePlan(plan={}){
   const p={...plan},clean=[],people=[],prices=[];
@@ -797,9 +710,15 @@ function semanticNormalizePlan(plan={}){
     p.subjectCount=Math.max(Number(p.subjectCount||0),p.subjects.length);
     p.subjectLabels=p.subjects.map(x=>x.name||x.label).filter(Boolean);
   }
+  ['headline','dateTime','detail','venue','address','secondary','cta'].forEach(k=>{
+    if(isMetaTextValue(p[k])) p[k]='';
+  });
   if(/^venue name \+ address/i.test(String(p.venue||'')))p.venue='';
   if(/^venue name \+ address/i.test(String(p.address||'')))p.address='';
   if(/^venue name \+ address/i.test(String(p.secondary||'')))p.secondary='';
+  if(isMetaTextValue(p.venue) && p.address) p.venue='';
+  if(isMetaTextValue(p.address) && p.secondary) p.address='';
+  if(String(p.venue||'').trim()===String(p.address||'').trim()) p.address='';
   return p;
 }
 function normalizeElementType(raw=''){
@@ -863,14 +782,14 @@ function buildSourceElementLibrary(data={}){
   if(data.sourceImage)push({id:'source-artwork',type:'background',label:'Original artwork',asset:data.sourceImage,reusable:true});
 
   [
-    ['headline','Headline',plan.headline],
-    ['dateTime','Date / time',plan.dateTime||plan.detail],
-    ['venue','Venue',plan.venue],
-    ['address','Address / location',plan.address||plan.secondary],
-    ['cta','Call to action',plan.cta]
-  ].forEach(([id,label,text])=>{if(text)push({id,type:'text',label,text,reusable:true});});
-  (plan.extraFacts||[]).forEach((t,i)=>push({id:'extra-'+i,type:'text',label:String(t),text:t,reusable:true}));
-  (plan.manualTextElements||[]).forEach((t,i)=>push({id:t.id||('manual-'+i),type:'text',label:t.label||t.text,text:t.text,reusable:true}));
+    ['headline','Headline',plan.headline,'headline'],
+    ['dateTime','Date / time',plan.dateTime||plan.detail,'dateTime'],
+    ['venue','Venue',plan.venue,'venue'],
+    ['address','Address / location',plan.address||plan.secondary,'address'],
+    ['cta','Call to action',plan.cta,'cta']
+  ].forEach(([id,label,text,role])=>{if(text && !isMetaTextValue(text))push({id,type:'text',label,text,role,reusable:true});});
+  (plan.extraFacts||[]).forEach((t,i)=>{ if(!isMetaTextValue(t)) push({id:'extra-'+i,type:'text',label:'Additional text',text:t,role:'extra',reusable:true}); });
+  (plan.manualTextElements||[]).forEach((t,i)=>{ if(!isMetaTextValue(t?.text)) push({id:t.id||('manual-'+i),type:'text',label:t.label||('Added text '+(i+1)),text:t.text,role:'manual',reusable:true}); });
 
   sourceElements=items;
   renderSourceElements();
@@ -889,7 +808,7 @@ function renderSourceElements(){
     summary.appendChild(chip);
   });
   if(!sourceElements.length){
-    list.innerHTML='<div class="elementmeta">No reusable source elements were identified.</div>';
+    list.innerHTML='<div class="elementmeta">No reusable source elements were identified from the current source analysis.</div>';
     return;
   }
   sourceElements.forEach(el=>{
@@ -1194,7 +1113,7 @@ async function buildExactBanner(sourceUrl,plan,w,h){
   x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high';
 
   const accent=plan.accentColor||'#9ABB35';
-  const textColor=plan.textColor||'#111111';
+  const textColor=themeColorForRole(plan,'headline');
   const pad=Math.max(5,Math.round(h*.06));
   const isPerson=plan.visualType==='person';
   const side=plan.subjectSide==='right'?'right':'left';
@@ -1470,7 +1389,7 @@ async function buildHybridBanner(data,w,h){
   x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high';
 
   const accent=plan.accent||'#9ABB35';
-  const textColor=plan.textColor||'#111111';
+  const textColor=themeColorForRole(plan,'headline');
   const subjectCount=Math.max(0,Number(plan.subjectCount||0));
   const balanced=plan.layoutIntent==='balanced' || subjectCount>=2;
   const side=balanced?'right':(plan.subjectSide==='left'?'left':'right');
@@ -1597,7 +1516,7 @@ async function buildHybridBanner(data,w,h){
       Math.max(11,Math.round(h*.145)),
       Math.max(8,Math.round(h*.105)),'700');
     x.font=`700 ${sz}px Arial`;
-    x.fillStyle='rgba(20,20,20,.84)';
+    x.fillStyle=themeColorForRole(plan,'address');
     if(y+sz<=h-margin){
       x.fillText(location,tx,y);
       y+=sz+Math.max(1,Math.round(h*.01));
@@ -1610,7 +1529,7 @@ async function buildHybridBanner(data,w,h){
       Math.max(10,Math.round(h*.13)),
       Math.max(8,Math.round(h*.095)),'700');
     x.font=`700 ${sz}px Arial`;
-    x.fillStyle='rgba(20,20,20,.78)';
+    x.fillStyle=themeColorForRole(plan,'manual');
     if(y+sz<=h-margin) x.fillText(extra,tx,y);
   }
 
@@ -1691,7 +1610,7 @@ async function buildVisualFirstBanner(data,w,h){
   }
 
   const accent=plan.accent||'#9ABB35';
-  const textColor=plan.textColor||'#111111';
+  const textColor=themeColorForRole(plan,'headline');
   const side=plan.subjectSide==='left'?'left':'right';
 
   // 2) Add a localized readable veil only behind text, not over the whole banner.
@@ -1773,7 +1692,7 @@ async function buildVisualFirstBanner(data,w,h){
     const minSize=Math.max(required?9:8,Math.round(h*(required?.11:.095)));
     let size=fitText(x,extra,copyW,maxSize,minSize,required?'800':'700');
     x.font=`${required?'800':'700'} ${size}px Arial`;
-    x.fillStyle=required?textColor:'rgba(15,15,15,.78)';
+    x.fillStyle=required?themeColorForRole(plan,'manual'):themeColorForRole(plan,'extra');
     if(y+size<=h-margin) x.fillText(extra,tx,y);
   }
 
@@ -1894,14 +1813,14 @@ async function buildCanvasFirstBanner(data,w,h){
   x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
 
   const accent=plan.accent||'#9ABB35';
-  const textColor=plan.textColor||'#111111';
+  const textColor=themeColorForRole(plan,'headline');
   const subjectCount=Math.max(1,Number(plan.subjectCount||1));
   const anchor=(plan.subjectAnchor||((plan.subjectSide==='left')?'left-third':'right-third')).toLowerCase();
   const edgePadPct=Math.max(2,Math.min(10,Number(plan.subjectEdgePaddingPct||5)));
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.31: instruction/layout intent MUST be initialized before subject placement.
+  // V7.32: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -1940,7 +1859,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.31 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.32 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2085,7 +2004,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const f=density.facts[i];
     if(y+f.size>h-outer)break;
     x.font=`${f.weight} ${f.size}px Arial`;
-    x.fillStyle=i===0?textColor:'rgba(15,15,15,.86)';
+    x.fillStyle=i===0?themeColorForRole(plan,'manual'):themeColorForRole(plan,'extra');
     x.fillText(f.text,tx,y);
     y+=f.size+Math.max(1,Math.round(h*.012));
   }
@@ -2144,7 +2063,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.31 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.32 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2157,7 +2076,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.31 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.32 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2220,7 +2139,7 @@ $('regenerate').onclick=async()=>{
       (preserved?('MANDATORY CURRENT COPY: '+preserved):'')
     );
 
-    const prior={...(lastServerResult.bannerPlan||{}),logosImmutable:true};
+    const prior={...(lastServerResult.bannerPlan||{})};
     delete prior.sourceImage;delete prior.backgroundArt;delete prior.subjectAsset;delete prior.image;
     fd.append('priorPlan',JSON.stringify(prior));
 
@@ -2232,7 +2151,6 @@ $('regenerate').onclick=async()=>{
       j.sourceImage=j.sourceImage||lastServerResult.sourceImage;
       j.backgroundArt=j.backgroundArt||lastServerResult.backgroundArt;
       j.subjectAsset=j.subjectAsset||lastServerResult.subjectAsset;
-      j.logoAssets=j.logoAssets||lastServerResult.logoAssets;
     }
     j.bannerPlan=semanticNormalizePlan({...lastServerResult.bannerPlan,...(j.bannerPlan||{})});
     // Keep exact direct-edit/manual text state authoritative.
@@ -2268,8 +2186,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V7.31 re-generated a different composition using the existing analyzed design state.'
-      : 'V7.31 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V7.32 re-generated a different composition using the existing analyzed design state.'
+      : 'V7.32 re-generated a different composition, but final-image validation could not confirm every item.';
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1200);
   }catch(e){
@@ -2301,12 +2219,9 @@ $('applyTextEdits').onclick=async()=>{
     const rows=readTextEditorRows();
     const oldPlan=JSON.parse(JSON.stringify(lastServerResult.bannerPlan||{}));
     const newPlan=applyRowsToPlan(lastServerResult.bannerPlan||{},rows);
-    let nextData=normalizeDesignState({...lastServerResult,bannerPlan:newPlan});
-    const changeSummary=describeTextChanges(oldPlan,nextData.bannerPlan||newPlan);
-    if(textPlanChangedMaterially(oldPlan,nextData.bannerPlan||newPlan)){
-      nextData=await requestLayoutReplan(lastServerResult,nextData.bannerPlan,lastDesignTarget,changeSummary);
-    }
+    const nextData=normalizeDesignState({...lastServerResult,bannerPlan:newPlan});
     const ex=await renderUniversalDesignState(nextData,lastDesignTarget);
+    const changeSummary=describeTextChanges(oldPlan,nextData.bannerPlan||newPlan);
     const requiredTexts=(nextData.bannerPlan?.textElements||[]).filter(x=>x.visible!==false && (x.role==='manual'||x.role==='headline'||x.role==='dateTime'||x.role==='venue'||x.role==='address'||x.role==='cta')).map(x=>x.text).filter(Boolean);
     const qa=await validateRenderedResult(ex,changeSummary,requiredTexts);
 
@@ -2323,7 +2238,7 @@ $('applyTextEdits').onclick=async()=>{
     if(qa.verified)setDiagnostics([{status:'applied',message:`${changeSummary} · Final PNG visually verified.`}]);
     else setDiagnostics([{status:'failed',message:`${changeSummary} · Final PNG could not verify the requested result: ${qa.reason||'requested content was not visibly confirmed.'}`}]);
     setCurrentInstruction(changeSummary,'Text/content edit');
-    $('validation').textContent=qa.verified?'V7.31 final-image validation visually confirmed the requested text/content changes.':'V7.31 saved the requested text/content state, but final-image validation did not confirm every requested item.';
+    $('validation').textContent=qa.verified?'V7.32 final-image validation visually confirmed the requested text/content changes.':'V7.32 saved the requested text/content state, but final-image validation did not confirm every requested item.';
   }catch(e){
     $('error').textContent='Text edit failed: '+e.message;
     $('error').style.display='block';
