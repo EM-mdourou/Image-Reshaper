@@ -197,10 +197,30 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 .reshapeicon svg{width:24px;height:24px;display:block}
 .actiontimer{display:none;min-width:42px;font-size:12px;font-weight:800;color:#66711f;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 .actiontimer.running{display:inline-block}
+.actionbuttons{display:flex;gap:12px;align-items:flex-start;justify-content:flex-end;flex-wrap:wrap}
+.actionunit{display:flex;flex-direction:column;align-items:stretch;min-width:165px;max-width:290px;gap:5px}
+.actionunit.compactunit{min-width:210px;max-width:330px}
+.costestimate{font-size:10px;line-height:1.35;color:#6e755e;text-align:center;min-height:14px}
+.costestimate strong{color:#4f6116}.costestimate .retrywarn{color:#8a6b19}
+.costdisclaimer{font-size:10px;color:#7b8072;text-align:right;margin:-9px 4px 14px}
+.inlineprogress{display:none;background:#111;color:#fff;border-radius:10px;padding:9px 10px;min-width:210px;box-shadow:0 5px 15px rgba(0,0,0,.08)}
+.inlineprogress.running{display:block}
+.inlineprogress .iprogresshead{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:10px;margin-bottom:7px}
+.inlineprogress .iprogresshead b{font-size:10px;color:#f3f4ed;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inlineprogress .itime{font-variant-numeric:tabular-nums;color:#d5ddb8;font-weight:800;white-space:nowrap}
+.inlineprogress .itrack{height:5px;background:#363636;border-radius:999px;overflow:hidden;margin-bottom:7px}
+.inlineprogress .ifill{height:100%;width:0;background:var(--green);border-radius:999px;transition:width .45s ease}
+.inlineprogress .icurrent{font-size:10px;line-height:1.35;color:#d8dec7;margin-bottom:6px}
+.inlineprogress .isteps{display:flex;gap:4px;flex-wrap:wrap}
+.inlineprogress .istep{font-size:8px;line-height:1.1;padding:3px 5px;border-radius:999px;background:#282828;color:#888;white-space:nowrap}
+.inlineprogress .istep.done{background:#26300f;color:#dfe9bf}.inlineprogress .istep.active{background:#41520e;color:#fff}
+.legacyprogress{display:none!important}
+@media(max-width:700px){.actionbuttons{width:100%}.actionunit,.actionunit.compactunit{width:100%;max-width:none}.costdisclaimer{text-align:left}.inlineprogress{min-width:0}}
+
 .historyitem.currenthistory{border:2px solid #a4bd43;background:#fbfdf6;box-shadow:0 5px 18px rgba(91,112,22,.08)}
 .historyitem.currenthistory .historyrun{font-size:13px;color:#526700}
 </style><script>
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.5:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.6:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -243,24 +263,26 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.5 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.5 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
-<div id="progressbox" class="progressbox">
-  <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
-  <div class="progresssteps">
-    <div class="pstep"><span class="dot"></span>Read source</div>
-    <div class="pstep"><span class="dot"></span>Identify content</div>
-    <div class="pstep"><span class="dot"></span>Prioritize content</div>
-    <div class="pstep"><span class="dot"></span>Plan layout</div>
-    <div class="pstep"><span class="dot"></span>Generate design</div>
-    <div class="pstep"><span class="dot"></span>Finalize output</div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.6 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.6 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
+  <div class="actionunit">
+    <button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button>
+    <div id="costRegenerate" class="costestimate"></div>
+    <div id="progressRegenerate" class="inlineprogress"></div>
   </div>
-</div>
+  <div class="actionunit">
+    <button id="submit" class="primary" disabled>Reshape with AI →</button>
+    <div id="costSubmit" class="costestimate"></div>
+    <div id="progressSubmit" class="inlineprogress"></div>
+  </div>
+</div></div>
+<div class="costdisclaimer">API costs are estimates based on the current V8.6 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
+<div id="progressbox" class="progressbox legacyprogress" aria-hidden="true"></div>
 <div id="status" class="status"></div><div id="error" class="error"></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
 <div class="preview"><img id="output"></div><div id="validation" class="note"></div><div id="engineInfo" class="engineinfo" style="display:none"></div>
 <details id="sourceElementsPanel" class="elementpanel" open>
   <summary>Source elements</summary>
   <div class="accordionbody">
-    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.5 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
+    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.6 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
     <div id="elementSummary" class="elementsummary"></div>
     <div id="elementList" class="elementlist"></div>
   </div>
@@ -275,7 +297,7 @@ Never expose internal planner/meta/debug/schema text.`;
       <button id="addTextRow" class="textadd" type="button">+ Add text</button>
       <span class="textlocked">Direct edits persist into later versions and Modify instructions.</span>
     </div>
-    <div style="display:flex;align-items:center;gap:10px"><span id="textEditTimer" class="actiontimer">0s</span><button id="applyTextEdits" class="textapply" type="button">Apply text changes →</button></div>
+    <div class="actionunit compactunit"><button id="applyTextEdits" class="textapply" type="button">Apply text changes →</button><div id="costText" class="costestimate"></div><div id="progressText" class="inlineprogress"></div></div>
   </div>
   </div>
 </details>
@@ -285,7 +307,7 @@ Never expose internal planner/meta/debug/schema text.`;
   <textarea id="modifyInstructions" placeholder="Example: Move the address slightly left, make the featured person larger, or change the title to ‘Ramadan Event’."></textarea>
   <div class="modifyactions">
     <div class="modifyhint">Updates the CURRENT design instead of starting over. Each successful change is saved below as a previous version with the instruction that produced it.</div>
-    <div style="display:flex;align-items:center;gap:10px"><span id="modifyTimer" class="actiontimer">0s</span><button id="modifyBtn" class="modifybtn" type="button">Modify current design →</button></div>
+    <div class="actionunit compactunit"><button id="modifyBtn" class="modifybtn" type="button">Modify current design →</button><div id="costModify" class="costestimate"></div><div id="progressModify" class="inlineprogress"></div></div>
   </div>
 </div>
 <div id="diagnosticsPanel" class="diagpanel">
@@ -299,8 +321,8 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 8.5</div>
-</footer></main><script>const APP_VERSION='8.5';
+  <div class="versionfooter">Version 8.6</div>
+</footer></main><script>const APP_VERSION='8.6';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -319,11 +341,119 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let lastEngineOperation='GENERATE',lastSourceAnalysisReused=false;
+const COST_PRICE_BASIS={
+  image15HighSquare:0.133,
+  image15HighLandscape:0.20,
+  image1HighLandscape:0.25
+};
+function isExactCostProfile(target){
+  const w=Number(target?.[1]||0),h=Number(target?.[2]||0),r=w/h;
+  return (h<=60&&r>=3.5)||((h<=120&&r>=2.4)||r>=5)||((h<=180&&r>=2)||r>=3);
+}
+function estimateActionCost(operation='GENERATE',target=s,reused=false){
+  const op=String(operation||'GENERATE').toUpperCase();
+  const exact=isExactCostProfile(target);
+  // Estimates intentionally include a modest allowance for GPT-5.1 planning/vision QA,
+  // but actual text/image-input token usage varies by poster and automatic retry behavior.
+  let typical='',retry='',detail='';
+  if(exact){
+    if(op==='EDIT_TEXT'){
+      typical='$0.01–$0.03';retry='$0.04';detail='Exact-canvas text state + final vision QA; normally no new image-generation call.';
+    }else if(op==='MODIFY'){
+      typical='$0.01–$0.05';retry='$0.07';detail='Structured patch + instruction interpretation/QA; normally reuses the existing exact-canvas visual assets.';
+    }else if(op==='REGENERATE'){
+      typical='$0.21–$0.27';retry='$0.32';detail='Cached source manifest + one new high-quality panoramic background + QA.';
+    }else{
+      typical=reused?'$0.34–$0.43':'$0.35–$0.46';retry='$0.55';detail=(reused?'Cached manifest; ':'Source analysis + ')+'high-quality background and subject asset generation, plus planning/QA.';
+    }
+  }else{
+    if(op==='EDIT_TEXT'){
+      typical='$0.27–$0.34';retry='$0.55';detail='High-quality current-design image patch + preservation comparison + final QA.';
+    }else if(op==='MODIFY'){
+      typical='$0.28–$0.36';retry='$0.58';detail='Instruction interpretation + high-quality current-design image patch + comparison/QA.';
+    }else if(op==='REGENERATE'){
+      typical='$0.27–$0.35';retry='$0.55';detail='Cached source manifest + new high-quality composition + difference/content QA.';
+    }else{
+      typical=reused?'$0.27–$0.35':'$0.28–$0.40';retry='$0.58';detail=(reused?'Cached manifest + ':'Source analysis + ')+'high-quality full-composition generation and QA.';
+    }
+  }
+  return {typical,retry,detail,exact};
+}
+function refreshActionCostEstimates(){
+  const reused=!!(lastServerResult?.sourceManifest||lastServerResult?.bannerPlan?.sourceManifest);
+  const target=lastDesignTarget||s;
+  const set=(id,op,canReuse)=>{
+    const el=$(id);if(!el)return;
+    const c=estimateActionCost(op,target,canReuse);
+    el.innerHTML=`<strong>Est. API ${c.typical}</strong><span class="retrywarn"> · retry up to ~${c.retry}</span>`;
+    el.title=c.detail;
+  };
+  set('costSubmit',reused?'RESIZE':'GENERATE',reused);
+  set('costRegenerate','REGENERATE',true);
+  set('costText','EDIT_TEXT',true);
+  set('costModify','MODIFY',true);
+}
+function progressStagesFor(operation='GENERATE',target=s,reused=false){
+  const op=String(operation||'GENERATE').toUpperCase(), exact=isExactCostProfile(target);
+  if(op==='EDIT_TEXT') return exact?
+    ['Load current structured state','Apply authoritative text values','Reflow affected text regions','Render exact canvas','Verify changed text','Save new version']:
+    ['Load current structured state','Apply authoritative text values','Reflow affected regions','Patch current image','Compare with baseline','Verify changed text','Save new version'];
+  if(op==='MODIFY') return exact?
+    ['Load current structured state','Interpret newest instruction','Resolve source element / geometry','Patch layout state','Render exact canvas','Verify requested change','Save new version']:
+    ['Load current structured state','Interpret newest instruction','Resolve source element / geometry','Patch design state','Edit current image','Compare with baseline','Verify requested change','Save new version'];
+  if(op==='REGENERATE') return exact?
+    ['Load cached source manifest','Choose alternate composition','Plan target-size hierarchy','Generate panoramic background','Compose reusable subjects + text','Verify content / no overlap','Finalize exact canvas']:
+    ['Load cached source manifest','Choose alternate composition','Plan new layout','Generate new composition','Compare with previous layout','Verify source facts / safe margins','Finalize output'];
+  if(op==='RESIZE') return exact?
+    ['Load cached source manifest','Read new canvas constraints','Prioritize for target size','Plan exact-canvas layout','Prepare reusable visual assets','Compose target canvas','Verify fit / content','Finalize PNG']:
+    ['Load cached source manifest','Read new canvas constraints','Prioritize for target size','Plan layout','Generate target composition','Verify content / safe margins','Finalize PNG'];
+  return exact?
+    ['Prepare upload','Analyze source once','Extract facts / people / logos','Build reusable source library','Prioritize for target size','Plan exact-canvas layout','Generate background + subject assets','Compose exact canvas','Verify fit / content','Finalize PNG']:
+    ['Prepare upload','Analyze source once','Extract facts / people / logos','Prioritize source content','Plan target layout','Generate composition','Verify facts / geometry / margins','Finalize PNG'];
+}
+function progressHostId(key){return {submit:'progressSubmit',regenerate:'progressRegenerate',text:'progressText',modify:'progressModify'}[key]||'progressSubmit';}
+function beginActionProgress(key,operation,target=s,reused=false){
+  const host=$(progressHostId(key)); if(!host)return ()=>{};
+  ['progressSubmit','progressRegenerate','progressText','progressModify'].forEach(id=>{const el=$(id);if(el&&el!==host){el.classList.remove('running');el.innerHTML='';}});
+  const steps=progressStagesFor(operation,target,reused);
+  const profile=localCanvasProfile(target?.[1]||1,target?.[2]||1);
+  const start=Date.now(); let idx=0;
+  host.classList.add('running');
+  host.innerHTML=`<div class="iprogresshead"><b>${escapeHtml(String(operation).replace('_',' '))} · ${escapeHtml(profile)}</b><span class="itime">0s</span></div><div class="itrack"><div class="ifill"></div></div><div class="icurrent"></div><div class="isteps"></div>`;
+  const stepBox=host.querySelector('.isteps');
+  steps.forEach((st,i)=>{const e=document.createElement('span');e.className='istep';e.textContent=(i+1)+'. '+st;stepBox.appendChild(e);});
+  const update=()=>{
+    const elapsed=(Date.now()-start)/1000;
+    // Time-based UI only; serverless endpoints do not stream their internal stages.
+    const op=String(operation).toUpperCase();
+    const base=op==='EDIT_TEXT'?(isExactCostProfile(target)?1.6:6):
+      op==='MODIFY'?(isExactCostProfile(target)?2.2:7):
+      op==='REGENERATE'?(isExactCostProfile(target)?4.5:8):
+      (isExactCostProfile(target)?5:8);
+    idx=Math.min(steps.length-1,Math.floor(elapsed/base));
+    host.querySelector('.itime').textContent=Math.floor(elapsed)+'s';
+    host.querySelector('.icurrent').textContent=steps[idx];
+    host.querySelector('.ifill').style.width=Math.max(7,Math.round(((idx+0.45)/steps.length)*100))+'%';
+    [...host.querySelectorAll('.istep')].forEach((el,i)=>{el.classList.toggle('done',i<idx);el.classList.toggle('active',i===idx);});
+  };
+  update(); const timer=setInterval(update,500); let stopped=false;
+  return (status='done')=>{
+    if(stopped)return; stopped=true; clearInterval(timer);
+    if(status==='done'){
+      host.querySelector('.ifill').style.width='100%';
+      host.querySelector('.icurrent').textContent='Completed';
+      [...host.querySelectorAll('.istep')].forEach(el=>{el.classList.add('done');el.classList.remove('active');});
+      setTimeout(()=>{host.classList.remove('running');host.innerHTML='';},1200);
+    }else{
+      host.querySelector('.icurrent').textContent='Stopped — see the error message above.';
+      setTimeout(()=>{host.classList.remove('running');host.innerHTML='';},2200);
+    }
+  };
+}
 function startButtonTimer(id){
-  const el=$(id);if(!el)return ()=>{};
-  let sec=0;el.textContent='0s';el.classList.add('running');
-  const timer=setInterval(()=>{sec++;el.textContent=sec+'s';},1000);
-  return ()=>{clearInterval(timer);el.classList.remove('running');};
+  // Backward-compatible wrapper retained for older call sites.
+  const map=id==='modifyTimer'?['modify','MODIFY']:[ 'text','EDIT_TEXT' ];
+  return beginActionProgress(map[0],map[1],lastDesignTarget||s,true);
 }
 function manifestFingerprint(value=''){
   const s=String(value||'');let h=2166136261;
@@ -350,7 +480,8 @@ function renderEngineInfo(data,target,operation=lastEngineOperation,reused=lastS
   const analysis=reused?'Reused':'Analyzed';
   const currentState=((data.bannerPlan?.designStateVersion||0)>0||data.bannerPlan?.visualState)?'Structured':'Image only';
   const sourceGeometry=(data.subjectAsset||data.bannerPlan?.subjectAsset||(data.sourceElements||[]).some(x=>x&&x.crop))?'Available':'Limited';
-  box.innerHTML=`<div><b>Source Manifest ID</b><span>${escapeHtml(manifestId)}</span></div><div><b>Source analysis</b><span>${analysis}</span></div><div><b>Operation</b><span>${escapeHtml(String(operation||'').toUpperCase())}</span></div><div><b>Canvas profile</b><span>${escapeHtml(profile)}</span></div><div><b>Renderer</b><span>${escapeHtml(renderer)}</span></div><div><b>Current design state</b><span>${escapeHtml(currentState)}</span></div><div><b>Source geometry</b><span>${escapeHtml(sourceGeometry)}</span></div><div><b>Target</b><span>${target[1]} × ${target[2]} px</span></div>`;
+  const cost=estimateActionCost(operation,target,reused);
+  box.innerHTML=`<div><b>Source Manifest ID</b><span>${escapeHtml(manifestId)}</span></div><div><b>Source analysis</b><span>${analysis}</span></div><div><b>Operation</b><span>${escapeHtml(String(operation||'').toUpperCase())}</span></div><div><b>Canvas profile</b><span>${escapeHtml(profile)}</span></div><div><b>Renderer</b><span>${escapeHtml(renderer)}</span></div><div><b>Current design state</b><span>${escapeHtml(currentState)}</span></div><div><b>Source geometry</b><span>${escapeHtml(sourceGeometry)}</span></div><div><b>Estimated API cost</b><span>${escapeHtml(cost.typical)} typical · up to ~${escapeHtml(cost.retry)} with retry</span></div><div><b>Cost basis</b><span title="${escapeHtml(cost.detail)}">Estimate — usage varies</span></div><div><b>Target</b><span>${target[1]} × ${target[2]} px</span></div>`;
   box.style.display='grid';
 }
 
@@ -594,7 +725,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.5: added/manual text is now expected to be part of the planned layout.
+  // V8.6: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -808,7 +939,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.5: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.6: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -1196,7 +1327,7 @@ function wireUploader(){
 
 const P=[['News',850,638],['Opportunities',850,350],['Action Alerts',850,500],['Events',880,460],['Social Media',1080,1350],['Front Page',900,500],['Mobile Ad',320,50],['Large Ad',300,600],['Side Ad',300,250],['Leaderboard Ad',728,90],['Mobile Directory',200,100],['Desktop Directory',320,100]];
 let s=P[3],f=null,$=i=>document.getElementById(i);
-function M(){$('chosen').textContent=s[0];$('dims').textContent=`${s[1]} × ${s[2]} px`}
+function M(){$('chosen').textContent=s[0];$('dims').textContent=`${s[1]} × ${s[2]} px`;refreshActionCostEstimates()}
 function wireDestinations(){
   document.querySelectorAll('#presets .preset').forEach(btn=>{
     if(btn.dataset.destinationWired)return;
@@ -1208,7 +1339,7 @@ function wireDestinations(){
     btn.dataset.destinationWired='1';
   });
 }
-wireDestinations();M();let d=$('drop');d.ondragover=e=>e.preventDefault();function F(x){if(!x)return;resetDesignSession(false);f=x;$('filename').textContent='✓ '+x.name;$('clearAll').style.display='inline-block';$('submit').disabled=false;d.innerHTML=`<img src="${URL.createObjectURL(x)}">`}$('clearAll').onclick=()=>resetDesignSession(true);
+wireDestinations();M();let d=$('drop');d.ondragover=e=>e.preventDefault();function F(x){if(!x)return;resetDesignSession(false);f=x;$('filename').textContent='✓ '+x.name;$('clearAll').style.display='inline-block';$('submit').disabled=false;d.innerHTML=`<img src="${URL.createObjectURL(x)}">`;refreshActionCostEstimates()}$('clearAll').onclick=()=>resetDesignSession(true);
 function fitExact(src,w,h){return new Promise((ok,no)=>{let i=new Image();i.onload=()=>{let c=document.createElement('canvas');c.width=w;c.height=h;let x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';let bg=Math.max(w/i.width,h/i.height),bw=i.width*bg,bh=i.height*bg;x.save();x.filter='blur(20px)';x.globalAlpha=.88;x.drawImage(i,(w-bw)/2,(h-bh)/2,bw,bh);x.restore();let fg=Math.min(w/i.width,h/i.height),fw=i.width*fg,fh=i.height*fg;x.drawImage(i,(w-fw)/2,(h-fh)/2,fw,fh);c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not create PNG')),'image/png',1)};i.onerror=no;i.src=src})}
 
 async function compositeAddedTextOverImage(imageUrl,plan={},w,h){
@@ -1218,36 +1349,19 @@ async function compositeAddedTextOverImage(imageUrl,plan={},w,h){
 
 wireUploader();
 
-let progressTimer=null,elapsedTimer=null,progressStart=0;
+let mainProgressStop=null;
 function setProgress(step,title){
-  const box=$('progressbox');box.style.display='block';
-  [...box.querySelectorAll('.pstep')].forEach((el,i)=>{
-    el.classList.toggle('active',i===step);
-    el.classList.toggle('done',i<step);
-  });
-  $('progressTitle').textContent=title;
+  // V8.6 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
+  const host=document.querySelector('.inlineprogress.running');
+  if(host&&title){const cur=host.querySelector('.icurrent');if(cur)cur.textContent=title;}
 }
-function startProgress(){
-  progressStart=Date.now();
-  clearInterval(progressTimer);clearInterval(elapsedTimer);
-  $('elapsed').textContent='0s';
-  setProgress(0,'Reading the source artwork…');
-  const timeline=[
-    [2500,1,'Identifying text, people, logos and key facts…'],
-    [6000,2,'Prioritizing content for this destination size…'],
-    [10000,3,'Planning the composition for the target aspect ratio…'],
-    [16000,4,'Generating and recomposing the artwork…']
-  ];
-  let fired=new Set();
-  progressTimer=setInterval(()=>{
-    const t=Date.now()-progressStart;
-    timeline.forEach(([ms,step,title])=>{
-      if(t>=ms&&!fired.has(step)){fired.add(step);setProgress(step,title)}
-    });
-  },400);
-  elapsedTimer=setInterval(()=>{$('elapsed').textContent=Math.floor((Date.now()-progressStart)/1000)+'s';},1000);
+function startProgress(key='submit',operation='GENERATE',reused=false){
+  if(mainProgressStop)mainProgressStop('done');
+  mainProgressStop=beginActionProgress(key,operation,lastDesignTarget||s,reused);
 }
-function stopProgress(){clearInterval(progressTimer);clearInterval(elapsedTimer);}
+function stopProgress(status='done'){
+  if(mainProgressStop){mainProgressStop(status);mainProgressStop=null;}
+}
 function contrastTextColor(bg='#111111'){
   const raw=String(bg||'').trim().toLowerCase();
   if(raw==='black')return '#ffffff';
@@ -1958,7 +2072,7 @@ function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,
 
   const facts=[];
   if(dateTime)facts.push({text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.5: user-added/extra text outranks location when space is tight.
+  // V8.6: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -2093,7 +2207,7 @@ async function buildTinyFitBanner(data,w,h){
     }
   }
 
-  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.5 tiny fit-safe banner')),'image/png',1));
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.6 tiny fit-safe banner')),'image/png',1));
 }
 
 async function buildCanvasFirstBanner(data,w,h){
@@ -2121,7 +2235,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.5: instruction/layout intent MUST be initialized before subject placement.
+  // V8.6: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -2160,7 +2274,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.5 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.6 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2364,7 +2478,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.5 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.6 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2372,10 +2486,9 @@ async function buildCanvasFirstBanner(data,w,h){
 $('submit').onclick=async()=>{
   if(!f)return;
   let b=$('submit');b.disabled=true;b.textContent='Reshaping…';
-  $('error').style.display='none';$('result').style.display='none';$('status').style.display='none';startProgress();
+  $('error').style.display='none';$('result').style.display='none';$('status').style.display='none';const reuseCanonical=!!(lastServerResult?.sourceManifest||lastServerResult?.bannerPlan?.sourceManifest);startProgress('submit',reuseCanonical?'RESIZE':'GENERATE',reuseCanonical);
   try{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
-    const reuseCanonical=!!(lastServerResult?.sourceManifest||lastServerResult?.bannerPlan?.sourceManifest);
     lastEngineOperation=reuseCanonical?'RESIZE':'GENERATE';lastSourceAnalysisReused=reuseCanonical;
     if(reuseCanonical){
       fd.append('mode','resize');
@@ -2384,7 +2497,7 @@ $('submit').onclick=async()=>{
     }else fd.append('mode','generate');
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.5 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.6 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2399,12 +2512,12 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
     setDiagnostics([{status:'applied',message:reuseCanonical?'Cached source manifest was reused; only the new destination layout was planned/rendered.':'Original artwork was analyzed and a reusable source-element library was created for later modifications.'}]);
     setCurrentInstruction($('instructions').value,'Initial instructions');
     $('validation').textContent=j.validationSummary||'Completed.';$('result').style.display='block';
-    renderEngineInfo(j,[s[0],s[1],s[2]],lastEngineOperation,lastSourceAnalysisReused);
+    renderEngineInfo(j,[s[0],s[1],s[2]],lastEngineOperation,lastSourceAnalysisReused);refreshActionCostEstimates();
     $('regenerate').disabled=false;
     stopProgress();setProgress(5,'Finished — your image is ready.');
-    setTimeout(()=>{$('progressbox').style.display='none'},1600);
+    
   }catch(e){
-    stopProgress();$('progressbox').style.display='none';$('error').textContent=e.message;$('error').style.display='block';
+    stopProgress('error');$('error').textContent=e.message;$('error').style.display='block';
   }finally{b.disabled=false;b.textContent='Reshape with AI →'}
 };
 
@@ -2415,7 +2528,7 @@ $('regenerate').onclick=async()=>{
   if(!f||!lastServerResult||!lastDesignTarget)return;
   const b=$('regenerate');
   b.disabled=true;b.textContent='Re-generating…';lastEngineOperation='REGENERATE';lastSourceAnalysisReused=true;
-  $('error').style.display='none';startProgress();
+  $('error').style.display='none';startProgress('regenerate','REGENERATE',true);
   try{
     const target=lastDesignTarget;
     const fd=new FormData();
@@ -2484,13 +2597,13 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.5 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.5 re-generated a different composition, but final-image validation could not confirm every item.';
-    renderEngineInfo(lastServerResult,target,'REGENERATE',true);
+      ? 'V8.6 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.6 re-generated a different composition, but final-image validation could not confirm every item.';
+    renderEngineInfo(lastServerResult,target,'REGENERATE',true);refreshActionCostEstimates();
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
-    setTimeout(()=>{$('progressbox').style.display='none'},1200);
+    
   }catch(e){
-    stopProgress();$('progressbox').style.display='none';
+    stopProgress('error');
     $('error').textContent='Re-generation failed: '+e.message;$('error').style.display='block';
   }finally{
     b.disabled=false;b.textContent='Re-generate';
@@ -2511,7 +2624,7 @@ $('addTextRow').onclick=()=>{
 
 $('applyTextEdits').onclick=async()=>{
   if(!lastServerResult || !lastDesignTarget)return;
-  const btn=$('applyTextEdits');const stopTimer=startButtonTimer('textEditTimer');btn.disabled=true;btn.textContent='Applying…';$('error').style.display='none';lastEngineOperation='EDIT_TEXT';lastSourceAnalysisReused=true;
+  const btn=$('applyTextEdits');const stopTimer=beginActionProgress('text','EDIT_TEXT',lastDesignTarget||s,true);btn.disabled=true;btn.textContent='Applying…';$('error').style.display='none';lastEngineOperation='EDIT_TEXT';lastSourceAnalysisReused=true;
   try{
     const rows=readTextEditorRows();
     const oldPlan=JSON.parse(JSON.stringify(lastServerResult.bannerPlan||{}));
@@ -2555,8 +2668,8 @@ $('applyTextEdits').onclick=async()=>{
     setDiagnostics([{status:qa.verified?'applied':'partial',message:qa.verified?`${changeSummary} · Final PNG visually verified.`:`${changeSummary} · Final PNG validation: ${qa.reason||'one or more requested text items were not visibly confirmed.'}`}]);
     setCurrentInstruction(changeSummary,'Text/content edit');
     $('validation').textContent=qa.verified?`V${APP_VERSION} re-laid out the design and visually verified the authoritative text changes.`:`V${APP_VERSION} re-laid out the design, but final-image validation did not confirm every requested text item.`;
-    renderEngineInfo(lastServerResult,lastDesignTarget,'EDIT_TEXT',true);
-  }catch(e){$('error').textContent='Text edit failed: '+e.message;$('error').style.display='block';}
+    renderEngineInfo(lastServerResult,lastDesignTarget,'EDIT_TEXT',true);refreshActionCostEstimates();
+  }catch(e){stopTimer('error');$('error').textContent='Text edit failed: '+e.message;$('error').style.display='block';}
   finally{stopTimer();btn.disabled=false;btn.textContent='Apply text changes →';}
 };
 
@@ -2572,7 +2685,7 @@ $('modifyBtn').onclick=async()=>{
     }
 
   if(!f || !lastServerResult || !instructions)return;
-  const b=$('modifyBtn');const stopTimer=startButtonTimer('modifyTimer');
+  const b=$('modifyBtn');const stopTimer=beginActionProgress('modify','MODIFY',lastDesignTarget||s,true);
   b.disabled=true;b.textContent='Modifying…';lastEngineOperation='MODIFY';lastSourceAnalysisReused=true;
   $('error').style.display='none';
   try{
@@ -2656,10 +2769,10 @@ $('modifyBtn').onclick=async()=>{
     if(qa.verified)setDiagnostics([{status:'applied',message:`Final PNG visually verified the instruction: “${instructions}”`},...stateDiagnostics.filter(x=>x.status!=='applied')]);
     else setDiagnostics([{status:'failed',message:`Final PNG did not verify the instruction: “${instructions}”. ${qa.reason||'The requested result was not visibly confirmed.'}`},...stateDiagnostics.filter(x=>x.status!=='applied')]);
     setCurrentInstruction(instructions,'Modify instruction');
-    renderEngineInfo(lastServerResult,target,'MODIFY',true);
+    renderEngineInfo(lastServerResult,target,'MODIFY',true);refreshActionCostEstimates();
     $('modifyInstructions').value='';
   }catch(e){
-    $('error').textContent='Modify failed: '+e.message;
+    stopTimer('error');$('error').textContent='Modify failed: '+e.message;
     $('error').style.display='block';
   }finally{
     stopTimer();b.disabled=false;b.textContent='Modify current design →';
