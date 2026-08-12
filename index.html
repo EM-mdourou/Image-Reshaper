@@ -191,7 +191,7 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 .authbar button{border:1px solid #d6d9cd;background:#fff;border-radius:8px;padding:6px 9px;font-size:11px;font-weight:750;cursor:pointer}
 .authbar button:hover{border-color:var(--green)}
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.36:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.0:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -234,7 +234,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.36 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.36 also fixes the compact/leaderboard instruction-layout initialization error. V7.36 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.0 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.0 uses one shared source/design pipeline across every destination size. V8.0 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -289,8 +289,9 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.36</div>
-</footer></main><script>const APP_VERSION='7.36';
+  <div class="versionfooter">Version 8.0</div>
+</footer></main><script>const APP_VERSION='8.0';
+const RENDER_ENGINE='unified';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -529,16 +530,18 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V7.36: added/manual text is now expected to be part of the planned layout.
+  // V8.0: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
 
 async function renderUniversalDesignState(data,target){
+  // V8.0: one renderer entry point for every destination size. Legacy composer modes remain supported only for rollback.
   const [name,w,h]=target;
   const plan=data.bannerPlan||{};
   let base;
-  if(data.renderMode==='canvas-first-banner-composer')base=await buildCanvasFirstBanner(data,w,h);
+  if(data.renderMode==='unified-ai-composer' && data.image)base=await fitExact(data.image,w,h);
+  else if(data.renderMode==='canvas-first-banner-composer')base=await buildCanvasFirstBanner(data,w,h);
   else if(data.renderMode==='visual-first-banner-composer')base=await buildVisualFirstBanner(data,w,h);
   else if(data.renderMode==='hybrid-banner-composer')base=await buildHybridBanner(data,w,h);
   else if(data.renderMode==='ai-banner-composer')base=await fitAiBannerToExact(data.image,w,h);
@@ -567,10 +570,10 @@ function renderExtraFacts(plan={}){
 
 function defaultTextStyleForRole(role='body'){
   const r=String(role||'body').toLowerCase();
-  if(r==='headline')return {fontFamily:'Arial',fontWeight:800,color:'#3f6b45',align:'left',role:r};
-  if(r==='cta')return {fontFamily:'Arial',fontWeight:800,color:'#60791c',align:'center',role:r};
-  if(r==='dateTime'||r==='venue'||r==='address')return {fontFamily:'Arial',fontWeight:700,color:'#2f4f2f',align:'left',role:r};
-  return {fontFamily:'Arial',fontWeight:650,color:'#536b20',align:'left',role:r};
+  if(r==='headline')return {fontFamily:'Arial',fontWeight:800,color:'#111111',align:'left',role:r};
+  if(r==='cta')return {fontFamily:'Arial',fontWeight:800,color:'#111111',align:'center',role:r};
+  if(r==='dateTime'||r==='venue'||r==='address')return {fontFamily:'Arial',fontWeight:700,color:'#111111',align:'left',role:r};
+  return {fontFamily:'Arial',fontWeight:650,color:'#111111',align:'left',role:r};
 }
 
 function themeStyleForManualText(plan={}){
@@ -744,8 +747,8 @@ function themeColorForRole(plan={},role='body'){
     for(const v of vals){ if(v && !blackish.has(String(v).toLowerCase())) return v; }
     return fallback;
   };
-  const accent=firstNonBlack([styles.cta?.color, styles.address?.color, styles.dateTime?.color, plan.accentColor, plan.accent, plan.themeColor, plan.primaryColor], '#60791c');
-  const headline=firstNonBlack([styles.headline?.color, plan.primaryColor, plan.themeColor, styles.address?.color, accent], '#3f6b45');
+  const accent=firstNonBlack([styles.cta?.color, styles.address?.color, styles.dateTime?.color, plan.accentColor, plan.accent, plan.themeColor, plan.primaryColor], '#111111');
+  const headline=firstNonBlack([styles.headline?.color, plan.primaryColor, plan.themeColor, styles.address?.color, accent], '#111111');
   if(role==='headline') return headline;
   if(role==='cta') return firstNonBlack([styles.cta?.color, accent, headline], accent);
   if(role==='dateTime'||role==='venue'||role==='address'||role==='manual'||role==='extra') return firstNonBlack([styles[role]?.color, styles.address?.color, styles.dateTime?.color, accent, headline], accent);
@@ -1843,7 +1846,7 @@ function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,
 
   const facts=[];
   if(dateTime)facts.push({text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V7.36: user-added/extra text outranks location when space is tight.
+  // V8.0: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -1901,7 +1904,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.36: instruction/layout intent MUST be initialized before subject placement.
+  // V8.0: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -1940,7 +1943,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.36 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.0 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2144,7 +2147,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.36 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.0 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2157,7 +2160,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.36 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.0 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2261,8 +2264,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V7.36 re-generated a different composition using the existing analyzed design state.'
-      : 'V7.36 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.0 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.0 re-generated a different composition, but final-image validation could not confirm every item.';
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1200);
   }catch(e){

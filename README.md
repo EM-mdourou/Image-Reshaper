@@ -1,15 +1,24 @@
-# Image Reshaper — V7.36
+# Image Reshaper — Version 8.0
 
-## State modes are now explicit across all sizes
+## Unified engine architecture
 
-- **EDIT_TEXT** (Apply text changes): uses the current rendered version as the visual baseline, changes authoritative text/content only, and allows only local text reflow when needed.
-- **MODIFY** (Modify current design): uses the current rendered version as the visual baseline and patches only the newest requested change. If a prior version is referenced, that version's rendered image is used as the baseline.
-- **REGENERATE**: intentionally creates a new layout from the canonical original source manifest. Prior text edits/manual fields are not silently carried forward; editable fields are rebuilt to match the regenerated design/source state.
+Version 8.0 removes the hard runtime distinction between large formats and banner formats. Every destination size now goes through the same source-analysis and image-composition pipeline. The target width, height and aspect ratio are layout constraints only.
 
-## Manifest cleanup
+### One canonical source manifest
+The original upload is analyzed into one shared manifest containing headline/date/venue/address/CTA/prices/people/logos/background information. Events, square/tall formats, leaderboard ads, directory ads and custom sizes all consume the same manifest.
 
-Internal parser/control values such as `MANIFEST_LOCATION: NONE`, `MANIFEST_*`, `BANNER_*`, and literal `NONE` are filtered before editable fields are created. For virtual events with no address, the Address / location field is omitted.
+### Three explicit operation modes
+- **Apply text changes (EDIT_TEXT):** current rendered design is the visual baseline. Only text/content and necessary local reflow should change.
+- **Modify current design (MODIFY):** current rendered design is the visual baseline. Only the requested elements should change.
+- **Re-generate (REGENERATE):** creates a deliberately different composition from the original canonical source state. It does not use the current layout as the design baseline. Text fields are rebuilt from the regenerated source/design state.
 
-## Large vs compact behavior
+These rules apply identically to every destination size.
 
-The same state-mode rules now apply to both large formats and compact/banner formats. Large-format EDIT_TEXT and MODIFY use the current rendered image instead of restarting from the original artwork.
+### Legacy rollback
+The V7 compact/banner composer code remains in the backend as a rollback path. Set the Vercel environment variable `RENDER_ENGINE=legacy` to activate it temporarily. With no variable (or `RENDER_ENGINE=unified`), Version 8.0 uses the unified engine. V7.36 remains the full rollback ZIP.
+
+### Text color fallback
+The old lime-green fallback has been removed from the unified path. Source-derived colors are preferred; when a reliable color cannot be determined, the fallback is black rather than invented green.
+
+### Logos and facts
+Canonical facts and logos remain protected. Modify/Edit Text are preservation operations. Regenerate may change composition but should preserve source facts and immutable logos.
