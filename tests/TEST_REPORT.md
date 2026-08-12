@@ -1,6 +1,15 @@
-# V8.7 Test Report
+# V8.8 Test Report
 
-## Added in V8.7
+## Added in V8.8
+- Rejected-candidate preview modal/link.
+- Friendly rejection wording.
+- Backend/browser merge-order regression test.
+- Headshot/face-closeup crop mode and `zoom into` parsing.
+- QA-rejected candidate returned without saving it as current version.
+
+# V8.8 Test Report
+
+## Added in V8.8
 - Structured design state v2 exists and is preserved in the plan.
 - Text elements carry persistent geometry/style metadata.
 - Text move/scale/color instructions patch structured state before rendering.
@@ -11,4 +20,4 @@
 - Exact-canvas renderers read structured text geometry for persistent positional/style changes.
 
 ## Regression coverage
-The existing routing, tiny fit-budget/no-overlap, manifest reuse, mocked handler operation, cost/progress UI, and syntax tests are run together with the V8.7 structured-state test before packaging.
+The existing routing, tiny fit-budget/no-overlap, manifest reuse, mocked handler operation, cost/progress UI, and syntax tests are run together with the V8.8 structured-state test before packaging.

@@ -43,7 +43,7 @@ for (const [w,h] of [[880,460],[300,250],[1080,1080],[1080,1350]]) {
   assert.ok(s.safe.w>0 && s.safe.h>0);
 }
 
-console.log('PASS v8.7 routing/profile tests');
+console.log('PASS v8.8 routing/profile tests');
 
 const presetExpectations=[
   ['News',850,638,'ai-safe-contain'],
@@ -63,7 +63,7 @@ for(const [name,w,h,renderer] of presetExpectations){
   const got=operationStrategy('generate',w,h).renderer;
   assert.equal(got,renderer,`${name} ${w}x${h} renderer`);
 }
-console.log('PASS v8.7 preset routing matrix');
+console.log('PASS v8.8 preset routing matrix');
 
 
 const tiny200=displayBudgetForCanvas(200,100,{headline:'H',dateTime:'D',venue:'V',address:'A',cta:'REGISTER NOW'});
@@ -84,11 +84,11 @@ assert.equal(leader.tier,'COMPACT');
 assert.equal(leader.drawCta,true);
 assert.equal(leader.drawVenue,true);
 assert.equal(leader.drawAddress,false);
-console.log('PASS v8.7 fit-budget tests');
+console.log('PASS v8.8 fit-budget tests');
 
 
 const tinyManual=displayBudgetForCanvas(200,100,{headline:'H',dateTime:'D',venue:'V',cta:'REGISTER NOW',manualTextElements:[{text:'Be there!'}]});
 assert.equal(tinyManual.drawExtra,true,'user-added text must remain high priority on tiny canvas');
 assert.equal(tinyManual.drawDateTime,false,'tiny canvas may trade source date for authoritative added text rather than overlap');
 assert.equal(tinyManual.drawCta,true,'CTA remains reserved alongside authoritative added text');
-console.log('PASS v8.7 user-added text priority test');
+console.log('PASS v8.8 user-added text priority test');

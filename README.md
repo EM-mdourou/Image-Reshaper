@@ -1,29 +1,11 @@
-# Image Reshaper — V8.7
+# Image Reshaper — V8.8
 
-## Structured Current Design State
-V8.7 expands the structured-design work so the editable truth is the design state, while the PNG is the rendered result. The state tracks text, subject/group geometry, styles, visibility, source references, and layer metadata.
+## V8.8 fixes
 
-### Deterministic state patches first
-Common Modify requests are translated into state changes before any rendering step:
-- move text or subject left/right/up/down
-- enlarge/reduce subjects
-- change text color
-- change text scale
-- preserve current layout while patching only the requested element
-
-Exact-canvas formats render these structured patches locally. Standard/large formats still require the image editor for visual pixels, but the current structured state and original source are supplied as authoritative references so the model is not asked to redesign from scratch.
-
-### Original source reuse for subject scaling
-When a person/group is too small in the current render, V8.7 marks scale requests to prefer the original reusable source subject geometry/asset. For AI patch modes, the original source artwork is supplied as a reference alongside the current design so the editor can recover the higher-quality subject rather than simply enlarging a tiny rendered thumbnail. For exact-canvas layouts, the cached high-quality subject asset is scaled directly.
-
-### Grouped subjects
-If two people were isolated together as one transparent subject asset, the group is now considered independently scalable **as a group**. The UI no longer reports that no scalable subject exists when a grouped source asset is available and the user is asking to enlarge/move both people together. Individual independent movement still requires individual source geometry/cutouts.
-
-### Text geometry
-Text elements now carry normalized geometry metadata (offset, scale, alignment). Exact-canvas rendering reads that geometry so instructions such as “move the address a bit left” can be represented as a persistent state patch instead of being forgotten on the next operation.
-
-### Lower-cost retry policy
-For deterministic structured patches, V8.7 does not automatically launch a second full image edit after preservation QA fails. It returns a precise failure instead. Creative/unstructured patches retain the stricter retry behavior. This avoids paying for a second full image generation when the requested property is already represented in structured state.
-
-### Diagnostics
-Engine Diagnostics continues to show source-manifest reuse, renderer, estimated cost, current structured state, and source geometry availability. Modification Results now distinguishes grouped scalable assets from reference-only elements.
+- Adds a **Rejected candidate preview** link/modal when current-design QA rejects a modification. The rejected image is not saved as the current version, but the user can inspect what the model attempted.
+- Replaces user-facing `IMAGE 1` / `IMAGE 2` wording with **current design** / **candidate modification**.
+- Fixes the modify-plan merge order so newly returned backend crop/scale/position changes are not overwritten by the older browser state.
+- Removes the server-side lock-copy behavior that could restore an old subject crop after the newest instruction requested a different crop.
+- Adds a true **headshot** crop mode for requests such as “zoom into the person’s face” or “make the head the height of the banner”.
+- Headshot mode uses the reusable original source subject asset where available, crops much tighter than upper-body mode, and allows a larger subject zone.
+- `zoom into` is explicitly recognized by both the browser structured-state parser and backend instruction parser.
