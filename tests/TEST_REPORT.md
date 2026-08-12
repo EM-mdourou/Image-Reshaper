@@ -1,73 +1,76 @@
-# V8.1 Test Report
+# V8.2 Pre-package Test Report
 
-Executed before packaging on 2026-08-12.
+## Scope
+V8.2 was tested locally before packaging. OpenAI network calls were mocked because the local packaging environment does not use the deployed project's API credentials. Routing, state, multipart handler behavior, sizing rules, geometry, and syntax were tested with real project code.
 
-## Syntax checks
-Passed:
-- `index.html` inline JavaScript
-- `api/reshape.js`
-- `api/health.js`
-- auth API routes
-- `lib/auth.js`
-- `lib/db.js`
-- `middleware.js`
+## Test matrix
 
-## Automated tests
-Command:
+### Destination routing
+Verified:
+- Leaderboard Ad — 728×90 → exact canvas
+- Desktop Directory — 320×100 → exact canvas
+- Mobile Directory — 200×100 → exact canvas
+- Mobile Ad — 320×50 → exact canvas
+- Events — 880×460 → AI safe-contain
+- News — 850×638 → AI safe-contain
+- Opportunities — 850×350 → AI safe-contain
+- Action Alerts — 850×500 → AI safe-contain
+- Front Page — 900×500 → AI safe-contain
+- Side Ad — 300×250 → AI safe-contain
+- Large Ad — 300×600 → AI safe-contain
+- Social Media — 1080×1350 → AI safe-contain
+- square/portrait test dimensions → AI safe-contain
 
-```bash
+### Tiny fit-budget behavior
+Verified that 200×100 with headline/date/venue/address/CTA:
+- keeps headline;
+- keeps date/time;
+- keeps CTA;
+- omits venue/address from the DRAWING budget rather than forcing collisions;
+- preserves `noOverlap=true`.
+
+Verified that 320×50 uses compact inline CTA mode.
+
+Verified that 728×90 keeps CTA and can keep venue while dropping address from the drawing budget.
+
+### No-overlap geometry
+For 200×100, 320×100 and 320×50, calculated geometry was checked to confirm:
+- subject rectangle does not intersect copy rectangle;
+- subject rectangle does not intersect CTA rectangle;
+- copy rectangle does not intersect CTA rectangle;
+- all regions have positive dimensions.
+
+### CTA behavior
+Static architecture checks confirm:
+- dedicated CTA reservation exists;
+- CTA text uses contrast calculation against the CTA background;
+- tiny layouts use the dedicated fit-safe renderer.
+
+### Large-format preservation
+Static/routing tests confirm AI-sized outputs now return `exportMode: safe-contain` and frontend finalization uses `containDesignWithDecorativeFill`, so the complete generated foreground is drawn without top/bottom cropping.
+
+### Operation modes
+Mocked handler tests cover:
+- initial generation;
+- Apply Text (`EDIT_TEXT`);
+- Modify current design;
+- Re-generate;
+- compact exact-canvas and Events-size AI paths.
+
+### Source-analysis reuse
+The handler code path reuses `priorPlan.sourceManifest` for `regenerate`, `replan`, `edit_text`, and `modify`. This prevents repeat source analysis when cached canonical analysis is available.
+
+## Commands run
+
+```text
 npm test
+node --check api/reshape.js
+node --check api/health.js
+node --check middleware.js
+node --check lib/auth.js
+node --check lib/db.js
+frontend inline JavaScript syntax check
 ```
 
-Passed test suites:
-
-### Routing/profile matrix
-Verified exact-canvas routing for:
-- 728×90 Leaderboard Ad
-- 320×100 Desktop Directory
-- 200×100 Mobile Directory
-- 320×50 Mobile Ad
-
-Verified unified AI safe-crop routing for:
-- 880×460 Events
-- 850×638 News
-- 850×350 Opportunities
-- 850×500 Action Alerts
-- 1080×1350 Social Media
-- 900×500 Front Page
-- 300×600 Large Ad
-- 300×250 Side Ad
-- 1080×1080 square custom size
-
-### Safe-crop math
-Verified that non-compact AI generation safe-crop aspect ratios match the requested destination aspect ratio.
-
-### Mocked `/api/reshape` handler tests
-Using mocked OpenAI responses/image-edit calls, verified:
-- initial Generate for 728×90, 320×100, 200×100, and 320×50 returns the exact-canvas composer;
-- EDIT_TEXT for those compact sizes returns the exact-canvas composer and reuses current assets;
-- MODIFY for 728×90 uses the exact-canvas current-state patch path;
-- REGENERATE for 728×90 uses the exact-canvas new-layout path and resets prior user text locking;
-- Generate, EDIT_TEXT, MODIFY, and REGENERATE for 880×460 use the unified AI safe-crop path;
-- 880×460 responses contain a mathematically correct `safeCrop` rather than contain/blur-letterbox export mode.
-
-### Frontend state tests
-Verified:
-- repeated “move further right” requests increment from the CURRENT subject position instead of resetting to the original position;
-- explicit “change heading colour to black” stores `#000000` in authoritative style state;
-- explicit “change text colour to white” updates all text roles;
-- black is the neutral fallback when source text colour is unavailable.
-
-### Static architecture checks
-Verified:
-- compact horizontal canvases route through exact-canvas rendering while retaining the same canonical source manifest;
-- Modify/Edit use a dedicated CURRENT DESIGN PATCH prompt;
-- structural preservation comparison exists for current-design patches;
-- a patch that still looks like a redesign after two attempts is rejected rather than silently saved;
-- Regenerate receives the current design as a comparison reference;
-- frontend finalization uses safe-crop for AI-generated results;
-- initial and Modify rendering use the same centralized finalization function;
-- footer/application/backend package versions are V8.1.
-
-## Live OpenAI limitation
-The build environment used for packaging does not contain the deployment's `OPENAI_API_KEY`, so the tests intentionally mock external OpenAI API responses. The routing, state, multipart handler, safe-crop, preservation/retry, and frontend logic were exercised locally; a final live smoke test on the Vercel deployment is still recommended after deployment.
+## Limitation
+The final visual quality of OpenAI-generated large-format compositions cannot be fully validated offline without making the deployed OpenAI API calls. The project therefore retains final-image QA/retry behavior at runtime. The deterministic tiny/exact-canvas geometry and CTA fit logic were tested locally.

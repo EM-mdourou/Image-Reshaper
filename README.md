@@ -1,100 +1,121 @@
-# Image Reshaper — V8.1
+# Image Reshaper — V8.2
 
-V8.1 keeps the V8 unified source-analysis architecture, but separates **operation behavior** from **canvas/layout behavior** so compact banners no longer behave like shrunk posters and normal Modify/Edit operations no longer behave like Regenerate.
+V8.2 keeps the V8 unified source-analysis model, but adds a **fit-budget layer** so very small canvases no longer try to draw every field at full visual priority, and it removes the V8.1 large-format foreground cropping behavior.
 
-## Operation modes
+## What changed in V8.2
 
-### Apply text changes — `EDIT_TEXT`
-- Uses the **current rendered PNG** as the visual baseline.
-- Changes authoritative text/content only.
-- Allows only minimal local text reflow needed for legibility.
-- Does not intentionally create a new composition.
-- For non-compact formats, the candidate is visually compared with the current design. If the first result drifts into a redesign, V8.1 retries with a stricter patch prompt. If the second attempt still changes the overall composition, the request is rejected instead of silently saving a redesign.
-
-### Modify current design — `MODIFY`
-- Uses the **current rendered PNG** as the baseline.
-- Applies only the newest requested change.
-- Preserves all unrelated people, logos, background regions, major text groups, margins and hierarchy.
-- If the user says “from version X” / “revert to version X”, that saved version is used as the actual visual baseline.
-- Large/non-compact results receive the same preservation QA described above.
-
-### Re-generate — `REGENERATE`
-- Uses the canonical original source manifest to create a **new composition**.
-- Does not inherit prior manual text edits as authoritative regenerated copy.
-- The previous current design is supplied only as a comparison reference so a non-compact regenerated result can be checked for meaningful layout difference.
-
-## One source model, dimension-aware rendering
-
-V8.1 does **not** restore separate source-analysis systems.
-
-All sizes still use the same canonical source manifest and the same normalized text/person/logo/background model. The destination dimensions only select the safest final rendering strategy.
-
-### Exact-canvas profiles
-Very shallow horizontal destinations use the deterministic exact-dimension canvas compositor so a normal poster is never shrunk into the middle of a banner with blurred/empty sides.
-
-Examples routed to exact-canvas rendering:
-- Mobile Ad — 320×50
-- Leaderboard Ad — 728×90
+### 1. Tiny canvases now budget content before rendering
+For destinations such as:
 - Mobile Directory — 200×100
 - Desktop Directory — 320×100
+- Mobile Ad — 320×50
 
-### AI safe-crop profiles
-Normal landscape, square, portrait and tall formats use the unified AI composition path. The model works on its supported generation canvas, but V8.1 returns the mathematically correct target-safe crop and the browser exports exactly that region instead of using blurred letterboxing.
+all extracted facts remain preserved in the design state and editable fields, but the renderer decides which ones can be shown legibly on the current canvas.
 
-Examples:
-- Events — 880×460
-- News — 850×638
-- Opportunities — 850×350
-- Action Alerts — 850×500
-- Social Media — 1080×1350
-- Front Page — 900×500
-- Large Ad — 300×600
-- Side Ad — 300×250
+For a tiny canvas the default drawing priority is:
+1. headline / event identity
+2. one key date/time fact
+3. a real CTA when one exists
+4. recognizable source subject(s)
+5. venue/address only when there is room
 
-## Text colour behavior
-- Explicit user colour instructions are stored deterministically in text style state for exact-canvas designs.
-- Source text/theme colours are preferred when available.
-- **Neutral black is the fallback** if no reliable source colour is available.
-- V8.1 no longer invents a lime-green fallback.
+Lower-priority venue/address/extra copy is **not deleted from state** simply because it is omitted from the tiny drawing.
 
-## Exact final dimensions
-For AI-composed formats, the backend sends `safeCrop` coordinates corresponding to the requested aspect ratio. The browser crops that exact region to the requested destination size. This replaces the old contain/blur-letterbox behavior.
+### 2. Hard no-overlap regions for tiny layouts
+V8.2 uses a dedicated tiny-canvas geometry planner with separate rectangles for:
+- subject/people
+- headline/key copy
+- CTA
 
-## Canonical source consistency
-Compact and large formats continue to share:
-- people/person source elements
+These regions are calculated before text is drawn. The CTA is not painted on top of the headline or subject.
+
+### 3. CTA is atomic and contrast-safe
+If a verified source CTA is present, the fit budget reserves a visible CTA region before typography is laid out.
+
+A CTA button now behaves as one element:
+- button background
+- button text
+
+The CTA text color is selected for contrast against the CTA background. A dark/black button therefore receives light text instead of an empty-looking black rectangle.
+
+For ultra-shallow 320×50 output, CTA may render as compact inline action text rather than a large pill/button when that is the only collision-free representation.
+
+### 4. Large-format foreground is no longer cropped
+V8.1 used a target-aspect safe crop for AI-generated larger formats. That could cut off top logos or bottom CTA/info strips.
+
+V8.2 changes normal landscape/square/portrait/tall finalization to **safe contain**:
+- the complete generated foreground is kept visible;
+- only decorative edge fill may be extended/cropped;
+- the actual composition is proportionally contained inside the requested destination canvas.
+
+This is used for formats such as Events 880×460, News, Front Page, square/social, Side Ad and Large Ad.
+
+### 5. One canonical source analysis is still shared across all sizes
+This release does **not** restore the old split source-analysis architecture.
+
+All destinations still share the same canonical manifest for:
+- people
 - logos
 - background artwork
 - headline
 - date/time
 - venue/address
 - CTA
-- prices/additional text
+- prices/additional facts
 
-`MANIFEST_*`, `BANNER_*`, `NONE`, parser metadata and quoted wrapper values are filtered before editable fields are displayed.
+The destination size changes the **display budget and geometry**, not what the system believes exists in the original artwork.
+
+### 6. Re-generate does not re-analyze the source when cached analysis exists
+When `priorPlan.sourceManifest` is available, `REGENERATE`, `MODIFY`, `EDIT_TEXT`, and `REPLAN` reuse that cached manifest instead of running source analysis again.
+
+The longer time for larger AI-generated formats can therefore come from image generation, preservation QA, final-image QA, and an automatic retry—not necessarily source re-analysis.
+
+## Operation modes
+
+### Apply text changes — `EDIT_TEXT`
+- current design remains the baseline;
+- updates authoritative text/content;
+- compact/tiny canvases re-render deterministically from current state;
+- larger AI formats use current-design patch mode with preservation QA.
+
+### Modify current design — `MODIFY`
+- current design remains the baseline;
+- only requested state/layout properties should change;
+- unrelated content should remain unchanged.
+
+### Re-generate — `REGENERATE`
+- deliberately creates a different layout;
+- reuses the canonical source manifest when available;
+- remains the only mode intended to create a new composition.
+
+## Text color
+- explicit user color instructions are authoritative;
+- source/theme colors are preferred when available;
+- neutral black remains the fallback when no reliable source color is available;
+- no lime-green fallback is introduced by the renderer.
 
 ## Authentication
-The database-backed login system from V7.35+ is retained. Password verification is server-side and passwords are stored as salted scrypt hashes.
+The existing database-backed authentication remains unchanged.
 
-Required Vercel variables:
+Required deployment variables:
 - `DATABASE_URL` or `POSTGRES_URL`
 - `SESSION_SECRET`
 - `OPENAI_API_KEY`
 
 ## Rollback
-The legacy V7 exact/compact renderer code remains available for emergency comparison with:
+The legacy V7 exact/compact path remains available for emergency comparison:
 
 ```text
 RENDER_ENGINE=legacy
 ```
 
-The default remains:
+Default:
 
 ```text
 RENDER_ENGINE=unified
 ```
 
-## Tests run for V8.1
+## Automated tests
 
 Run:
 
@@ -102,14 +123,15 @@ Run:
 npm test
 ```
 
-The included tests verify:
-- destination/profile routing for 728×90, 320×100, 200×100, 320×50, 880×460, 300×250, square and portrait dimensions;
-- the full preset routing matrix;
-- exact-canvas routing for compact horizontal formats;
-- safe-crop aspect-ratio math for non-compact formats;
-- strict current-design patch architecture;
-- frontend safe-crop finalization;
-- mocked `/api/reshape` behavior for `EDIT_TEXT`, `MODIFY`, and `REGENERATE` at compact and Events-size destinations;
-- version/footer consistency.
+V8.2 tests cover:
+- routing for all current destination presets;
+- 728×90, 320×100, 200×100 and 320×50 exact-canvas behavior;
+- 880×460 and other larger formats using non-cropping safe-contain finalization;
+- content budgets for tiny/compact/full canvases;
+- CTA priority and no-overlap policy;
+- mathematical separation of subject, copy and CTA rectangles on tiny canvases;
+- explicit text-color state changes;
+- mocked `GENERATE`, `EDIT_TEXT`, `MODIFY`, and `REGENERATE` API behavior;
+- frontend/backend version consistency.
 
-A detailed pre-package report is included at `tests/TEST_REPORT.md`.
+See `tests/TEST_REPORT.md` for the pre-package report.

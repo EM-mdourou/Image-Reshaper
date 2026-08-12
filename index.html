@@ -191,7 +191,7 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 .authbar button{border:1px solid #d6d9cd;background:#fff;border-radius:8px;padding:6px 9px;font-size:11px;font-weight:750;cursor:pointer}
 .authbar button:hover{border-color:var(--green)}
 </style><script>
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.1:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.2:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -234,7 +234,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.1 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.1 also fixes the compact/leaderboard instruction-layout initialization error. V8.1 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.2 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.2 also fixes the compact/leaderboard instruction-layout initialization error. V8.2 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -289,8 +289,8 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 8.1</div>
-</footer></main><script>const APP_VERSION='8.1';
+  <div class="versionfooter">Version 8.2</div>
+</footer></main><script>const APP_VERSION='8.2';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -548,7 +548,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.1: added/manual text is now expected to be part of the planned layout.
+  // V8.2: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -562,6 +562,7 @@ async function renderUniversalDesignState(data,target){
   else if(data.renderMode==='hybrid-banner-composer')base=await buildHybridBanner(data,w,h);
   else if(data.renderMode==='ai-banner-composer')base=await fitAiBannerToExact(data.image,w,h);
   else if(data.renderMode==='exact-banner')base=await buildExactBanner(lastRenderedUrl||URL.createObjectURL(f),plan,w,h);
+  else if(data.image && data.exportMode==='safe-contain')base=await containDesignWithDecorativeFill(data.image,w,h);
   else if(data.image && data.safeCrop)base=await cropSafeZone(data.image,w,h,data.safeCrop);
   else if(data.image)base=await fitExact(data.image,w,h);
   else throw Error('The current design cannot be rendered locally.');
@@ -761,7 +762,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.1: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.2: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -1177,6 +1178,35 @@ function startProgress(){
   elapsedTimer=setInterval(()=>{$('elapsed').textContent=Math.floor((Date.now()-progressStart)/1000)+'s';},1000);
 }
 function stopProgress(){clearInterval(progressTimer);clearInterval(elapsedTimer);}
+function contrastTextColor(bg='#111111'){
+  const raw=String(bg||'').trim().toLowerCase();
+  if(raw==='black')return '#ffffff';
+  if(raw==='white')return '#111111';
+  const m=raw.match(/^#([0-9a-f]{6})$/i);
+  if(!m)return '#ffffff';
+  const n=parseInt(m[1],16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  const l=(.2126*r+.7152*g+.0722*b)/255;
+  return l>.58?'#111111':'#ffffff';
+}
+
+function containDesignWithDecorativeFill(src,w,h){return new Promise((ok,no)=>{
+  const i=new Image();
+  i.onload=()=>{
+    const c=document.createElement('canvas');c.width=w;c.height=h;
+    const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+    // Decorative edge fill only. Foreground is always contained completely and never cropped.
+    const cover=Math.max(w/i.width,h/i.height),cw=i.width*cover,ch=i.height*cover;
+    x.save();x.filter=`blur(${Math.max(8,Math.round(Math.min(w,h)*.035))}px) saturate(.9) brightness(.82)`;
+    x.drawImage(i,(w-cw)/2,(h-ch)/2,cw,ch);x.restore();
+    const pad=Math.max(2,Math.round(Math.min(w,h)*.012));
+    const contain=Math.min((w-pad*2)/i.width,(h-pad*2)/i.height);
+    const fw=i.width*contain,fh=i.height*contain,fx=(w-fw)/2,fy=(h-fh)/2;
+    x.drawImage(i,fx,fy,fw,fh);
+    c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not create contained PNG')),'image/png',1);
+  };
+  i.onerror=no;i.src=src;
+})}
+
 function cropSafeZone(src,w,h,z){return new Promise((ok,no)=>{let i=new Image();i.onload=()=>{let c=document.createElement('canvas');c.width=w;c.height=h;let x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.drawImage(i,z.x,z.y,z.w,z.h,0,0,w,h);c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not create PNG')),'image/png',1)};i.onerror=no;i.src=src})}
 
 
@@ -1858,7 +1888,7 @@ function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,
 
   const facts=[];
   if(dateTime)facts.push({text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.1: user-added/extra text outranks location when space is tight.
+  // V8.2: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -1893,8 +1923,113 @@ function anchorToCenterX(anchor,w,pad){
   }
 }
 
+
+function tinyLayoutGeometry(w,h,{side='right',subjectPct=34,hasSubject=true,hasCta=true,ctaMode='button'}={}){
+  const pad=Math.max(4,Math.round(Math.min(w,h)*.045));
+  const gap=Math.max(4,Math.round(w*.018));
+  const subjectW=hasSubject?Math.round(w*Math.max(24,Math.min(40,subjectPct))/100):0;
+  const subjectX=hasSubject?(side==='right'?w-pad-subjectW:pad):0;
+  const copyLeft=hasSubject&&side==='left'?subjectX+subjectW+gap:pad;
+  const copyRight=hasSubject&&side==='right'?subjectX-gap:w-pad;
+  const copyW=Math.max(1,copyRight-copyLeft);
+  const ctaH=hasCta?Math.max(15,Math.round(h*(ctaMode==='inline'?.26:.24))):0;
+  const footerH=hasCta?ctaH+Math.max(3,Math.round(h*.035)):0;
+  const ctaRect=hasCta?{x:copyLeft+2,y:h-pad-ctaH,w:Math.max(1,copyW-4),h:ctaH}:null;
+  const copyRect={x:copyLeft,y:pad,w:copyW,h:Math.max(1,h-pad*2-footerH)};
+  const subjectRect=hasSubject?{x:subjectX,y:pad,w:subjectW,h:h-pad*2}:null;
+  return {pad,gap,subjectRect,copyRect,ctaRect,copyLeft,copyRight,copyW,ctaH};
+}
+
+async function buildTinyFitBanner(data,w,h){
+  const plan=data.bannerPlan||{};
+  const budget=plan.displayBudget||{};
+  const src=await loadImage(data.sourceImage);
+  const bg=data.backgroundArt?await loadImage(data.backgroundArt):null;
+  let subject=data.subjectAsset?await loadImage(data.subjectAsset):null;
+  if(subject)subject=await trimTransparentImage(subject);
+
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+  const accent=plan.accent||plan.accentColor||'#111111';
+  const textColor=themeColorForRole(plan,'headline');
+  const ctaText=contrastTextColor(accent);
+
+  // Exact-canvas decorative background. This can crop because it is background only.
+  const bi=bg||src;
+  const bs=Math.max(w/bi.width,h/bi.height),bw=bi.width*bs,bh=bi.height*bs;
+  x.save();x.filter=bg?'none':`blur(${Math.max(2,Math.round(h*.02))}px) saturate(1.15) brightness(.92)`;
+  x.drawImage(bi,(w-bw)/2,(h-bh)/2,bw,bh);x.restore();
+
+  let cta=budget.drawCta!==false?String(plan.cta||'').trim():'';
+  const badCta=/^(person|people|logo|graphic|visual|subject|speaker|photo|image|portrait|none|blank)$/i;
+  const actionCta=/\b(register|buy|book|learn|rsvp|reserve|tickets?|sign\s*up|join|donate|visit|apply|read|watch|listen|shop|get\s*tickets?)\b/i;
+  if(!cta||badCta.test(cta)||!actionCta.test(cta))cta='';
+
+  const side=(plan.subjectSide==='left'||/left/.test(String(plan.subjectAnchor||'')))?'left':'right';
+  const subjectPct=Math.max(24,Math.min(40,Number(budget.subjectZonePct||34)));
+  const geom=tinyLayoutGeometry(w,h,{side,subjectPct,hasSubject:!!subject,hasCta:!!cta,ctaMode:budget.ctaMode||'button'});
+  const {pad,subjectRect,copyRect,ctaRect,copyLeft,copyW,ctaH}=geom;
+
+  // Copy and subject are separate rectangles by construction; CTA gets its own reserved footer rectangle.
+  x.fillStyle='rgba(255,255,255,.84)';
+  roundedRect(x,copyLeft-2,pad-2,copyW+4,h-pad*2+4,Math.max(4,Math.round(h*.045)));x.fill();
+
+  if(subject&&subjectRect){
+    const ss=Math.min(subjectRect.w/subject.width,subjectRect.h/subject.height);
+    const sw=subject.width*ss,sh=subject.height*ss;
+    const sx=subjectRect.x+(subjectRect.w-sw)/2,sy=subjectRect.y+subjectRect.h-sh;
+    x.drawImage(subject,sx,sy,sw,sh);
+  }
+
+  const headline=String(plan.headline||'').trim();
+  const manualText=budget.drawExtra?(Array.isArray(plan.manualTextElements)?plan.manualTextElements.map(v=>String(v?.text||'').trim()).filter(Boolean).join(' · '):''):'';
+  const dateTime=budget.drawDateTime!==false?String(plan.dateTime||plan.detail||'').trim():'';
+  const venue=budget.drawVenue?String(plan.venue||'').trim():'';
+  const secondary=manualText||dateTime||venue;
+  const textTop=copyRect.y,textBottom=copyRect.y+copyRect.h,textH=copyRect.h;
+
+  x.textBaseline='top';x.fillStyle=textColor;
+  const headMax=Math.max(10,Math.round(h*.19)),headMin=Math.max(7,Math.round(h*.10));
+  let headSize=headMax,headLines=[];
+  for(;headSize>=headMin;headSize--){
+    x.font=`800 ${headSize}px Arial`;
+    headLines=wrapTextLines(x,headline,copyW-6,3);
+    if(headLines.length*headSize*1.03<=textH*.70 && headLines.every(l=>x.measureText(l).width<=copyW-6))break;
+  }
+  let y=textTop;
+  x.font=`800 ${headSize}px Arial`;
+  for(const line of headLines){
+    if(y+headSize>textBottom)break;
+    x.fillText(line,copyLeft+3,y);y+=headSize*1.03;
+  }
+
+  if(secondary && textBottom-y>=7){
+    const fsize=fitText(x,secondary,copyW-6,Math.max(8,Math.round(h*.105)),6,'700');
+    x.font=`700 ${fsize}px Arial`;x.fillStyle=themeColorForRole(plan,'dateTime');
+    if(y+fsize<=textBottom)x.fillText(secondary,copyLeft+3,y+1);
+  }
+
+  if(cta&&ctaRect){
+    const {x:cx,y:cy,w:cw}=ctaRect;
+    if(budget.ctaMode==='inline'){
+      const csize=fitText(x,cta,cw,Math.max(8,Math.round(ctaH*.55)),6,'800');
+      x.font=`800 ${csize}px Arial`;x.fillStyle=themeColorForRole(plan,'cta');x.textBaseline='middle';
+      x.fillText(cta,cx,cy+ctaH/2);
+    }else{
+      x.fillStyle=accent;roundedRect(x,cx,cy,cw,ctaH,Math.max(5,Math.round(ctaH*.28)));x.fill();
+      const csize=fitText(x,cta,cw-8,Math.max(9,Math.round(ctaH*.52)),7,'800');
+      x.font=`800 ${csize}px Arial`;x.fillStyle=ctaText;x.textBaseline='middle';x.textAlign='center';
+      x.fillText(cta,cx+cw/2,cy+ctaH/2);x.textAlign='left';
+    }
+  }
+
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.2 tiny fit-safe banner')),'image/png',1));
+}
+
 async function buildCanvasFirstBanner(data,w,h){
   const plan=data.bannerPlan||{};
+  const budget=plan.displayBudget||{};
+  if(budget.tier==='TINY' || (w<=320 && h<=120))return buildTinyFitBanner(data,w,h);
   const ratio=w/h;
   const canvasClass=plan.canvasClass||((h<=55&&ratio>4.5)?'MICRO_BANNER':((h<=120&&ratio>2.4)?'COMPACT_BANNER':'LEADERBOARD'));
   const micro=canvasClass==='MICRO_BANNER';
@@ -1916,7 +2051,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.1: instruction/layout intent MUST be initialized before subject placement.
+  // V8.2: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -1955,7 +2090,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.1 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.2 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2029,13 +2164,13 @@ async function buildCanvasFirstBanner(data,w,h){
   x.fillRect(textLeft-4,0,textW+8,h);
 
   const headline=(plan.headline||'').trim();
-  const dateTime=(plan.dateTime||plan.detail||'').trim();
-  const venue=(plan.venue||'').trim();
-  const address=(plan.address||plan.secondary||'').trim();
+  const dateTime=(budget.drawDateTime===false?'':(plan.dateTime||plan.detail||'')).trim();
+  const venue=(budget.drawVenue===false?'':(plan.venue||'')).trim();
+  const address=(budget.drawAddress===false?'':(plan.address||plan.secondary||'')).trim();
   let location=[venue,address].filter(Boolean).join(' · ');
-  let extra=(extraFacts.length?extraFacts.join(' · '):(plan.extraFact||'')).trim();
+  let extra=(budget.drawExtra===false?'':(extraFacts.length?extraFacts.join(' · '):(plan.extraFact||''))).trim();
 
-  let cta=(plan.cta||'').trim();
+  let cta=(budget.drawCta===false?'':(plan.cta||'')).trim();
   const badCta=/^(person|people|logo|graphic|visual|subject|speaker|photo|image|portrait|none|blank)$/i;
   const actionCta=/\b(register|buy|book|learn|rsvp|reserve|tickets?|sign\s*up|join|donate|visit|apply|read|watch|listen|shop|get\s*tickets?)\b/i;
   if(!cta||badCta.test(cta)||!actionCta.test(cta))cta='';
@@ -2109,7 +2244,7 @@ async function buildCanvasFirstBanner(data,w,h){
     roundedRect(x,ctaBox.x,ctaBox.y,ctaBox.w,ctaBox.h,Math.max(7,Math.round(h*.085)));
     x.fillStyle=accent;x.fill();
     x.font=`800 ${ctaBox.size}px Arial`;
-    x.fillStyle='#111';x.textBaseline='middle';
+    x.fillStyle=contrastTextColor(accent);x.textBaseline='middle';
     x.fillText(cta,ctaBox.x+(ctaBox.w-ctaBox.textW)/2,ctaBox.y+ctaBox.h/2);
   }
 
@@ -2159,7 +2294,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.1 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.2 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2172,7 +2307,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.1 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.2 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2271,8 +2406,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.1 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.1 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.2 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.2 re-generated a different composition, but final-image validation could not confirm every item.';
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1200);
   }catch(e){

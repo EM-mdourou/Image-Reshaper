@@ -4,7 +4,7 @@ const PLANNER_MODEL = process.env.PLANNER_MODEL || "gpt-5.1";
 const PLANNER_REASONING = process.env.PLANNER_REASONING || "high";
 const IMAGE_MODEL = process.env.IMAGE_MODEL || "gpt-image-1.5";
 const IMAGE_MODEL_FALLBACK = "gpt-image-1";
-const ENGINE_VERSION = "8.1";
+const ENGINE_VERSION = "8.2";
 const UNIFIED_ENGINE = String(process.env.RENDER_ENGINE||"unified").toLowerCase() !== "legacy";
 function parse(body,ct){const m=ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);if(!m)throw Error('Invalid upload');const bd=Buffer.from('--'+(m[1]||m[2])),a=[];let p=0;while((p=body.indexOf(bd,p))!==-1){let s=p+bd.length;if(body.slice(s,s+2).toString()==='--')break;if(body.slice(s,s+2).toString()==='\r\n')s+=2;let n=body.indexOf(bd,s);if(n<0)break;let q=body.slice(s,n-2),z=q.indexOf('\r\n\r\n');if(z<0){p=n;continue}let h=q.slice(0,z).toString();a.push({name:h.match(/name="([^"]+)"/)?.[1],filename:h.match(/filename="([^"]*)"/)?.[1],type:h.match(/content-type:\s*([^\r\n]+)/i)?.[1]?.trim(),data:q.slice(z+4)});p=n}return a}
 export function spec(w,h){let tr=w/h,gw,gh,size;if(tr>1.15){gw=1536;gh=1024;size='1536x1024'}else if(tr<.87){gw=1024;gh=1536;size='1024x1536'}else{gw=gh=1024;size='1024x1024'}let gr=gw/gh,safe;if(gr>tr){let sw=Math.round(gh*tr);safe={x:Math.round((gw-sw)/2),y:0,w:sw,h:gh}}else{let sh=Math.round(gw/tr);safe={x:0,y:Math.round((gh-sh)/2),w:gw,h:sh}}return{gw,gh,size,safe,tr}}
@@ -34,7 +34,48 @@ export function operationStrategy(mode,w,h){
   if(profile.exactCanvas){
     return {profile,renderer:'exact-canvas',behavior:requestMode==='regenerate'?'new-layout':(requestMode==='modify'?'patch-current':(requestMode==='edit_text'?'text-current':'new-layout'))};
   }
-  return {profile,renderer:'ai-safe-crop',behavior:requestMode==='regenerate'?'new-layout':(requestMode==='modify'?'patch-current':(requestMode==='edit_text'?'text-current':'new-layout'))};
+  return {profile,renderer:'ai-safe-contain',behavior:requestMode==='regenerate'?'new-layout':(requestMode==='modify'?'patch-current':(requestMode==='edit_text'?'text-current':'new-layout'))};
+}
+
+export function displayBudgetForCanvas(w,h,facts={}){
+  const width=Number(w),height=Number(h),ratio=width/height;
+  const has=v=>!!String(v||'').trim();
+  const hasCta=has(facts.cta),hasDate=has(facts.dateTime||facts.detail),hasVenue=has(facts.venue),hasAddress=has(facts.address||facts.secondary);
+  const hasManual=(Array.isArray(facts.manualTextElements)&&facts.manualTextElements.some(x=>has(x?.text))) || (Array.isArray(facts.extraFacts)&&facts.extraFacts.some(has));
+
+  // Tiny canvases cannot display every semantic field as a full visual block.
+  // Facts remain preserved in state; this budget governs only what is drawn.
+  if(width<=320 && height<=120){
+    return {
+      tier:'TINY',
+      drawHeadline:true,
+      drawDateTime:hasDate && !hasManual,
+      drawCta:hasCta,
+      drawVenue:false,
+      drawAddress:false,
+      drawExtra:hasManual,
+      maxSubjects:2,
+      ctaMode:height<=60?'inline':'button',
+      noOverlap:true,
+      minOuterPct:0.04,
+      subjectZonePct:Math.min(40,ratio>=4?28:36),
+      notes:'Headline + one key fact + CTA + recognizable subject. Venue/address stay in state but are omitted from the drawing when they would cause collisions.'
+    };
+  }
+  if(height<=120 && ratio>=2.4){
+    return {
+      tier:'COMPACT',drawHeadline:true,drawDateTime:hasDate && !hasManual,drawCta:hasCta,
+      drawVenue:hasVenue && width>=600 && !hasManual,drawAddress:false,drawExtra:hasManual,maxSubjects:2,
+      ctaMode:'button',noOverlap:true,minOuterPct:0.035,subjectZonePct:34,
+      notes:'Compact horizontal hierarchy; CTA receives a reserved non-overlapping region.'
+    };
+  }
+  return {
+    tier:'FULL',drawHeadline:true,drawDateTime:hasDate,drawCta:hasCta,
+    drawVenue:hasVenue,drawAddress:hasAddress,drawExtra:true,maxSubjects:99,
+    ctaMode:'button',noOverlap:true,minOuterPct:0.045,subjectZonePct:36,
+    notes:'Full-information canvas.'
+  };
 }
 function responseOutputText(d){
   const found=[];
@@ -110,7 +151,7 @@ async function vision(key,data,prompt,opts={}){
 
   const recovery=`${prompt}
 
-V8.1 RECOVERY MODE:
+V8.2 RECOVERY MODE:
 Return the requested answer as visible plain text now.
 Do not return only reasoning.
 Do not omit the answer.
@@ -123,7 +164,7 @@ Use only information visible in the attached source image.`;
   if(extraction||opts.allowModelFallback){
     text=await run("fallback","gpt-4.1",null,opts.fallbackMaxOutput||3600,recovery);
     if(text){
-      console.warn("V8.1 source-analysis fallback to gpt-4.1 succeeded.");
+      console.warn("V8.2 source-analysis fallback to gpt-4.1 succeeded.");
       return text;
     }
   }
@@ -300,7 +341,7 @@ function manifestLine(inventory,key){
   const re=new RegExp('^'+key.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&')+'\\s*:\\s*(.*)$','im');
   const m=String(inventory||'').match(re);return cleanManifestValue(m?.[1]||'');
 }
-// V8.1 canonical source library: target dimensions never affect what exists in the source.
+// V8.2 canonical source library: target dimensions never affect what exists in the source.
 function canonicalSourceElements(inventory,plan={}){
   const items=[];let n=0;
   const push=(type,label,text='',extra={})=>{ if(!label)return; items.push({id:`src-${++n}`,type,label,text:text||label,source:'original artwork',reusable:true,...extra}); };
@@ -519,7 +560,7 @@ Rules:
   return Object.freeze({headline,detail,secondary,cta});
 }
 function applyProtectedFacts(composer,manifest){
-  // V8.1: the layout model has zero authority to author display copy.
+  // V8.2: the layout model has zero authority to author display copy.
   composer.headline=manifest.headline||"";
   composer.detail=manifest.detail||"";
   composer.secondary=manifest.secondary||"";
@@ -809,7 +850,7 @@ function augmentInstructionManifestFromRaw(raw="",manifest={}){
     }
   }
 
-  // V8.1: newest user instruction is authoritative for deterministic text/styling.
+  // V8.2: newest user instruction is authoritative for deterministic text/styling.
   const appendAfter=t.match(/\b(?:add|insert|put|place|include|append)\b[\s\S]{0,55}?\b(?:subheading|subtitle|text|words?|phrase)\b[\s\S]{0,30}?["“]([^"”]+)["”][\s\S]{0,90}?\b(?:after|right\s+after|following)\b[\s\S]{0,55}?\b(?:the\s+)?(?:heading|headline|title|words?)\b[\s\S]{0,30}?["“]([^"”]+)["”]/i);
   if(appendAfter?.[1]&&appendAfter?.[2]){
     m.headlineOverride=mergeHeadlineCompletion(cleanDisplayFact(appendAfter[2]),cleanDisplayFact(appendAfter[1]));
@@ -1006,8 +1047,8 @@ Target: ${name}, ${w}x${h}px.
 Canvas class: ${canvasClass}.
 
 CANVAS-CLASS ART DIRECTION:
-- MICRO_BANNER: prioritize recognizable headline/event identity + one key fact + real CTA when present. Do not cram address/secondary copy if it causes collision or tiny text. Main subject is supporting but recognizable. Zero overlaps between CTA and copy.
-- COMPACT_BANNER: prioritize headline + date/time + subject; add CTA and venue/address when they remain clearly legible. Use a true horizontal composition, never a shrunken poster.
+- MICRO_BANNER: prioritize recognizable headline/event identity + one key fact + real CTA when present. CTA is a REQUIRED visible element whenever protected CTA is non-empty. Do not cram address/secondary copy if it causes collision or tiny text. Main subject is supporting but recognizable. Zero overlaps between CTA, subject, and copy. If all protected facts cannot fit, omit lower-priority venue/address from the DRAWING while preserving them in state.
+- COMPACT_BANNER: prioritize headline + date/time + subject + CTA. CTA is REQUIRED whenever protected CTA is non-empty. Add venue/address only when the fit budget says there is room. Use a true horizontal composition, never a shrunken poster, and never overlap blocks.
 - LEADERBOARD: use the full width with strong subject, headline, event facts, and CTA/venue where available.
 - WIDE_BANNER: distribute information horizontally and avoid portrait-style stacking.
 - STANDARD_AD: preserve more source information and use the available vertical space to create a genuinely redesigned ad.
@@ -1356,7 +1397,7 @@ Art-direction rules:
 export default async function handler(req,res){
 const len=Number(req.headers?.["content-length"]||0);
 if(req.method==="POST" && len>4_000_000){
-  return res.status(413).json({error:"Upload is too large for the serverless function. V8.1 should compress the source image in the browser before upload; please refresh and try again."});
+  return res.status(413).json({error:"Upload is too large for the serverless function. V8.2 should compress the source image in the browser before upload; please refresh and try again."});
 }
 
 if(req.method==='GET')return res.status(200).json({ok:true,route:'/api/reshape',version:ENGINE_VERSION,engine:UNIFIED_ENGINE?'unified':'legacy'});
@@ -1483,8 +1524,10 @@ let sp=spec(w,h),s=sp.safe,tr=w/h;
 const strategy=operationStrategy(requestMode,w,h);
 const formatClass=strategy.profile.id;
 const exactCanvasProfile=strategy.profile.exactCanvas;
+const displayBudget=displayBudgetForCanvas(w,h,universalPlan);
+universalPlan.displayBudget=displayBudget;
 const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
-    // V8.1 keeps ONE canonical source manifest/planner, but extreme/shallow canvases
+    // V8.2 keeps ONE canonical source manifest/planner, but extreme/shallow canvases
     // use an exact-dimension compositor so a poster is never shrunk/letterboxed inside a banner.
     if((UNIFIED_ENGINE && exactCanvasProfile) || (!UNIFIED_ENGINE && legacyExact)){
       const sourceData=`data:${im.type||"image/png"};base64,${im.data.toString("base64")}`;
@@ -1492,25 +1535,27 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
       // EDIT_TEXT MODE: keep the current banner layout; only update authoritative text state.
       if(requestMode==="edit_text" && priorPlan){
         const edited={...priorPlan,sourceManifest:priorPlan.sourceManifest||inventory,userTextLocked:true};
+        edited.displayBudget=displayBudgetForCanvas(w,h,edited);
         edited.manualTextElements=Array.isArray(priorPlan.manualTextElements)?priorPlan.manualTextElements:[];
         edited.textElements=Array.isArray(priorPlan.textElements)?priorPlan.textElements:[];
         edited.textStyles=priorPlan.textStyles||{};
         res.setHeader('Cache-Control','no-store');
         return res.status(200).json({renderMode:'canvas-first-banner-composer',width:w,height:h,bannerPlan:edited,reuseAssets:true,
-          sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,edited),validationSummary:'V8.1 EDIT_TEXT mode preserved the current banner layout and updated authoritative text only.'});
+          sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,edited),validationSummary:'V8.2 EDIT_TEXT mode preserved the current banner layout and updated authoritative text only.'});
       }
 
-      // V8.1 MODIFY MODE: update the LAST generated plan rather than starting over.
+      // V8.2 MODIFY MODE: update the LAST generated plan rather than starting over.
       if(requestMode==="replan" && priorPlan){
         const replanned={...priorPlan};
         replanned.sourceManifest=priorPlan.sourceManifest||inventory;
         replanned.userTextLocked=true;
+        replanned.displayBudget=displayBudgetForCanvas(w,h,replanned);
         replanned.extraFacts=[...(Array.isArray(priorPlan.manualTextElements)?priorPlan.manualTextElements.map(x=>x.text).filter(Boolean):[]),...(Array.isArray(priorPlan.extraFacts)?priorPlan.extraFacts:[])];
         replanned.textZonePct=Math.min(74,Math.max(Number(priorPlan.textZonePct||50),50+Math.min(20,replanned.extraFacts.join(' ').length/10)));
         replanned.subjectZonePct=Math.max(22,100-replanned.textZonePct-8);
         res.setHeader('Cache-Control','no-store');
         return res.status(200).json({renderMode:'canvas-first-banner-composer',width:w,height:h,bannerPlan:replanned,reuseAssets:true,
-          sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,replanned),validationSummary:'V8.1 re-planned the banner around authoritative text using the shared canonical source manifest.'});
+          sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,replanned),validationSummary:'V8.2 re-planned the banner around authoritative text using the shared canonical source manifest.'});
       }
 
       if(requestMode==="regenerate" && priorPlan){
@@ -1523,6 +1568,7 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
         regenerated.ctaPlacement=['right','center','left','right'][variant];
         regenerated.regeneratedFromVersion=true;
         regenerated.sourceManifest=priorPlan.sourceManifest||inventory;
+        regenerated.displayBudget=displayBudgetForCanvas(w,h,regenerated);
         regenerated.manualTextElements=[];
         regenerated.textElements=[];
         regenerated.userTextLocked=false;
@@ -1531,7 +1577,7 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
           renderMode:"canvas-first-banner-composer",
           width:w,height:h,bannerPlan:regenerated,reuseAssets:true,
           sourceManifest:inventory,
-          validationSummary:"V8.1 created an alternate banner layout from the cached design/source analysis without re-running source analysis."
+          validationSummary:"V8.2 created an alternate banner layout from the cached design/source analysis without re-running source analysis."
         });
       }
 
@@ -1607,6 +1653,7 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
         modified=applyProtectedFacts(modified,modifyFacts);
         modified.extraFacts=Array.isArray(modifyFacts.extraFacts)?modifyFacts.extraFacts.slice():[];
         modified.extraFact=modified.extraFacts.join(" · ");
+        modified.displayBudget=displayBudgetForCanvas(w,h,modified);
         modified.requiredVisibleFacts=modifyManifest?.requiredVisibleFacts||modified.requiredVisibleFacts||[];
         modified.requiredFactsPlacement=modifyManifest?.requiredFactsPlacement||modified.requiredFactsPlacement||"";
         modified.modifyInstructions=extra;
@@ -1616,7 +1663,7 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
         modified.textElements=Array.isArray(priorPlan.textElements)?priorPlan.textElements:modified.textElements;
         modified.textStyles=priorPlan.textStyles||modified.textStyles;
         modified.designStateVersion=priorPlan.designStateVersion||1;
-        // V8.1: the browser's deterministic visual state is authoritative too.
+        // V8.2: the browser's deterministic visual state is authoritative too.
         if(priorPlan.subjectPositionLocked || priorPlan.subjectScaleLocked || priorPlan.subjectOrderLocked || priorPlan.subjectSizeLocked){
           modified.subjectAnchor=priorPlan.subjectAnchor||modified.subjectAnchor;
           if(Number.isFinite(priorPlan.subjectX))modified.subjectX=priorPlan.subjectX;
@@ -1640,11 +1687,11 @@ return res.status(200).json({
           width:w,height:h,
           bannerPlan:modified,
           reuseAssets:true,
-          validationSummary:"V8.1 modified the current design using a structured state patch. The newest user instruction was applied deterministically before layout, and current visual assets were preserved."
+          validationSummary:"V8.2 modified the current design using a structured state patch. The newest user instruction was applied deterministically before layout, and current visual assets were preserved."
         });
       }
 
-      // V8.1 stage 0: understand Optional Instructions as a first-class manifest.
+      // V8.2 stage 0: understand Optional Instructions as a first-class manifest.
       const initialStructuredPatch=structuredDesignPatchFromRaw(extra,{});
       let instructionManifest;
       try{
@@ -1658,7 +1705,7 @@ return res.status(200).json({
 
       instructionManifest=applyStructuredPatchToManifest(instructionManifest,initialStructuredPatch);
 
-      // V8.1 stage 1: extract factual display copy before any layout/design reasoning.
+      // V8.2 stage 1: extract factual display copy before any layout/design reasoning.
       let protectedFacts;
       try{ protectedFacts=await buildProtectedFactManifest(key,sourceData,w,h); }
       catch(e){
@@ -1667,13 +1714,13 @@ return res.status(200).json({
         protectedFacts=Object.freeze({headline:fallback.headline||"",detail:fallback.detail||"",secondary:"",cta:fallback.cta||""});
       }
 
-      // V8.1: interpreted user corrections outrank extraction; regex parser remains as fallback.
+      // V8.2: interpreted user corrections outrank extraction; regex parser remains as fallback.
       protectedFacts=applyInstructionManifestToFacts(protectedFacts,instructionManifest);
       protectedFacts=applyUserFactOverrides(protectedFacts,extra);
       protectedFacts=applyAuthoritativeUserText(protectedFacts,extra);
       protectedFacts=applyStructuredDesignPatchToFacts(protectedFacts,initialStructuredPatch);
 
-      // V8.1: resolve natural-language "missing ending" headline requests against the ORIGINAL source.
+      // V8.2: resolve natural-language "missing ending" headline requests against the ORIGINAL source.
       if(!initialStructuredPatch?.text?.headline && !explicitTextOverridesFromRaw(extra).headline && instructionManifest?.headlineCompletionPhrase){
         const completeHeadline=await resolveHeadlineCompletion(
           key,sourceData,protectedFacts.headline,instructionManifest.headlineCompletionPhrase
@@ -1681,7 +1728,7 @@ return res.status(200).json({
         protectedFacts=Object.freeze({...protectedFacts,headline:completeHeadline});
       }
 
-      // V8.1: facts the user explicitly asks to see become protected display facts,
+      // V8.2: facts the user explicitly asks to see become protected display facts,
       // rather than optional art-direction suggestions.
       const requiredFacts=await extractRequiredVisibleFacts(
         key,sourceData,instructionManifest?.requiredVisibleFacts||[]
@@ -1700,7 +1747,7 @@ return res.status(200).json({
         composer={headline:"",detail:"",secondary:"",cta:"",visual:"none",subjectDescription:"",subjectSide:"right",style:"",accent:"#111111",textColor:"#111111"};
       }
 
-      // V8.1 stage 2: protected facts are re-applied AFTER planning. Planner metadata can never become drawable copy.
+      // V8.2 stage 2: protected facts are re-applied AFTER planning. Planner metadata can never become drawable copy.
       const invPlan=bannerPlanFromInventory(inventory,extra);
       composer=applyProtectedFacts(composer,protectedFacts);
       composer.requestedSourceElements=instructionManifest?.requestedSourceElements||[];
@@ -1723,8 +1770,9 @@ return res.status(200).json({
       try{ composer=await artDirectorRefinePlan(key,sourceData,w,h,composer,instructionManifest); }
       catch(e){ console.error("Art-director refinement failed; using first-pass plan:",e?.message||e); }
 
-      // V8.1 stage 3: lock again after art direction and fail closed on any copy mutation/leak.
+      // V8.2 stage 3: lock again after art direction and fail closed on any copy mutation/leak.
       composer=applyProtectedFacts(composer,protectedFacts);
+      composer.displayBudget=displayBudgetForCanvas(w,h,{...universalPlan,...composer});
       const copyAudit=validateProtectedFacts(composer,protectedFacts);
       if(!copyAudit.ok) throw Error("Protected display-copy validation failed: "+copyAudit.failures.join(", "));
 
@@ -1759,12 +1807,12 @@ return res.status(200).json({
         bannerPlan:{...universalPlan,...composer,sourceManifest:inventory,subjects:universalPlan.subjects||[],subjectCount:Math.max(Number(composer.subjectCount||0),Number(universalPlan.subjectCount||0)),subjectLabels:universalPlan.subjectLabels||[]},
         sourceManifest:inventory,
         sourceElements:canonicalSourceElements(inventory,{...universalPlan,...composer}),
-        validationSummary:`V8.1 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
-        modelInfo:{planner:PLANNER_MODEL,reasoning:PLANNER_REASONING,api:"responses",imageRequested:IMAGE_MODEL,imageFallback:IMAGE_MODEL_FALLBACK,engine:UNIFIED_ENGINE?"unified":"legacy"}
+        validationSummary:`V8.2 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
+        modelInfo:{planner:PLANNER_MODEL,reasoning:PLANNER_REASONING,api:"responses",imageRequested:IMAGE_MODEL,imageFallback:IMAGE_MODEL_FALLBACK,engine:UNIFIED_ENGINE?"unified":"legacy",sourceAnalysisReused:!!priorPlan?.sourceManifest}
       });
     }
 const unifiedModeRules=`
-V8.1 OPERATION MODES — APPLY TO EVERY DESTINATION SIZE:
+V8.2 OPERATION MODES — APPLY TO EVERY DESTINATION SIZE:
 - GENERATE: create the first composition from the canonical source manifest.
 - EDIT_TEXT: the CURRENT rendered image is the visual baseline. Change/reflow only authoritative text requested by the user; preserve all unrequested composition/assets.
 - MODIFY: the CURRENT rendered image is the visual baseline. Patch only requested element positions/sizes/styles/content; preserve all unrequested areas.
@@ -1772,7 +1820,7 @@ V8.1 OPERATION MODES — APPLY TO EVERY DESTINATION SIZE:
 These semantics are identical for Events, square/tall formats, leaderboard banners, directory banners, and custom dimensions.
 `;
 let authoritativeReplanText=((requestMode==='replan'||requestMode==='edit_text')&&priorPlan)?`\n\nAUTHORITATIVE CURRENT TEXT STATE (must visibly appear exactly):\n${(priorPlan.textElements||[]).filter(x=>x&&x.visible!==false&&x.text).map(x=>'- '+(x.label||x.role)+': '+x.text).join('\n')}\n${(priorPlan.manualTextElements||[]).filter(x=>x&&x.text).map(x=>'- MANDATORY ADDED TEXT: '+x.text).join('\n')}\nRe-layout around this text. Do not omit added text.`:'';
-let prompt=`UNIFIED IMAGE RESHAPER — adapt the attached artwork using the same composition engine for every destination size.\nTARGET: ${name}; final ${w}×${h}px; generation canvas ${sp.gw}×${sp.gh}px; COMPOSITION GUIDE x=${s.x}, y=${s.y}, width=${s.w}, height=${s.h}. The app will proportionally fit the complete generated foreground into the final canvas and WILL NOT crop it. Compose the artwork itself for the requested aspect ratio.\n\nSOURCE INVENTORY:\n${inventory}${authoritativeReplanText}\n${unifiedModeRules}\n\nFORMAT CLASS: ${formatClass}\n\nASPECT-RATIO LAYOUT CONSTRAINTS (these are constraints inside ONE unified engine, not separate renderers):\n- STANDARD: preserve nearly all meaningful content and recompose naturally.\n- WIDE_BANNER: create a genuine horizontal banner and spread retained information across the full width. Rebuild the hierarchy for the banner rather than preserving the source poster geometry.\n- EXTREME_BANNER: design DIRECTLY as a compact horizontal ad. Do NOT shrink, crop, or embed the original poster. Select only the highest-priority source elements that remain readable at the requested dimensions.\n- TALL_NARROW / EXTREME_TALL: build a true vertical layout rather than squeezing a wide design.\nFor very small formats, priority is brand/logo, recognizable event identity/headline, then one key action/detail such as date/time/CTA/key price when legible. People and secondary details come after that.\nIt is acceptable to omit lower-priority or decorative information if the final size cannot support it legibly. Never invent replacement facts. Never render tiny unreadable text merely to preserve everything.\nThe output must look intentionally designed for the requested shape, not compressed or letterboxed.\nVERY SHALLOW/WIDE LAYOUT CONSTRAINTS:
+let prompt=`UNIFIED IMAGE RESHAPER — adapt the attached artwork using the same composition engine for every destination size.\nTARGET: ${name}; final ${w}×${h}px; generation canvas ${sp.gw}×${sp.gh}px. The app will proportionally CONTAIN the complete generated design inside the final canvas and will extend only decorative background if the aspect ratios differ. Nothing from your generated foreground may be intentionally placed off-canvas. Compose the artwork itself for the requested aspect ratio and keep every important content element inside a generous internal safe margin.\n\nSOURCE INVENTORY:\n${inventory}${authoritativeReplanText}\n${unifiedModeRules}\n\nFORMAT CLASS: ${formatClass}\n\nASPECT-RATIO LAYOUT CONSTRAINTS (these are constraints inside ONE unified engine, not separate renderers):\n- STANDARD: preserve nearly all meaningful content and recompose naturally.\n- WIDE_BANNER: create a genuine horizontal banner and spread retained information across the full width. Rebuild the hierarchy for the banner rather than preserving the source poster geometry.\n- EXTREME_BANNER: design DIRECTLY as a compact horizontal ad. Do NOT shrink, crop, or embed the original poster. Select only the highest-priority source elements that remain readable at the requested dimensions.\n- TALL_NARROW / EXTREME_TALL: build a true vertical layout rather than squeezing a wide design.\nFor very small formats, priority is brand/logo, recognizable event identity/headline, then one key action/detail such as date/time/CTA/key price when legible. People and secondary details come after that.\nIt is acceptable to omit lower-priority or decorative information if the final size cannot support it legibly. Never invent replacement facts. Never render tiny unreadable text merely to preserve everything.\nThe output must look intentionally designed for the requested shape, not compressed or letterboxed.\nVERY SHALLOW/WIDE LAYOUT CONSTRAINTS:
 - Treat the requested width:height ratio as the design brief itself.
 - Build a coherent horizontal row or shallow two-row composition across the canvas.
 - Use the full width intentionally; avoid large empty side zones.
@@ -1842,7 +1890,7 @@ HIGHEST-PRIORITY USER OVERRIDE RULE:
 - Do not restore the old wording after the user explicitly changes it.
 - In MODIFY mode, preserve everything not requested and change only what the newest instruction asks for.`;
 
-// V8.1 OPERATION SEPARATION: EDIT_TEXT / MODIFY are current-design patches, never redesign prompts.
+// V8.2 OPERATION SEPARATION: EDIT_TEXT / MODIFY are current-design patches, never redesign prompts.
 let operationPrompt=prompt;
 const exactCurrentText=priorPlan ? [
   ...(Array.isArray(priorPlan.textElements)?priorPlan.textElements.filter(x=>x&&x.visible!==false&&x.text).map(x=>`${x.label||x.role||'Text'}: ${x.text}`):[]),
@@ -1853,10 +1901,10 @@ if((requestMode==="modify"||requestMode==="edit_text") && currentIm){
   const action=requestMode==="edit_text"
     ? `Change only the authoritative text/content values listed below. Local reflow inside existing text areas is allowed, but do not move unrelated visual groups.`
     : `Apply ONLY this newest instruction: ${extra||'No instruction supplied.'}`;
-  operationPrompt=`V8.1 CURRENT DESIGN PATCH — THIS IS NOT A REGENERATE REQUEST.
+  operationPrompt=`V8.2 CURRENT DESIGN PATCH — THIS IS NOT A REGENERATE REQUEST.
 
 The attached image is the CURRENT rendered design and is the absolute visual baseline.
-TARGET OUTPUT: ${w}x${h}px. The image API output will be cropped to the target-safe region x=${s.x}, y=${s.y}, width=${s.w}, height=${s.h}; keep the entire current design aligned inside that region.
+TARGET OUTPUT: ${w}x${h}px. The image API output will be proportionally contained in the final ${w}x${h} canvas without cropping. Keep the complete current design and every requested edit fully visible inside the generated image.
 
 ${action}
 
@@ -1891,7 +1939,7 @@ if((requestMode==="modify"||requestMode==="edit_text") && currentIm){
   const comparePrompt=`Compare IMAGE 1 (baseline current design) with IMAGE 2 (new result).
 USER REQUEST: ${extra||requestMode}
 MODE: ${requestMode}
-IMAGE 2 is generated on a larger model canvas. Judge ONLY its target-safe region x=${s.x}, y=${s.y}, width=${s.w}, height=${s.h}; ignore pixels outside that region because the browser crops them away.
+IMAGE 2 will be proportionally contained in the final canvas without cropping. Judge the complete generated image and fail if any important top/bottom/side content is clipped or placed outside the visible design.
 Return exactly PASS: <brief evidence> or FAIL: <specific drift/failure>.
 PASS only if:
 - the overall composition/layout remains recognizably the SAME as IMAGE 1;
@@ -1899,7 +1947,7 @@ PASS only if:
 - only the requested text/element changed, plus minimal local reflow necessary for that change;
 - the requested change is visibly present.
 FAIL if IMAGE 2 looks like a new design/recomposition, moves unrelated groups, changes the background/layout substantially, or does not visibly implement the request.`;
-  try{preservationVerdict=await visionCompare(key,baseline,candidate,comparePrompt,{maxOutput:700});}catch(e){console.warn('V8.1 preservation comparison unavailable:',e?.message||e);preservationVerdict='PASS: comparison unavailable; strict patch prompt used';}
+  try{preservationVerdict=await visionCompare(key,baseline,candidate,comparePrompt,{maxOutput:700});}catch(e){console.warn('V8.2 preservation comparison unavailable:',e?.message||e);preservationVerdict='PASS: comparison unavailable; strict patch prompt used';}
   if(/^FAIL:/i.test(preservationVerdict)){
     retried=true;
     b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,operationPrompt+`\n\nFIRST PATCH WAS REJECTED BY STRUCTURAL PRESERVATION QA:\n${preservationVerdict}\nTry again. Make the smallest possible localized edit. Everything not explicitly requested must stay in the exact same visual location and style.`,sp.size);
@@ -1921,22 +1969,23 @@ FAIL if IMAGE 2 looks like a new design/recomposition, moves unrelated groups, c
 }else{
   // Generate/re-generate source QA. Patch modes are validated against the current design instead.
   try{
-    const val=await vision(key,`data:image/png;base64,${b}`,`Compare this generated adaptation against this source inventory:\n${inventory}\nEvaluate invented elements, clipping, major omissions, factual mismatches, and whether the requested target shape is intentionally composed. Judge ONLY the target-safe region x=${s.x}, y=${s.y}, width=${s.w}, height=${s.h}; that region is the final export and pixels outside it are discarded. Return exactly PASS or RETRY: <brief reasons>.`,{mode:"extract",effort:"none",recoveryEffort:"none",maxOutput:800,recoveryMaxOutput:1000,allowModelFallback:true});
+    const val=await vision(key,`data:image/png;base64,${b}`,`Compare this generated adaptation against this source inventory:\n${inventory}\nEvaluate invented elements, clipping, major omissions, factual mismatches, and whether the requested target shape is intentionally composed. Judge the complete generated image. The browser will contain the complete design without cropping; fail if important foreground content is clipped at any edge or if the composition relies on content outside the image. Return exactly PASS or RETRY: <brief reasons>.`,{mode:"extract",effort:"none",recoveryEffort:"none",maxOutput:800,recoveryMaxOutput:1000,allowModelFallback:true});
     if(/^RETRY:/i.test(val.trim()) && requestMode!=="modify" && requestMode!=="edit_text"){
       retried=true;
-      b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt+`\n\nVALIDATION FAILURE FROM FIRST ATTEMPT:\n${val}\nCorrect these failures and keep all critical facts inside the target-safe region.`,sp.size);
+      b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt+`\n\nVALIDATION FAILURE FROM FIRST ATTEMPT:\n${val}\nCorrect these failures and keep all critical facts fully visible inside the generated image with clear edge-safe margins.`,sp.size);
     }
-  }catch(e){console.warn('V8.1 source QA unavailable:',e?.message||e);}
+  }catch(e){console.warn('V8.2 source QA unavailable:',e?.message||e);}
 }
 res.setHeader('Cache-Control','no-store');
 let responsePlan={...universalPlan};
 if((requestMode==='modify'||requestMode==='edit_text'||requestMode==='replan') && priorPlan){responsePlan={...universalPlan,...priorPlan};responsePlan.manualTextElements=Array.isArray(priorPlan.manualTextElements)?priorPlan.manualTextElements:[];responsePlan.textElements=Array.isArray(priorPlan.textElements)?priorPlan.textElements:responsePlan.textElements;responsePlan.textStyles=priorPlan.textStyles||responsePlan.textStyles;responsePlan.userTextLocked=!!priorPlan.userTextLocked;}
-return res.status(200).json({renderMode:'unified-ai-composer',image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:'safe-crop',safeCrop:sp.safe,generationCanvas:{width:sp.gw,height:sp.gh},canvasProfile:strategy.profile,bannerPlan:responsePlan,sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,responsePlan),validationSummary:(requestMode==='edit_text'||requestMode==='modify')?(retried?'V8.1 current-design preservation QA rejected the first patch and accepted the stricter retry.':'V8.1 current-design preservation QA accepted the patch without a redesign.'):(retried?'V8.1 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='regenerate'?'V8.1 REGENERATE created a new layout from canonical source state.':'V8.1 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.'))})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
+responsePlan.displayBudget=displayBudgetForCanvas(w,h,responsePlan);
+return res.status(200).json({renderMode:'unified-ai-composer',image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:'safe-contain',safeCrop:sp.safe,generationCanvas:{width:sp.gw,height:sp.gh},canvasProfile:strategy.profile,bannerPlan:responsePlan,sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,responsePlan),validationSummary:(requestMode==='edit_text'||requestMode==='modify')?(retried?'V8.2 current-design preservation QA rejected the first patch and accepted the stricter retry.':'V8.2 current-design preservation QA accepted the patch without a redesign.'):(retried?'V8.2 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='regenerate'?'V8.2 REGENERATE created a new layout from canonical source state.':'V8.2 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.'))})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
 
 
 /*
 
-CONTROLLED CREATIVE FREEDOM — V8.1:
+CONTROLLED CREATIVE FREEDOM — V8.2:
 The final canvas is exactly 728x90 and MUST be treated as the design surface from the first decision.
 Do NOT use a rigid left/right/thirds template. Compose the whole advertisement as an art director.
 You may place the main source subject left, right, center, off-center, between text groups, or partially integrated with typography/background when visually strong.
