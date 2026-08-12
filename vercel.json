@@ -8,6 +8,18 @@
     "api/health.js": {
       "maxDuration": 10,
       "memory": 256
+    },
+    "api/auth/login.js": {
+      "maxDuration": 15,
+      "memory": 256
+    },
+    "api/auth/me.js": {
+      "maxDuration": 10,
+      "memory": 128
+    },
+    "api/auth/logout.js": {
+      "maxDuration": 10,
+      "memory": 128
     }
   }
 }
