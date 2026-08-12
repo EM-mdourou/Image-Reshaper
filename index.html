@@ -71,6 +71,7 @@ button.primary:disabled{opacity:.45;cursor:not-allowed}
 .historyimgwrap{background:#f3f5ef;border-radius:11px;padding:10px;text-align:center}
 .historyimgwrap img{max-width:100%;max-height:420px;display:block;margin:auto}
 .historydownload{font-size:12px;color:#536500;text-decoration:none;border:1px solid #9fba42;border-radius:8px;padding:7px 10px;white-space:nowrap}
+.historyresults{margin:10px 0 12px;background:#f7f8f3;border:1px solid #e3e6d9;border-radius:10px;padding:10px 11px}.historyresults b{display:block;font-size:12px;margin-bottom:6px}.historyresultrow{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.4;margin-top:5px}.historyresultstatus{flex:0 0 auto;border-radius:999px;padding:3px 7px;font-size:10px;font-weight:850}.historyresultstatus.applied{background:#eaf3d2;color:#506600}.historyresultstatus.partial{background:#fff1c9;color:#7a5b00}.historyresultstatus.failed{background:#fde3df;color:#a52c1d}.historyresultstatus.info{background:#e8edf1;color:#45525e}.elementintrohelp{margin-top:6px;padding:8px 10px;border-radius:8px;background:#fff9df;color:#5f572e;font-size:11px;line-height:1.4}
 .currentinstruction{font-size:13px;line-height:1.45;margin:10px 0 12px;padding:10px 12px;background:#f7f8f3;border-radius:9px}
 .currentinstruction b{display:block;font-size:11px;text-transform:uppercase;color:#657521;margin-bottom:4px}
 .clearbtn{margin-left:10px;border:1px solid #a7b568;background:#fff;border-radius:8px;padding:7px 10px;font-weight:700;cursor:pointer}
@@ -161,11 +162,13 @@ footer>br,footer>text{display:none}
 button.regenbtn{border:1px solid #111;border-radius:10px;background:#fff;color:#111;padding:14px 18px;font-weight:850;cursor:pointer}
 button.regenbtn:hover{background:#f4f4f1}
 button.regenbtn:disabled{opacity:.4;cursor:not-allowed}
-details.elementpanel,details.texteditor{margin-top:14px;padding-top:0;border-top:1px solid var(--line)}
-details.elementpanel>summary,details.texteditor>summary{cursor:pointer;font-weight:850;font-size:16px;list-style:none;padding:15px 2px 10px;display:flex;align-items:center;justify-content:space-between}
+details.elementpanel,details.texteditor{margin-top:14px;border:1px solid #dde4c8;border-radius:14px;background:#f7f9f1;overflow:hidden}
+details.elementpanel>summary,details.texteditor>summary{cursor:pointer;font-weight:850;font-size:16px;list-style:none;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;background:#eef3df;border-bottom:1px solid transparent}
+details.elementpanel[open]>summary,details.texteditor[open]>summary{border-bottom-color:#dde4c8}
 details.elementpanel>summary::-webkit-details-marker,details.texteditor>summary::-webkit-details-marker{display:none}
-details.elementpanel>summary:after,details.texteditor>summary:after{content:"▾";font-size:13px;color:#657521;transition:transform .15s ease}
+details.elementpanel>summary:after,details.texteditor>summary:after{content:"▾";font-size:25px;line-height:1;color:#60721d;font-weight:900;transition:transform .15s ease;margin-left:16px}
 details.elementpanel:not([open])>summary:after,details.texteditor:not([open])>summary:after{transform:rotate(-90deg)}
+details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14px 16px 16px;background:#fff}
 .accordionbody{padding:0 0 8px}
 .modifygrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:18px;align-items:start;margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
 .modifygrid .modifybox,.modifygrid .diagpanel{margin:0;padding:0;border:0}
@@ -183,7 +186,7 @@ details.elementpanel:not([open])>summary:after,details.texteditor:not([open])>su
 }
 
 </style><script>
-window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.33:
+window.V71_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V7.34:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -226,7 +229,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.33 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.33 also fixes the compact/leaderboard instruction-layout initialization error. V7.33 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V7.34 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V7.34 also fixes the compact/leaderboard instruction-layout initialization error. V7.34 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -243,7 +246,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <details id="sourceElementsPanel" class="elementpanel" open>
   <summary>Source elements</summary>
   <div class="accordionbody">
-    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div>
+    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. It is partially reusable for approximate moves/resizing, but exact independent placement may be limited.</div>
     <div id="elementSummary" class="elementsummary"></div>
     <div id="elementList" class="elementlist"></div>
   </div>
@@ -281,8 +284,8 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 7.33</div>
-</footer></main><script>const APP_VERSION='7.33';
+  <div class="versionfooter">Version 7.34</div>
+</footer></main><script>const APP_VERSION='7.34';
 let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let textEditorRows=[];
 let sourceElements=[];let lastDiagnostics=[];
@@ -404,20 +407,28 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
     next.subjectCount=Math.max(2,Number(next.subjectCount||0));
   }
 
-  // Persistent absolute positioning.
+  // Persistent/incremental positioning. Follow-up requests are applied to the CURRENT state.
   if(/\b(?:middle|center|centre)\b/.test(t) &&
      /\b(?:move|place|put|position|pic|picture|image|speaker|person|subject|him|her|them)\b/.test(t)){
-    next.subjectAnchor='center';
-    next.subjectX=.50;
-    next.subjectPositionLocked=true;
-  }else if(/\b(?:right side|to the right|move right|place[\s\S]{0,20}right|put[\s\S]{0,20}right)\b/.test(t)){
+    next.subjectAnchor='center';next.subjectX=.50;next.subjectPositionLocked=true;
+  }else if(/\b(?:right side|to the right|move right|place[\s\S]{0,20}right|put[\s\S]{0,20}right|extreme right|far right|further right|more to the right)\b/.test(t)){
+    const current=Number.isFinite(Number(next.subjectX))?Number(next.subjectX):.62;
+    const extreme=/\b(?:extreme right|far right)\b/.test(t);
+    const incremental=/\b(?:further|more|slightly|a little|additional(?:ly)?)\b[\s\S]{0,15}\bright\b|\bright\b[\s\S]{0,15}\b(?:further|more)\b/.test(t);
     next.subjectAnchor='right-third';
-    next.subjectX=.72;
+    next.subjectX=extreme?Math.max(current,.86):(incremental?Math.min(.90,current+.10):Math.max(current,.72));
     next.subjectPositionLocked=true;
-  }else if(/\b(?:left side|to the left|move left|place[\s\S]{0,20}left|put[\s\S]{0,20}left)\b/.test(t)){
+  }else if(/\b(?:left side|to the left|move left|place[\s\S]{0,20}left|put[\s\S]{0,20}left|extreme left|far left|further left|more to the left)\b/.test(t)){
+    const current=Number.isFinite(Number(next.subjectX))?Number(next.subjectX):.38;
+    const extreme=/\b(?:extreme left|far left)\b/.test(t);
+    const incremental=/\b(?:further|more|slightly|a little|additional(?:ly)?)\b[\s\S]{0,15}\bleft\b|\bleft\b[\s\S]{0,15}\b(?:further|more)\b/.test(t);
     next.subjectAnchor='left-third';
-    next.subjectX=.28;
+    next.subjectX=extreme?Math.min(current,.14):(incremental?Math.max(.10,current-.10):Math.min(current,.28));
     next.subjectPositionLocked=true;
+  }
+  if(/\b(?:closer together|close together|put together|group together|next to each other)\b/.test(t)){
+    next.subjectGroupingRequested=true;
+    next.subjectGroupGapPct=2;
   }
 
   // Literal size targets. Explicit user sizing overrides compact thumbnail defaults.
@@ -469,7 +480,9 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
     subjectZonePct:next.subjectZonePct,
     subjectCropMode:next.subjectCropMode,
     subjectCount:next.subjectCount,
-    subjectOrder:next.subjectOrder||'normal'
+    subjectOrder:next.subjectOrder||'normal',
+    subjectGroupingRequested:!!next.subjectGroupingRequested,
+    subjectGroupGapPct:next.subjectGroupGapPct
   };
   return next;
 }
@@ -495,7 +508,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V7.33: added/manual text is now expected to be part of the planned layout.
+  // V7.34: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -613,7 +626,8 @@ function captureCurrentVersionState(instruction='',kind='Generated'){
     kind,
     renderedUrl:lastRenderedUrl,
     target:[...lastDesignTarget],
-    data:JSON.parse(JSON.stringify(lastServerResult))
+    data:JSON.parse(JSON.stringify(lastServerResult)),
+    diagnostics:JSON.parse(JSON.stringify(lastDiagnostics||[]))
   };
   const existing=versionStates.findIndex(v=>v.version===snap.version);
   if(existing>=0)versionStates[existing]=snap; else versionStates.push(snap);
@@ -840,7 +854,7 @@ function renderSourceElements(){
   sourceElements.forEach(el=>{
     const row=document.createElement('div');row.className='elementitem';
     const status=el.availability==='grouped'?'partial':(el.reusable?'reusable':'unavailable');
-    const statusText=status==='reusable'?'Reusable':(status==='partial'?'Grouped / partial':'Reference only');
+    const statusText=status==='reusable'?'Reusable':(status==='partial'?'Partially reusable':'Reference only');
     row.innerHTML=`<div class="elementname">${escapeHtml(el.label)}</div>
       <div class="elementmeta">${escapeHtml(el.type)} · original artwork</div>
       <div class="elementstatus ${status}">${statusText}</div>`;
@@ -957,6 +971,16 @@ function setCurrentInstruction(text,kind='Initial generation'){
 function escapeHtml(s=''){
   return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
+function historyDiagnosticsHtml(diags=[]){
+  const rows=Array.isArray(diags)?diags:[];
+  if(!rows.length)return `<div class="historyresults"><b>Modification results</b><div class="historyresultrow"><span class="historyresultstatus info">Info</span><span>No modification result was recorded for this version.</span></div></div>`;
+  return `<div class="historyresults"><b>Modification results</b>${rows.map(d=>{
+    const raw=String(d?.status||'info').toLowerCase();
+    const cls=raw==='failed'?'failed':(raw==='partial'?'partial':(raw==='applied'?'applied':'info'));
+    const label=cls==='failed'?'Not applied':(cls==='partial'?'Partial':(cls==='applied'?'Applied':'Info'));
+    return `<div class="historyresultrow"><span class="historyresultstatus ${cls}">${label}</span><span>${escapeHtml(d?.message||'')}</span></div>`;
+  }).join('')}</div>`;
+}
 function archiveCurrentRun(){
   if(!lastRenderedUrl)return;
   historyRunNumber++;
@@ -972,6 +996,7 @@ function archiveCurrentRun(){
       </div>
       <a class="historydownload" href="${lastRenderedUrl}" download="reshaped-history-${historyRunNumber}.png">Download PNG ↓</a>
     </div>
+    ${historyDiagnosticsHtml(lastDiagnostics)}
     <div class="historyimgwrap"><img src="${lastRenderedUrl}" alt="Previous generated version"></div>`;
   $('historyList').prepend(box);
 }
@@ -1789,7 +1814,7 @@ function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,
 
   const facts=[];
   if(dateTime)facts.push({text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V7.33: user-added/extra text outranks location when space is tight.
+  // V7.34: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -1847,7 +1872,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V7.33: instruction/layout intent MUST be initialized before subject placement.
+  // V7.34: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -1886,7 +1911,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V7.33 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V7.34 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2090,7 +2115,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.33 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V7.34 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2103,7 +2128,7 @@ $('submit').onclick=async()=>{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.33 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V7.34 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2213,8 +2238,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V7.33 re-generated a different composition using the existing analyzed design state.'
-      : 'V7.33 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V7.34 re-generated a different composition using the existing analyzed design state.'
+      : 'V7.34 re-generated a different composition, but final-image validation could not confirm every item.';
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1200);
   }catch(e){
@@ -2249,9 +2274,10 @@ $('applyTextEdits').onclick=async()=>{
     const fd=new FormData();
     const uploadFile=await v79CompressImageFile(f);
     fd.append('image',uploadFile);fd.append('name',name);fd.append('width',w);fd.append('height',h);fd.append('mode','replan');
-    if(lastRenderedUrl){
+    const currentBaseRenderedUrl=explicitBaseState?.renderedUrl||lastRenderedUrl;
+    if(currentBaseRenderedUrl){
       try{
-        const currentBlob=await (await fetch(lastRenderedUrl)).blob();
+        const currentBlob=await (await fetch(currentBaseRenderedUrl)).blob();
         const currentFile=new File([currentBlob],'current-design.png',{type:currentBlob.type||'image/png'});
         fd.append('currentImage',await v79CompressImageFile(currentFile));
       }catch(e){ console.warn('Could not attach current design for text re-layout.',e); }
@@ -2364,7 +2390,7 @@ $('modifyBtn').onclick=async()=>{
       ex=await buildExactBanner(lastRenderedUrl||URL.createObjectURL(f),j.bannerPlan,target[1],target[2]);
     }else if(j.image){
       // Preserve any deterministic added text from the current design on large formats.
-      const largePlan={...(lastServerResult?.bannerPlan||{}),...(j.bannerPlan||{})};
+      const largePlan={...(baseData?.bannerPlan||{}),...(j.bannerPlan||{})};
       j.bannerPlan=largePlan;
       ex=await compositeAddedTextOverImage(j.image,largePlan,target[1],target[2]);
     }else{
@@ -2377,7 +2403,7 @@ $('modifyBtn').onclick=async()=>{
 
     $('output').src=ex;
     $('download').href=ex;
-    $('validation').textContent=j.validationSummary||'Current design modified.';
+    $('validation').textContent=j.validationSummary||'Current design modified in place.';
     lastServerResult={
       ...lastServerResult,
       ...j,
