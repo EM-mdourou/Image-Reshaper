@@ -1,24 +1,115 @@
-# Image Reshaper — Version 8.0
+# Image Reshaper — V8.1
 
-## Unified engine architecture
+V8.1 keeps the V8 unified source-analysis architecture, but separates **operation behavior** from **canvas/layout behavior** so compact banners no longer behave like shrunk posters and normal Modify/Edit operations no longer behave like Regenerate.
 
-Version 8.0 removes the hard runtime distinction between large formats and banner formats. Every destination size now goes through the same source-analysis and image-composition pipeline. The target width, height and aspect ratio are layout constraints only.
+## Operation modes
 
-### One canonical source manifest
-The original upload is analyzed into one shared manifest containing headline/date/venue/address/CTA/prices/people/logos/background information. Events, square/tall formats, leaderboard ads, directory ads and custom sizes all consume the same manifest.
+### Apply text changes — `EDIT_TEXT`
+- Uses the **current rendered PNG** as the visual baseline.
+- Changes authoritative text/content only.
+- Allows only minimal local text reflow needed for legibility.
+- Does not intentionally create a new composition.
+- For non-compact formats, the candidate is visually compared with the current design. If the first result drifts into a redesign, V8.1 retries with a stricter patch prompt. If the second attempt still changes the overall composition, the request is rejected instead of silently saving a redesign.
 
-### Three explicit operation modes
-- **Apply text changes (EDIT_TEXT):** current rendered design is the visual baseline. Only text/content and necessary local reflow should change.
-- **Modify current design (MODIFY):** current rendered design is the visual baseline. Only the requested elements should change.
-- **Re-generate (REGENERATE):** creates a deliberately different composition from the original canonical source state. It does not use the current layout as the design baseline. Text fields are rebuilt from the regenerated source/design state.
+### Modify current design — `MODIFY`
+- Uses the **current rendered PNG** as the baseline.
+- Applies only the newest requested change.
+- Preserves all unrelated people, logos, background regions, major text groups, margins and hierarchy.
+- If the user says “from version X” / “revert to version X”, that saved version is used as the actual visual baseline.
+- Large/non-compact results receive the same preservation QA described above.
 
-These rules apply identically to every destination size.
+### Re-generate — `REGENERATE`
+- Uses the canonical original source manifest to create a **new composition**.
+- Does not inherit prior manual text edits as authoritative regenerated copy.
+- The previous current design is supplied only as a comparison reference so a non-compact regenerated result can be checked for meaningful layout difference.
 
-### Legacy rollback
-The V7 compact/banner composer code remains in the backend as a rollback path. Set the Vercel environment variable `RENDER_ENGINE=legacy` to activate it temporarily. With no variable (or `RENDER_ENGINE=unified`), Version 8.0 uses the unified engine. V7.36 remains the full rollback ZIP.
+## One source model, dimension-aware rendering
 
-### Text color fallback
-The old lime-green fallback has been removed from the unified path. Source-derived colors are preferred; when a reliable color cannot be determined, the fallback is black rather than invented green.
+V8.1 does **not** restore separate source-analysis systems.
 
-### Logos and facts
-Canonical facts and logos remain protected. Modify/Edit Text are preservation operations. Regenerate may change composition but should preserve source facts and immutable logos.
+All sizes still use the same canonical source manifest and the same normalized text/person/logo/background model. The destination dimensions only select the safest final rendering strategy.
+
+### Exact-canvas profiles
+Very shallow horizontal destinations use the deterministic exact-dimension canvas compositor so a normal poster is never shrunk into the middle of a banner with blurred/empty sides.
+
+Examples routed to exact-canvas rendering:
+- Mobile Ad — 320×50
+- Leaderboard Ad — 728×90
+- Mobile Directory — 200×100
+- Desktop Directory — 320×100
+
+### AI safe-crop profiles
+Normal landscape, square, portrait and tall formats use the unified AI composition path. The model works on its supported generation canvas, but V8.1 returns the mathematically correct target-safe crop and the browser exports exactly that region instead of using blurred letterboxing.
+
+Examples:
+- Events — 880×460
+- News — 850×638
+- Opportunities — 850×350
+- Action Alerts — 850×500
+- Social Media — 1080×1350
+- Front Page — 900×500
+- Large Ad — 300×600
+- Side Ad — 300×250
+
+## Text colour behavior
+- Explicit user colour instructions are stored deterministically in text style state for exact-canvas designs.
+- Source text/theme colours are preferred when available.
+- **Neutral black is the fallback** if no reliable source colour is available.
+- V8.1 no longer invents a lime-green fallback.
+
+## Exact final dimensions
+For AI-composed formats, the backend sends `safeCrop` coordinates corresponding to the requested aspect ratio. The browser crops that exact region to the requested destination size. This replaces the old contain/blur-letterbox behavior.
+
+## Canonical source consistency
+Compact and large formats continue to share:
+- people/person source elements
+- logos
+- background artwork
+- headline
+- date/time
+- venue/address
+- CTA
+- prices/additional text
+
+`MANIFEST_*`, `BANNER_*`, `NONE`, parser metadata and quoted wrapper values are filtered before editable fields are displayed.
+
+## Authentication
+The database-backed login system from V7.35+ is retained. Password verification is server-side and passwords are stored as salted scrypt hashes.
+
+Required Vercel variables:
+- `DATABASE_URL` or `POSTGRES_URL`
+- `SESSION_SECRET`
+- `OPENAI_API_KEY`
+
+## Rollback
+The legacy V7 exact/compact renderer code remains available for emergency comparison with:
+
+```text
+RENDER_ENGINE=legacy
+```
+
+The default remains:
+
+```text
+RENDER_ENGINE=unified
+```
+
+## Tests run for V8.1
+
+Run:
+
+```bash
+npm test
+```
+
+The included tests verify:
+- destination/profile routing for 728×90, 320×100, 200×100, 320×50, 880×460, 300×250, square and portrait dimensions;
+- the full preset routing matrix;
+- exact-canvas routing for compact horizontal formats;
+- safe-crop aspect-ratio math for non-compact formats;
+- strict current-design patch architecture;
+- frontend safe-crop finalization;
+- mocked `/api/reshape` behavior for `EDIT_TEXT`, `MODIFY`, and `REGENERATE` at compact and Events-size destinations;
+- version/footer consistency.
+
+A detailed pre-package report is included at `tests/TEST_REPORT.md`.

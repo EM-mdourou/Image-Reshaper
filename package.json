@@ -1,6 +1,6 @@
 {
   "name": "image-reshaper",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -8,5 +8,8 @@
   },
   "dependencies": {
     "pg": "^8.13.1"
+  },
+  "scripts": {
+    "test": "node tests/v81-routing.test.mjs && node tests/v81-static.test.mjs && node tests/v81-handler-mock.test.mjs && node tests/v81-frontend-state.test.mjs"
   }
 }
