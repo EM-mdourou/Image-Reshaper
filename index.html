@@ -191,8 +191,16 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 .authbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:7px;font-size:11px;color:#777}
 .authbar button{border:1px solid #d6d9cd;background:#fff;border-radius:8px;padding:6px 9px;font-size:11px;font-weight:750;cursor:pointer}
 .authbar button:hover{border-color:var(--green)}
+
+.appidentity{display:flex;align-items:center;gap:10px;justify-content:flex-end}
+.reshapeicon{width:38px;height:38px;flex:0 0 38px;border-radius:11px;background:linear-gradient(145deg,#f2f6e7,#dce9b7);border:1px solid #cbd99b;display:grid;place-items:center;box-shadow:0 4px 12px rgba(41,54,14,.08)}
+.reshapeicon svg{width:24px;height:24px;display:block}
+.actiontimer{display:none;min-width:42px;font-size:12px;font-weight:800;color:#66711f;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.actiontimer.running{display:inline-block}
+.historyitem.currenthistory{border:2px solid #a4bd43;background:#fbfdf6;box-shadow:0 5px 18px rgba(91,112,22,.08)}
+.historyitem.currenthistory .historyrun{font-size:13px;color:#526700}
 </style><script>
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.3:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.5:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -206,7 +214,7 @@ Never expose internal planner/meta/debug/schema text.`;
 </script>
 </head><body><main><header>
   <img class="brandlogo" src="/assets/muslim-link-logo.png" alt="Muslim Link">
-  <div class="headerright"><div><h1>Image Reshaper</h1><p>Resize posters, flyers and promotional graphics intelligently.</p></div><div class="authbar"><span id="authUser">Signed in</span><button id="logoutBtn" type="button">Log out</button></div></div>
+  <div class="headerright"><div><div class="appidentity"><span class="reshapeicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4H4v3M17 4h3v3M7 20H4v-3M17 20h3v-3" stroke="#60721d" stroke-width="1.8" stroke-linecap="round"/><path d="M8 8h8v8H8z" stroke="#111" stroke-width="1.7"/><path d="M6 12H3m3 0-1.8-1.8M6 12l-1.8 1.8M18 12h3m-3 0 1.8-1.8M18 12l1.8 1.8" stroke="#9bbd2b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h1>Image Reshaper</h1></div><p>Resize posters, flyers and promotional graphics intelligently.</p></div><div class="authbar"><span id="authUser">Signed in</span><button id="logoutBtn" type="button">Log out</button></div></div>
 </header><section class="hero">
   <div>
     <div class="eyebrow">AI-POWERED IMAGE ADAPTATION</div>
@@ -235,7 +243,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.3 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.3 also fixes the compact/leaderboard instruction-layout initialization error. V8.3 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.5 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.5 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -252,7 +260,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <details id="sourceElementsPanel" class="elementpanel" open>
   <summary>Source elements</summary>
   <div class="accordionbody">
-    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. It is partially reusable for approximate moves/resizing, but exact independent placement may be limited.</div>
+    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.5 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
     <div id="elementSummary" class="elementsummary"></div>
     <div id="elementList" class="elementlist"></div>
   </div>
@@ -267,17 +275,17 @@ Never expose internal planner/meta/debug/schema text.`;
       <button id="addTextRow" class="textadd" type="button">+ Add text</button>
       <span class="textlocked">Direct edits persist into later versions and Modify instructions.</span>
     </div>
-    <button id="applyTextEdits" class="textapply" type="button">Apply text changes →</button>
+    <div style="display:flex;align-items:center;gap:10px"><span id="textEditTimer" class="actiontimer">0s</span><button id="applyTextEdits" class="textapply" type="button">Apply text changes →</button></div>
   </div>
   </div>
 </details>
 <div class="modifygrid">
 <div id="modifyBox" class="modifybox">
   <h4>Modify this design</h4>
-  <textarea id="modifyInstructions" placeholder="Example: Make the dates bigger, move the speaker names to the right, or complete the title with “... Your Future on the Ballot”."></textarea>
+  <textarea id="modifyInstructions" placeholder="Example: Move the address slightly left, make the featured person larger, or change the title to ‘Ramadan Event’."></textarea>
   <div class="modifyactions">
     <div class="modifyhint">Updates the CURRENT design instead of starting over. Each successful change is saved below as a previous version with the instruction that produced it.</div>
-    <button id="modifyBtn" class="modifybtn" type="button">Modify current design →</button>
+    <div style="display:flex;align-items:center;gap:10px"><span id="modifyTimer" class="actiontimer">0s</span><button id="modifyBtn" class="modifybtn" type="button">Modify current design →</button></div>
   </div>
 </div>
 <div id="diagnosticsPanel" class="diagpanel">
@@ -287,18 +295,19 @@ Never expose internal planner/meta/debug/schema text.`;
 </div>
 </div>
 <div class="historytitle">Previous versions</div>
+<div id="currentHistoryCard" style="display:none"></div>
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 8.3</div>
-</footer></main><script>const APP_VERSION='8.3';
+  <div class="versionfooter">Version 8.5</div>
+</footer></main><script>const APP_VERSION='8.5';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
     if(!r.ok){location.replace('/login.html');return;}
     const j=await r.json();
     const el=document.getElementById('authUser');
-    if(el)el.textContent=(j.username||'user')+(j.role?' · '+j.role:'');
+    if(el)el.textContent=(j.username||'user');
   }catch{location.replace('/login.html');}
 })();
 window.addEventListener('DOMContentLoaded',()=>{
@@ -310,6 +319,12 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
 let lastEngineOperation='GENERATE',lastSourceAnalysisReused=false;
+function startButtonTimer(id){
+  const el=$(id);if(!el)return ()=>{};
+  let sec=0;el.textContent='0s';el.classList.add('running');
+  const timer=setInterval(()=>{sec++;el.textContent=sec+'s';},1000);
+  return ()=>{clearInterval(timer);el.classList.remove('running');};
+}
 function manifestFingerprint(value=''){
   const s=String(value||'');let h=2166136261;
   for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
@@ -333,7 +348,9 @@ function renderEngineInfo(data,target,operation=lastEngineOperation,reused=lastS
   const profile=data.canvasProfile?.id||localCanvasProfile(target[1],target[2]);
   const manifestId=manifest?manifestFingerprint(manifest):'unavailable';
   const analysis=reused?'Reused':'Analyzed';
-  box.innerHTML=`<div><b>Source Manifest ID</b><span>${escapeHtml(manifestId)}</span></div><div><b>Source analysis</b><span>${analysis}</span></div><div><b>Operation</b><span>${escapeHtml(String(operation||'').toUpperCase())}</span></div><div><b>Canvas profile</b><span>${escapeHtml(profile)}</span></div><div><b>Renderer</b><span>${escapeHtml(renderer)}</span></div><div><b>Target</b><span>${target[1]} × ${target[2]} px</span></div>`;
+  const currentState=((data.bannerPlan?.designStateVersion||0)>0||data.bannerPlan?.visualState)?'Structured':'Image only';
+  const sourceGeometry=(data.subjectAsset||data.bannerPlan?.subjectAsset||(data.sourceElements||[]).some(x=>x&&x.crop))?'Available':'Limited';
+  box.innerHTML=`<div><b>Source Manifest ID</b><span>${escapeHtml(manifestId)}</span></div><div><b>Source analysis</b><span>${analysis}</span></div><div><b>Operation</b><span>${escapeHtml(String(operation||'').toUpperCase())}</span></div><div><b>Canvas profile</b><span>${escapeHtml(profile)}</span></div><div><b>Renderer</b><span>${escapeHtml(renderer)}</span></div><div><b>Current design state</b><span>${escapeHtml(currentState)}</span></div><div><b>Source geometry</b><span>${escapeHtml(sourceGeometry)}</span></div><div><b>Target</b><span>${target[1]} × ${target[2]} px</span></div>`;
   box.style.display='grid';
 }
 
@@ -577,7 +594,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.3: added/manual text is now expected to be part of the planned layout.
+  // V8.5: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -791,7 +808,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.3: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.5: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -885,12 +902,15 @@ function buildSourceElementLibrary(data={}){
   if(data.subjectAsset||plan.subjectAsset){
     const asset=data.subjectAsset||plan.subjectAsset;
     if(count>1){
+      const boxes=Array.isArray(plan.subjectBoxes)?plan.subjectBoxes:[];
       for(let i=0;i<count;i++)push({
         id:'person-'+(i+1),type:'person',
         label:(plan.subjectLabels||[])[i]||('Person '+(i+1)),
-        asset,availability:'grouped',reusable:false
+        asset:boxes[i]?.asset||asset,crop:boxes[i]?.crop||boxes[i]?.box||null,
+        availability:(boxes[i]?.crop||boxes[i]?.box||boxes[i]?.asset)?'independent':'grouped',
+        reusable:!!(boxes[i]?.crop||boxes[i]?.box||boxes[i]?.asset)
       });
-    }else push({id:'primary-subject',type:'person',label:plan.subjectName||'Primary person / subject',asset,reusable:true});
+    }else push({id:'primary-subject',type:'person',label:plan.subjectName||'Primary person / subject',asset,reusable:true,availability:'independent'});
   }
   if(data.backgroundArt)push({id:'background-art',type:'background',label:'Background artwork',asset:data.backgroundArt,reusable:true});
   if(data.sourceImage)push({id:'source-artwork',type:'background',label:'Original artwork',asset:data.sourceImage,reusable:true});
@@ -927,8 +947,8 @@ function renderSourceElements(){
   }
   sourceElements.forEach(el=>{
     const row=document.createElement('div');row.className='elementitem';
-    const status=el.availability==='grouped'?'partial':(el.reusable?'reusable':'unavailable');
-    const statusText=status==='reusable'?'Reusable':(status==='partial'?'Partially reusable':'Reference only');
+    const status=el.availability==='grouped'?'partial':((el.availability==='independent'||el.reusable)?'reusable':'unavailable');
+    const statusText=el.availability==='independent'?'Independently scalable':(status==='reusable'?'Reusable':(status==='partial'?'Partially reusable':'Reference only'));
     row.innerHTML=`<div class="elementname">${escapeHtml(el.label)}</div>
       <div class="elementmeta">${escapeHtml(el.type)} · original artwork</div>
       <div class="elementstatus ${status}">${statusText}</div>`;
@@ -938,6 +958,7 @@ function renderSourceElements(){
 
 function setDiagnostics(items=[]){
   lastDiagnostics=Array.isArray(items)?items:[];
+  queueMicrotask(()=>refreshCurrentHistoryCard());
   const box=$('diagnosticsList');if(!box)return;
   box.innerHTML='';
   if(!lastDiagnostics.length){
@@ -1041,6 +1062,7 @@ function setCurrentInstruction(text,kind='Initial generation'){
   const shown=currentRunInstruction||'No additional instructions';
   el.innerHTML=`<b>Current version ${currentVersionNumber} · ${kind}</b>${escapeHtml(shown)}`;
   el.style.display='block';
+  refreshCurrentHistoryCard();
 }
 function escapeHtml(s=''){
   return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -1055,6 +1077,24 @@ function historyDiagnosticsHtml(diags=[]){
     return `<div class="historyresultrow"><span class="historyresultstatus ${cls}">${label}</span><span>${escapeHtml(d?.message||'')}</span></div>`;
   }).join('')}</div>`;
 }
+function refreshCurrentHistoryCard(){
+  const host=$('currentHistoryCard'),history=$('historyList');
+  if(!host||!history)return;
+  const hasPrevious=history.children.length>0;
+  if(!hasPrevious||!lastRenderedUrl){host.style.display='none';host.innerHTML='';return;}
+  const instruction=currentRunInstruction||'No additional instructions';
+  host.className='historylist';
+  host.innerHTML=`<div class="historyitem currenthistory">
+    <div class="historymeta">
+      <div><div class="historyrun">Current version ${currentVersionNumber}</div><div class="historyinstruction">${escapeHtml(instruction)}</div></div>
+      <a class="historydownload" href="${lastRenderedUrl}" download="reshaped-current-version-${currentVersionNumber}.png">Download PNG ↓</a>
+    </div>
+    ${historyDiagnosticsHtml(lastDiagnostics)}
+    <div class="historyimgwrap"><img src="${lastRenderedUrl}" alt="Current generated version"></div>
+  </div>`;
+  host.style.display='flex';
+}
+
 function archiveCurrentRun(){
   if(!lastRenderedUrl)return;
   historyRunNumber++;
@@ -1073,10 +1113,11 @@ function archiveCurrentRun(){
     ${historyDiagnosticsHtml(lastDiagnostics)}
     <div class="historyimgwrap"><img src="${lastRenderedUrl}" alt="Previous generated version"></div>`;
   $('historyList').prepend(box);
+  refreshCurrentHistoryCard();
 }
 function resetDesignSession(clearFile=false){
   lastServerResult=null;lastRenderedUrl=null;currentRunInstruction='';historyRunNumber=0;currentVersionNumber=1;lastDesignTarget=null;
-  if($('historyList'))$('historyList').innerHTML='';
+  if($('historyList'))$('historyList').innerHTML='';if($('currentHistoryCard')){$('currentHistoryCard').innerHTML='';$('currentHistoryCard').style.display='none';}
   if($('result'))$('result').style.display='none';if($('engineInfo'))$('engineInfo').style.display='none';
   if($('regenerate'))$('regenerate').disabled=true;
   if($('error'))$('error').style.display='none';
@@ -1917,7 +1958,7 @@ function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,
 
   const facts=[];
   if(dateTime)facts.push({text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.3: user-added/extra text outranks location when space is tight.
+  // V8.5: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -2052,7 +2093,7 @@ async function buildTinyFitBanner(data,w,h){
     }
   }
 
-  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.3 tiny fit-safe banner')),'image/png',1));
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.5 tiny fit-safe banner')),'image/png',1));
 }
 
 async function buildCanvasFirstBanner(data,w,h){
@@ -2080,7 +2121,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.3: instruction/layout intent MUST be initialized before subject placement.
+  // V8.5: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -2119,7 +2160,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.3 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.5 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2323,7 +2364,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.3 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.5 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2343,7 +2384,7 @@ $('submit').onclick=async()=>{
     }else fd.append('mode','generate');
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.3 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.5 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2443,8 +2484,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.3 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.3 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.5 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.5 re-generated a different composition, but final-image validation could not confirm every item.';
     renderEngineInfo(lastServerResult,target,'REGENERATE',true);
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1200);
@@ -2470,7 +2511,7 @@ $('addTextRow').onclick=()=>{
 
 $('applyTextEdits').onclick=async()=>{
   if(!lastServerResult || !lastDesignTarget)return;
-  const btn=$('applyTextEdits');btn.disabled=true;btn.textContent='Applying…';$('error').style.display='none';lastEngineOperation='EDIT_TEXT';lastSourceAnalysisReused=true;
+  const btn=$('applyTextEdits');const stopTimer=startButtonTimer('textEditTimer');btn.disabled=true;btn.textContent='Applying…';$('error').style.display='none';lastEngineOperation='EDIT_TEXT';lastSourceAnalysisReused=true;
   try{
     const rows=readTextEditorRows();
     const oldPlan=JSON.parse(JSON.stringify(lastServerResult.bannerPlan||{}));
@@ -2516,7 +2557,7 @@ $('applyTextEdits').onclick=async()=>{
     $('validation').textContent=qa.verified?`V${APP_VERSION} re-laid out the design and visually verified the authoritative text changes.`:`V${APP_VERSION} re-laid out the design, but final-image validation did not confirm every requested text item.`;
     renderEngineInfo(lastServerResult,lastDesignTarget,'EDIT_TEXT',true);
   }catch(e){$('error').textContent='Text edit failed: '+e.message;$('error').style.display='block';}
-  finally{btn.disabled=false;btn.textContent='Apply text changes →';}
+  finally{stopTimer();btn.disabled=false;btn.textContent='Apply text changes →';}
 };
 
 $('modifyBtn').onclick=async()=>{
@@ -2531,7 +2572,7 @@ $('modifyBtn').onclick=async()=>{
     }
 
   if(!f || !lastServerResult || !instructions)return;
-  const b=$('modifyBtn');
+  const b=$('modifyBtn');const stopTimer=startButtonTimer('modifyTimer');
   b.disabled=true;b.textContent='Modifying…';lastEngineOperation='MODIFY';lastSourceAnalysisReused=true;
   $('error').style.display='none';
   try{
@@ -2542,7 +2583,7 @@ $('modifyBtn').onclick=async()=>{
     fd.append("name",target[0]);
     fd.append("width",target[1]);
     fd.append("height",target[2]);
-    fd.append("instructions",instructions);
+    fd.append("instructions",instructions+' If resizing, moving, or enlarging a person/subject, use the best reusable original source subject asset/geometry available while preserving the current design state as the baseline composition.');
     fd.append("mode","modify");
 
     // Send the current rendered result separately. This is small at ad dimensions
@@ -2621,7 +2662,7 @@ $('modifyBtn').onclick=async()=>{
     $('error').textContent='Modify failed: '+e.message;
     $('error').style.display='block';
   }finally{
-    b.disabled=false;b.textContent='Modify current design →';
+    stopTimer();b.disabled=false;b.textContent='Modify current design →';
   }
 };
 

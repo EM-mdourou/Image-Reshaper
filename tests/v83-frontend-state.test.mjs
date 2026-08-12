@@ -33,7 +33,7 @@ for(const role of ['headline','dateTime','venue','address','cta','extra','manual
   assert.equal(c.textStyles[role].color,'#ffffff',`${role} explicit text color`);
 }
 
-console.log('PASS v8.3 frontend state/color tests');
+console.log('PASS v8.5 frontend state/color tests');
 
 
 function intersects(a,b){
@@ -47,11 +47,11 @@ for(const [w,h,mode] of [[200,100,'button'],[320,100,'button'],[320,50,'inline']
   assert.equal(intersects(g.copyRect,g.ctaRect),false,`${w}x${h} copy/CTA must not overlap`);
   assert.ok(g.copyRect.w>0&&g.copyRect.h>0&&g.ctaRect.w>0&&g.ctaRect.h>0);
 }
-console.log('PASS v8.3 tiny geometry no-overlap tests');
+console.log('PASS v8.5 tiny geometry no-overlap tests');
 
 const mf1=ctx.manifestFingerprint('same manifest');
 const mf2=ctx.manifestFingerprint('same manifest');
 const mf3=ctx.manifestFingerprint('different manifest');
 assert.equal(mf1,mf2,'manifest fingerprint must be stable');
 assert.notEqual(mf1,mf3,'different manifests should have different fingerprints in this test');
-console.log('PASS v8.3 manifest fingerprint test');
+console.log('PASS v8.5 manifest fingerprint test');
