@@ -137,6 +137,7 @@ footer>br,footer>text{display:none}
 .elementstatus{font-size:11px;font-weight:800;border-radius:999px;padding:5px 8px;white-space:nowrap}
 .elementstatus.reusable{background:#edf6d9;color:#4c6814}.elementstatus.partial{background:#fff4d7;color:#896500}.elementstatus.unavailable{background:#fde9e5;color:#9d3727}
 .diagitem{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;border:1px solid #e2e3dd;border-radius:10px;padding:9px 10px;background:#fff}
+.engineinfo{margin-top:10px;border:1px solid #dfe5cd;background:#f8faf3;border-radius:10px;padding:9px 11px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 14px;font-size:11px}.engineinfo b{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#657037;margin-bottom:2px}.engineinfo span{font-weight:700;color:#20251a;word-break:break-word}@media(max-width:760px){.engineinfo{grid-template-columns:1fr 1fr}}
 .diagbadge{font-size:11px;font-weight:900;border-radius:999px;padding:5px 8px;white-space:nowrap}
 .diagbadge.applied{background:#edf6d9;color:#4c6814}.diagbadge.partial{background:#fff4d7;color:#896500}.diagbadge.failed{background:#fde9e5;color:#9d3727}
 .diagtext{font-size:12px;line-height:1.45}.diagempty{font-size:12px;color:#74796d}
@@ -191,7 +192,7 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 .authbar button{border:1px solid #d6d9cd;background:#fff;border-radius:8px;padding:6px 9px;font-size:11px;font-weight:750;cursor:pointer}
 .authbar button:hover{border-color:var(--green)}
 </style><script>
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.2:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.3:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -234,7 +235,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.2 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.2 also fixes the compact/leaderboard instruction-layout initialization error. V8.2 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Make both speakers larger, add Hawa Haji from the original image beside Sammy, or correct the headline to “Your Future on the Ballot”."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.3 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Your Future on the Ballot’, make both speakers larger, and place them near the center.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.3 also fixes the compact/leaderboard instruction-layout initialization error. V8.3 also includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons"><button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button><button id="submit" class="primary" disabled>Reshape with AI →</button></div></div>
 <div id="progressbox" class="progressbox">
   <div class="progresshead"><b id="progressTitle">Preparing your image…</b><span id="elapsed" class="elapsed">0s</span></div>
   <div class="progresssteps">
@@ -247,7 +248,7 @@ Never expose internal planner/meta/debug/schema text.`;
   </div>
 </div>
 <div id="status" class="status"></div><div id="error" class="error"></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
-<div class="preview"><img id="output"></div><div id="validation" class="note"></div>
+<div class="preview"><img id="output"></div><div id="validation" class="note"></div><div id="engineInfo" class="engineinfo" style="display:none"></div>
 <details id="sourceElementsPanel" class="elementpanel" open>
   <summary>Source elements</summary>
   <div class="accordionbody">
@@ -289,8 +290,8 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 8.2</div>
-</footer></main><script>const APP_VERSION='8.2';
+  <div class="versionfooter">Version 8.3</div>
+</footer></main><script>const APP_VERSION='8.3';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -308,6 +309,34 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 
 let lastServerResult=null,lastRenderedUrl=null,currentRunInstruction='',historyRunNumber=0,currentVersionNumber=1,lastDesignTarget=null;
+let lastEngineOperation='GENERATE',lastSourceAnalysisReused=false;
+function manifestFingerprint(value=''){
+  const s=String(value||'');let h=2166136261;
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+  return 'mf-'+(h>>>0).toString(16).padStart(8,'0');
+}
+function localCanvasProfile(w,h){
+  const r=Number(w)/Number(h),height=Number(h);
+  if(height<=60&&r>=3.5)return 'MICRO_HORIZONTAL';
+  if((height<=120&&r>=2.4)||r>=5)return 'EXTREME_HORIZONTAL';
+  if((height<=180&&r>=2)||r>=3)return 'COMPACT_HORIZONTAL';
+  if(r>=1.18)return 'STANDARD_LANDSCAPE';
+  if(r<=.55)return 'TALL_NARROW';
+  if(r<.88)return 'PORTRAIT';
+  if(r>1.12)return 'LANDSCAPE';
+  return 'SQUARE';
+}
+function renderEngineInfo(data,target,operation=lastEngineOperation,reused=lastSourceAnalysisReused){
+  const box=$('engineInfo');if(!box||!data||!target)return;
+  const manifest=data.sourceManifest||data.bannerPlan?.sourceManifest||'';
+  const renderer=data.renderMode==='canvas-first-banner-composer'?'Exact Canvas':(data.renderMode==='unified-ai-composer'?'Unified AI Compose':(data.renderMode||'Unknown'));
+  const profile=data.canvasProfile?.id||localCanvasProfile(target[1],target[2]);
+  const manifestId=manifest?manifestFingerprint(manifest):'unavailable';
+  const analysis=reused?'Reused':'Analyzed';
+  box.innerHTML=`<div><b>Source Manifest ID</b><span>${escapeHtml(manifestId)}</span></div><div><b>Source analysis</b><span>${analysis}</span></div><div><b>Operation</b><span>${escapeHtml(String(operation||'').toUpperCase())}</span></div><div><b>Canvas profile</b><span>${escapeHtml(profile)}</span></div><div><b>Renderer</b><span>${escapeHtml(renderer)}</span></div><div><b>Target</b><span>${target[1]} × ${target[2]} px</span></div>`;
+  box.style.display='grid';
+}
+
 let textEditorRows=[];
 let sourceElements=[];let lastDiagnostics=[];
 let versionStates=[];let currentDesignState=null;
@@ -548,7 +577,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.2: added/manual text is now expected to be part of the planned layout.
+  // V8.3: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -762,7 +791,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.2: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.3: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -1048,7 +1077,7 @@ function archiveCurrentRun(){
 function resetDesignSession(clearFile=false){
   lastServerResult=null;lastRenderedUrl=null;currentRunInstruction='';historyRunNumber=0;currentVersionNumber=1;lastDesignTarget=null;
   if($('historyList'))$('historyList').innerHTML='';
-  if($('result'))$('result').style.display='none';
+  if($('result'))$('result').style.display='none';if($('engineInfo'))$('engineInfo').style.display='none';
   if($('regenerate'))$('regenerate').disabled=true;
   if($('error'))$('error').style.display='none';
   if($('instructions'))$('instructions').value='';
@@ -1888,7 +1917,7 @@ function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,
 
   const facts=[];
   if(dateTime)facts.push({text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.2: user-added/extra text outranks location when space is tight.
+  // V8.3: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -2023,7 +2052,7 @@ async function buildTinyFitBanner(data,w,h){
     }
   }
 
-  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.2 tiny fit-safe banner')),'image/png',1));
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.3 tiny fit-safe banner')),'image/png',1));
 }
 
 async function buildCanvasFirstBanner(data,w,h){
@@ -2051,7 +2080,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.2: instruction/layout intent MUST be initialized before subject placement.
+  // V8.3: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -2090,7 +2119,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.2 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.3 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2294,7 +2323,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.2 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.3 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2305,9 +2334,16 @@ $('submit').onclick=async()=>{
   $('error').style.display='none';$('result').style.display='none';$('status').style.display='none';startProgress();
   try{
     let fd=new FormData();const uploadFile=await v79CompressImageFile(f); fd.append("image",uploadFile);fd.append('name',s[0]);fd.append('width',s[1]);fd.append('height',s[2]);fd.append('instructions',$('instructions').value);
+    const reuseCanonical=!!(lastServerResult?.sourceManifest||lastServerResult?.bannerPlan?.sourceManifest);
+    lastEngineOperation=reuseCanonical?'RESIZE':'GENERATE';lastSourceAnalysisReused=reuseCanonical;
+    if(reuseCanonical){
+      fd.append('mode','resize');
+      const cachedManifest=lastServerResult.sourceManifest||lastServerResult.bannerPlan?.sourceManifest||'';
+      fd.append('priorPlan',JSON.stringify({sourceManifest:cachedManifest,sourceManifestOnly:true}));
+    }else fd.append('mode','generate');
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.2 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.3 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2318,10 +2354,11 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
     j.bannerPlan=applyVisualInstructionToPlan(j.bannerPlan||{},$('instructions').value||'');lastServerResult=j;lastRenderedUrl=ex;lastDesignTarget=[s[0],s[1],s[2]];$('modifyInstructions').value='';
     normalizeTextEditorFromPlan(j.bannerPlan||{});
     buildSourceElementLibrary(j);
-    captureCurrentVersionState($('instructions').value||'','Initial generation');
-    setDiagnostics([{status:'applied',message:'Original artwork was analyzed and a reusable source-element library was created for later modifications.'}]);
+    captureCurrentVersionState($('instructions').value||'',reuseCanonical?'Resized from cached source manifest':'Initial generation');
+    setDiagnostics([{status:'applied',message:reuseCanonical?'Cached source manifest was reused; only the new destination layout was planned/rendered.':'Original artwork was analyzed and a reusable source-element library was created for later modifications.'}]);
     setCurrentInstruction($('instructions').value,'Initial instructions');
     $('validation').textContent=j.validationSummary||'Completed.';$('result').style.display='block';
+    renderEngineInfo(j,[s[0],s[1],s[2]],lastEngineOperation,lastSourceAnalysisReused);
     $('regenerate').disabled=false;
     stopProgress();setProgress(5,'Finished — your image is ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1600);
@@ -2336,7 +2373,7 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
 $('regenerate').onclick=async()=>{
   if(!f||!lastServerResult||!lastDesignTarget)return;
   const b=$('regenerate');
-  b.disabled=true;b.textContent='Re-generating…';
+  b.disabled=true;b.textContent='Re-generating…';lastEngineOperation='REGENERATE';lastSourceAnalysisReused=true;
   $('error').style.display='none';startProgress();
   try{
     const target=lastDesignTarget;
@@ -2406,8 +2443,9 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.2 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.2 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.3 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.3 re-generated a different composition, but final-image validation could not confirm every item.';
+    renderEngineInfo(lastServerResult,target,'REGENERATE',true);
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     setTimeout(()=>{$('progressbox').style.display='none'},1200);
   }catch(e){
@@ -2432,7 +2470,7 @@ $('addTextRow').onclick=()=>{
 
 $('applyTextEdits').onclick=async()=>{
   if(!lastServerResult || !lastDesignTarget)return;
-  const btn=$('applyTextEdits');btn.disabled=true;btn.textContent='Applying…';$('error').style.display='none';
+  const btn=$('applyTextEdits');btn.disabled=true;btn.textContent='Applying…';$('error').style.display='none';lastEngineOperation='EDIT_TEXT';lastSourceAnalysisReused=true;
   try{
     const rows=readTextEditorRows();
     const oldPlan=JSON.parse(JSON.stringify(lastServerResult.bannerPlan||{}));
@@ -2476,6 +2514,7 @@ $('applyTextEdits').onclick=async()=>{
     setDiagnostics([{status:qa.verified?'applied':'partial',message:qa.verified?`${changeSummary} · Final PNG visually verified.`:`${changeSummary} · Final PNG validation: ${qa.reason||'one or more requested text items were not visibly confirmed.'}`}]);
     setCurrentInstruction(changeSummary,'Text/content edit');
     $('validation').textContent=qa.verified?`V${APP_VERSION} re-laid out the design and visually verified the authoritative text changes.`:`V${APP_VERSION} re-laid out the design, but final-image validation did not confirm every requested text item.`;
+    renderEngineInfo(lastServerResult,lastDesignTarget,'EDIT_TEXT',true);
   }catch(e){$('error').textContent='Text edit failed: '+e.message;$('error').style.display='block';}
   finally{btn.disabled=false;btn.textContent='Apply text changes →';}
 };
@@ -2493,7 +2532,7 @@ $('modifyBtn').onclick=async()=>{
 
   if(!f || !lastServerResult || !instructions)return;
   const b=$('modifyBtn');
-  b.disabled=true;b.textContent='Modifying…';
+  b.disabled=true;b.textContent='Modifying…';lastEngineOperation='MODIFY';lastSourceAnalysisReused=true;
   $('error').style.display='none';
   try{
     const fd=new FormData();
@@ -2576,6 +2615,7 @@ $('modifyBtn').onclick=async()=>{
     if(qa.verified)setDiagnostics([{status:'applied',message:`Final PNG visually verified the instruction: “${instructions}”`},...stateDiagnostics.filter(x=>x.status!=='applied')]);
     else setDiagnostics([{status:'failed',message:`Final PNG did not verify the instruction: “${instructions}”. ${qa.reason||'The requested result was not visibly confirmed.'}`},...stateDiagnostics.filter(x=>x.status!=='applied')]);
     setCurrentInstruction(instructions,'Modify instruction');
+    renderEngineInfo(lastServerResult,target,'MODIFY',true);
     $('modifyInstructions').value='';
   }catch(e){
     $('error').textContent='Modify failed: '+e.message;

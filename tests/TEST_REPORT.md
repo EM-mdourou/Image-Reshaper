@@ -1,76 +1,51 @@
-# V8.2 Pre-package Test Report
+# V8.3 Test Report
 
-## Scope
-V8.2 was tested locally before packaging. OpenAI network calls were mocked because the local packaging environment does not use the deployed project's API credentials. Routing, state, multipart handler behavior, sizing rules, geometry, and syntax were tested with real project code.
+## Automated checks
 
-## Test matrix
+All automated tests passed locally before packaging.
 
-### Destination routing
-Verified:
-- Leaderboard Ad — 728×90 → exact canvas
-- Desktop Directory — 320×100 → exact canvas
-- Mobile Directory — 200×100 → exact canvas
-- Mobile Ad — 320×50 → exact canvas
-- Events — 880×460 → AI safe-contain
-- News — 850×638 → AI safe-contain
-- Opportunities — 850×350 → AI safe-contain
-- Action Alerts — 850×500 → AI safe-contain
-- Front Page — 900×500 → AI safe-contain
-- Side Ad — 300×250 → AI safe-contain
-- Large Ad — 300×600 → AI safe-contain
-- Social Media — 1080×1350 → AI safe-contain
-- square/portrait test dimensions → AI safe-contain
+### Routing / canvas profiles
+Verified destination profiles and render strategies for:
+- 728×90 Leaderboard
+- 320×100 Desktop Directory
+- 200×100 Mobile Directory
+- 320×50 Mobile Ad
+- 880×460 Events
+- 300×250 Side Ad
+- 1080×1080 square
+- 1080×1350 portrait
 
-### Tiny fit-budget behavior
-Verified that 200×100 with headline/date/venue/address/CTA:
-- keeps headline;
-- keeps date/time;
-- keeps CTA;
-- omits venue/address from the DRAWING budget rather than forcing collisions;
-- preserves `noOverlap=true`.
+`RESIZE` is treated as a new target-layout operation, while `MODIFY` and `EDIT_TEXT` remain current-design operations.
 
-Verified that 320×50 uses compact inline CTA mode.
+### Source-manifest reuse
+Mocked handler tests verify that when a cached `sourceManifest` is supplied:
+- compact RESIZE does not rerun source fact analysis;
+- large-format RESIZE does not rerun source fact analysis;
+- REGENERATE / MODIFY / EDIT_TEXT also reuse the cached manifest.
 
-Verified that 728×90 keeps CTA and can keep venue while dropping address from the drawing budget.
+### Background behavior
+Static architecture tests verify:
+- exact/shallow background generation receives a centered target-aspect safe-strip instruction;
+- the prompt explicitly rejects isolated tower tips / partial landmark fragments;
+- compact Regenerate produces a new target-aware background instead of reusing the same background forever.
 
-### No-overlap geometry
-For 200×100, 320×100 and 320×50, calculated geometry was checked to confirm:
-- subject rectangle does not intersect copy rectangle;
-- subject rectangle does not intersect CTA rectangle;
-- copy rectangle does not intersect CTA rectangle;
-- all regions have positive dimensions.
+### Engine diagnostics
+Verified the UI includes a stable Source Manifest fingerprint plus:
+- Analyzed / Reused state
+- operation
+- canvas profile
+- renderer
+- target dimensions
 
-### CTA behavior
-Static architecture checks confirm:
-- dedicated CTA reservation exists;
-- CTA text uses contrast calculation against the CTA background;
-- tiny layouts use the dedicated fit-safe renderer.
+This allows the same uploaded source to be checked across multiple output sizes.
 
-### Large-format preservation
-Static/routing tests confirm AI-sized outputs now return `exportMode: safe-contain` and frontend finalization uses `containDesignWithDecorativeFill`, so the complete generated foreground is drawn without top/bottom cropping.
-
-### Operation modes
-Mocked handler tests cover:
-- initial generation;
-- Apply Text (`EDIT_TEXT`);
-- Modify current design;
-- Re-generate;
-- compact exact-canvas and Events-size AI paths.
-
-### Source-analysis reuse
-The handler code path reuses `priorPlan.sourceManifest` for `regenerate`, `replan`, `edit_text`, and `modify`. This prevents repeat source analysis when cached canonical analysis is available.
-
-## Commands run
-
-```text
-npm test
-node --check api/reshape.js
-node --check api/health.js
-node --check middleware.js
-node --check lib/auth.js
-node --check lib/db.js
-frontend inline JavaScript syntax check
-```
+### Existing V8.2 regression checks retained
+- no-overlap tiny geometry
+- CTA contrast
+- explicit text-color state
+- large-format foreground-safe containment
+- current-design preservation hooks
+- syntax checks
 
 ## Limitation
-The final visual quality of OpenAI-generated large-format compositions cannot be fully validated offline without making the deployed OpenAI API calls. The project therefore retains final-image QA/retry behavior at runtime. The deterministic tiny/exact-canvas geometry and CTA fit logic were tested locally.
+OpenAI image/vision calls are mocked in the automated handler tests because the local packaging environment does not use the deployed project's API credentials. Routing, manifest reuse, prompt construction, state behavior and UI logic are tested; visual quality must still be verified on the deployed build with real model outputs.
