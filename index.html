@@ -220,7 +220,7 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 .historyitem.currenthistory{border:2px solid #a4bd43;background:#fbfdf6;box-shadow:0 5px 18px rgba(91,112,22,.08)}
 .historyitem.currenthistory .historyrun{font-size:13px;color:#526700}
 </style><script>
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.6:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.7:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -263,7 +263,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.6 automatically retries source reading and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.6 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.7 preserves a structured current-design state, retries source reading when needed, and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.7 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
   <div class="actionunit">
     <button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button>
     <div id="costRegenerate" class="costestimate"></div>
@@ -275,14 +275,14 @@ Never expose internal planner/meta/debug/schema text.`;
     <div id="progressSubmit" class="inlineprogress"></div>
   </div>
 </div></div>
-<div class="costdisclaimer">API costs are estimates based on the current V8.6 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
+<div class="costdisclaimer">API costs are estimates based on the current V8.7 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
 <div id="progressbox" class="progressbox legacyprogress" aria-hidden="true"></div>
 <div id="status" class="status"></div><div id="error" class="error"></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
 <div class="preview"><img id="output"></div><div id="validation" class="note"></div><div id="engineInfo" class="engineinfo" style="display:none"></div>
 <details id="sourceElementsPanel" class="elementpanel" open>
   <summary>Source elements</summary>
   <div class="accordionbody">
-    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.6 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
+    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.7 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
     <div id="elementSummary" class="elementsummary"></div>
     <div id="elementList" class="elementlist"></div>
   </div>
@@ -321,8 +321,8 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 8.6</div>
-</footer></main><script>const APP_VERSION='8.6';
+  <div class="versionfooter">Version 8.7</div>
+</footer></main><script>const APP_VERSION='8.7';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -426,19 +426,20 @@ function beginActionProgress(key,operation,target=s,reused=false){
     const elapsed=(Date.now()-start)/1000;
     // Time-based UI only; serverless endpoints do not stream their internal stages.
     const op=String(operation).toUpperCase();
-    const base=op==='EDIT_TEXT'?(isExactCostProfile(target)?1.6:6):
-      op==='MODIFY'?(isExactCostProfile(target)?2.2:7):
-      op==='REGENERATE'?(isExactCostProfile(target)?4.5:8):
-      (isExactCostProfile(target)?5:8);
+    let base;
+    if(op==='EDIT_TEXT')base=isExactCostProfile(target)?1.6:6;
+    else if(op==='MODIFY')base=isExactCostProfile(target)?2.2:7;
+    else if(op==='REGENERATE')base=isExactCostProfile(target)?4.5:8;
+    else base=isExactCostProfile(target)?5:8;
     idx=Math.min(steps.length-1,Math.floor(elapsed/base));
     host.querySelector('.itime').textContent=Math.floor(elapsed)+'s';
     host.querySelector('.icurrent').textContent=steps[idx];
     host.querySelector('.ifill').style.width=Math.max(7,Math.round(((idx+0.45)/steps.length)*100))+'%';
     [...host.querySelectorAll('.istep')].forEach((el,i)=>{el.classList.toggle('done',i<idx);el.classList.toggle('active',i===idx);});
   };
-  update(); const timer=setInterval(update,500); let stopped=false;
+  update(); const timer=setInterval(update,500);
   return (status='done')=>{
-    if(stopped)return; stopped=true; clearInterval(timer);
+    clearInterval(timer);
     if(status==='done'){
       host.querySelector('.ifill').style.width='100%';
       host.querySelector('.icurrent').textContent='Completed';
@@ -478,7 +479,7 @@ function renderEngineInfo(data,target,operation=lastEngineOperation,reused=lastS
   const profile=data.canvasProfile?.id||localCanvasProfile(target[1],target[2]);
   const manifestId=manifest?manifestFingerprint(manifest):'unavailable';
   const analysis=reused?'Reused':'Analyzed';
-  const currentState=((data.bannerPlan?.designStateVersion||0)>0||data.bannerPlan?.visualState)?'Structured':'Image only';
+  const currentState=(data.bannerPlan?.structuredDesignState?.version>=2)?'Structured v2':(((data.bannerPlan?.designStateVersion||0)>0||data.bannerPlan?.visualState)?'Structured legacy':'Image only');
   const sourceGeometry=(data.subjectAsset||data.bannerPlan?.subjectAsset||(data.sourceElements||[]).some(x=>x&&x.crop))?'Available':'Limited';
   const cost=estimateActionCost(operation,target,reused);
   box.innerHTML=`<div><b>Source Manifest ID</b><span>${escapeHtml(manifestId)}</span></div><div><b>Source analysis</b><span>${analysis}</span></div><div><b>Operation</b><span>${escapeHtml(String(operation||'').toUpperCase())}</span></div><div><b>Canvas profile</b><span>${escapeHtml(profile)}</span></div><div><b>Renderer</b><span>${escapeHtml(renderer)}</span></div><div><b>Current design state</b><span>${escapeHtml(currentState)}</span></div><div><b>Source geometry</b><span>${escapeHtml(sourceGeometry)}</span></div><div><b>Estimated API cost</b><span>${escapeHtml(cost.typical)} typical · up to ~${escapeHtml(cost.retry)} with retry</span></div><div><b>Cost basis</b><span title="${escapeHtml(cost.detail)}">Estimate — usage varies</span></div><div><b>Target</b><span>${target[1]} × ${target[2]} px</span></div>`;
@@ -593,8 +594,89 @@ function applyRowsToPlan(plan,rows){
 }
 
 
-function applyVisualInstructionToPlan(plan={},instruction=''){
+
+function ensureStructuredDesignState(plan={}){
   const next={...plan};
+  const legacy=next.structuredDesignState&&typeof next.structuredDesignState==='object'?next.structuredDesignState:{};
+  const elements={...(legacy.elements||{})};
+  const ensure=(id,type,extra={})=>{
+    elements[id]={
+      id,type,
+      geometry:{x:0,y:0,scale:1,align:'left',...(elements[id]?.geometry||{}),...(extra.geometry||{})},
+      style:{...(elements[id]?.style||{}),...(extra.style||{})},
+      sourceRef:extra.sourceRef||elements[id]?.sourceRef||id,
+      visible:extra.visible!==false,
+      ...elements[id],...extra,
+      geometry:{x:0,y:0,scale:1,align:'left',...(elements[id]?.geometry||{}),...(extra.geometry||{})},
+      style:{...(elements[id]?.style||{}),...(extra.style||{})}
+    };
+  };
+  const styleMap=inferTextStylesFromPlan(next);
+  const textDefs=[
+    ['headline','text',next.headline,'headline'],['dateTime','text',next.dateTime||next.detail,'dateTime'],
+    ['venue','text',next.venue,'venue'],['address','text',next.address||next.secondary,'address'],['cta','text',next.cta,'cta']
+  ];
+  textDefs.forEach(([id,type,value,role])=>{
+    if(String(value||'').trim())ensure(id,type,{role,text:String(value),style:{...styleMap[role]}});
+  });
+  (next.manualTextElements||[]).forEach((m,i)=>ensure(m.id||`manual-${i}`,'text',{role:'manual',text:String(m.text||''),style:{...(m.style||{})}}));
+  ensure('subject-group','subject',{sourceRef:'subjectAsset',availability:next.subjectAssetAvailability||((Number(next.subjectCount||0)>1)?'grouped':'independent'),geometry:{x:Number.isFinite(Number(next.subjectX))?Number(next.subjectX):.5,y:0,scale:Number(next.subjectScale||1),heightPct:Number(next.subjectTargetHeightPct||next.subjectHeightPct||0)||null}});
+  ensure('background','background',{sourceRef:'backgroundArt'});
+  next.structuredDesignState={version:2,elements,updatedAt:Date.now()};
+  next.designStateVersion=2;
+  return next;
+}
+function structuredElement(plan={},id){
+  return ensureStructuredDesignState(plan).structuredDesignState.elements[id]||null;
+}
+function patchStructuredElement(plan={},id,patch={}){
+  const next=ensureStructuredDesignState(plan);
+  const cur=next.structuredDesignState.elements[id]||{id,geometry:{x:0,y:0,scale:1},style:{}};
+  next.structuredDesignState={...next.structuredDesignState,elements:{...next.structuredDesignState.elements,[id]:{
+    ...cur,...patch,
+    geometry:{...(cur.geometry||{}),...(patch.geometry||{})},
+    style:{...(cur.style||{}),...(patch.style||{})}
+  }},updatedAt:Date.now()};
+  return next;
+}
+function targetTextElementId(instruction=''){
+  const t=String(instruction||'').toLowerCase();
+  if(/\b(?:headline|heading|title)\b/.test(t))return 'headline';
+  if(/\b(?:date|time|showtime)\b/.test(t))return 'dateTime';
+  if(/\b(?:address|location|street)\b/.test(t))return 'address';
+  if(/\bvenue\b/.test(t))return 'venue';
+  if(/\b(?:call to action|cta|button|register|rsvp)\b/.test(t))return 'cta';
+  if(/\b(?:added text|additional text)\b/.test(t))return 'manual';
+  return '';
+}
+function applyTextGeometryInstruction(plan={},instruction=''){
+  let next=ensureStructuredDesignState(plan);
+  const t=String(instruction||'').toLowerCase();
+  const id=targetTextElementId(instruction);
+  if(!id)return next;
+  const ids=id==='manual'?Object.keys(next.structuredDesignState.elements).filter(k=>k.startsWith('manual-')):[id];
+  const move=/\b(?:move|shift|place|position|nudge)\b/.test(t);
+  const slightly=/\b(?:slightly|a bit|a little)\b/.test(t);
+  const step=slightly?.035:.07;
+  ids.forEach(key=>{
+    const el=next.structuredDesignState.elements[key]||{geometry:{x:0,y:0,scale:1}};
+    const g={...(el.geometry||{})};
+    if(move&&/\bleft\b/.test(t))g.x=Number(g.x||0)-step;
+    if(move&&/\bright\b/.test(t))g.x=Number(g.x||0)+step;
+    if(move&&/\b(?:up|higher)\b/.test(t))g.y=Number(g.y||0)-step;
+    if(move&&/\b(?:down|lower)\b/.test(t))g.y=Number(g.y||0)+step;
+    if(/\b(?:bigger|larger|increase|enlarge)\b/.test(t))g.scale=Math.min(2,Number(g.scale||1)+(slightly?.08:.18));
+    if(/\b(?:smaller|reduce|decrease)\b/.test(t))g.scale=Math.max(.55,Number(g.scale||1)-(slightly?.08:.18));
+    next=patchStructuredElement(next,key,{geometry:g});
+  });
+  return next;
+}
+function geometryFor(plan={},id=''){
+  return ensureStructuredDesignState(plan).structuredDesignState.elements[id]?.geometry||{x:0,y:0,scale:1};
+}
+
+function applyVisualInstructionToPlan(plan={},instruction=''){
+  let next=ensureStructuredDesignState(plan);
   const t=String(instruction||'').toLowerCase();
 
   const mentionsVisual=/\b(?:pic|picture|image|portrait|speaker|person|subject|woman|women|man|men|him|her|them|sammy|aisha|ayesha)\b/.test(t);
@@ -616,7 +698,12 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
     else if(/\btext\b/.test(t)){
       ['headline','dateTime','venue','address','cta','extra','manual'].forEach(setRole);next.textColor=requestedColor;
     }
+    const targetId=targetTextElementId(instruction);
+    const ids=targetId==='manual'?Object.keys(next.structuredDesignState?.elements||{}).filter(k=>k.startsWith('manual-')):(targetId?[targetId]:Object.keys(next.structuredDesignState?.elements||{}).filter(k=>next.structuredDesignState.elements[k]?.type==='text'));
+    ids.forEach(id=>{ next=patchStructuredElement(next,id,{style:{color:requestedColor}}); });
   }
+
+  next=applyTextGeometryInstruction(next,instruction);
 
   // Infer two subjects from user language when source analysis did not set subjectCount.
   if(/\b(?:2|two)\s+(?:speakers?|women|people|persons?|portraits?|images?|pictures?)\b/.test(t) ||
@@ -674,6 +761,10 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
       fullHeight?60:(muchBigger||zoomTight?54:48));
 
     if(zoomTight)next.subjectCropMode='upper-body';
+    next.preferOriginalSubjectAsset=true;
+    next.subjectScaleFromSource=true;
+    const sg=geometryFor(next,'subject-group');
+    next=patchStructuredElement(next,'subject-group',{sourceRef:'subjectAsset',preferOriginalSource:true,geometry:{...sg,x:Number.isFinite(Number(next.subjectX))?Number(next.subjectX):sg.x,scale:Number(next.subjectScale||1),heightPct:Number(next.subjectTargetHeightPct||next.subjectHeightPct||sg.heightPct||0)}});
   }
 
   // Swap visual order when the request clearly targets two subjects.
@@ -688,6 +779,8 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
     }
   }
 
+  const subjectGeometry=geometryFor(next,'subject-group');
+  next=patchStructuredElement(next,'subject-group',{geometry:{...subjectGeometry,x:Number.isFinite(Number(next.subjectX))?Number(next.subjectX):subjectGeometry.x,scale:Number(next.subjectScale||subjectGeometry.scale||1),heightPct:Number(next.subjectTargetHeightPct||next.subjectHeightPct||subjectGeometry.heightPct||0)},availability:(Number(next.subjectCount||0)>1?'grouped':'independent')});
   next.visualState={
     ...(next.visualState||{}),
     subjectAnchor:next.subjectAnchor,
@@ -725,7 +818,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.6: added/manual text is now expected to be part of the planned layout.
+  // V8.7: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -833,8 +926,8 @@ function normalizeDesignState(data={}){
   });
 
   plan.textElements=textElements;
-  plan.designStateVersion=1;
-  return {...data,bannerPlan:plan};
+  const structured=ensureStructuredDesignState(plan);
+  return {...data,bannerPlan:structured};
 }
 
 function captureCurrentVersionState(instruction='',kind='Generated'){
@@ -939,7 +1032,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.6: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.7: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -1133,9 +1226,11 @@ function diagnosticsForInstruction(beforePlan={},afterPlan={},instruction=''){
 
   if(/\b(?:bigger|larger|more visible|full height|entire height|zoom)\b/.test(t)){
     const changed=beforePlan.subjectTargetHeightPct!==afterPlan.subjectTargetHeightPct || beforePlan.subjectHeightPct!==afterPlan.subjectHeightPct;
-    add(changed?'applied':'partial',
-      changed?'Subject size target was increased and locked for this version.'
-             :'A size request was detected, but no independently scalable subject was available.');
+    const groupedAsset=!!(lastServerResult?.subjectAsset) && Number(afterPlan.subjectCount||0)>1;
+    add((changed||groupedAsset)?'applied':'partial',
+      groupedAsset?'The original reusable subject-group asset is available and the group will be scaled from that source asset rather than from the tiny rendered thumbnail.'
+      :(changed?'Subject size target was increased and locked for this version; V8.7 prefers the original reusable source subject asset when available.'
+               :'A size request was detected, but no reusable subject source asset/geometry was available.'));
   }
 
   if(/\b(?:swap|switch)\b/.test(t)){
@@ -1351,7 +1446,7 @@ wireUploader();
 
 let mainProgressStop=null;
 function setProgress(step,title){
-  // V8.6 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
+  // V8.7 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
   const host=document.querySelector('.inlineprogress.running');
   if(host&&title){const cur=host.querySelector('.icurrent');if(cur)cur.textContent=title;}
 }
@@ -2064,26 +2159,27 @@ async function trimTransparentImage(img){
   return out;
 }
 
-function measureTextBlock(ctx,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale=1,factScale=1,options={}){
+function measureTextBlock(ctx,headline,dateTime,venue,address,extra,extraFacts,copyW,h,outer,headlineScale=1,factScale=1,options={}){
   extraFacts=Array.isArray(extraFacts)?extraFacts:[];
   const headMaxH=Math.round(h*.50*headlineScale);
   const headFit=fitHeadlineBlock(ctx,headline,copyW,headMaxH);
   let used=outer + headFit.lines.length*headFit.lineH + Math.max(1,Math.round(h*.006));
 
   const facts=[];
-  if(dateTime)facts.push({text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.6: user-added/extra text outranks location when space is tight.
+  if(dateTime)facts.push({role:'dateTime',text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
+  // V8.7: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
     facts.push({
-      text:extra,
+      role:'extra',text:extra,
       weight:required?'800':'700',
       max:Math.max(stronglyEmphasized?15:(required?12:10),Math.round(h*(stronglyEmphasized?.22:(required?.18:.145))*factScale)),
       min:Math.max(stronglyEmphasized?11:(required?9:8),Math.round(h*(stronglyEmphasized?.14:(required?.115:.095))))
     });
   }
-  if(location)facts.push({text:location,weight:'700',max:Math.max(11,Math.round(h*.17*factScale)),min:Math.max(8,Math.round(h*.105))});
+  if(venue)facts.push({role:'venue',text:venue,weight:'700',max:Math.max(11,Math.round(h*.16*factScale)),min:Math.max(8,Math.round(h*.10))});
+  if(address)facts.push({role:'address',text:address,weight:'700',max:Math.max(11,Math.round(h*.15*factScale)),min:Math.max(8,Math.round(h*.095))});
 
   const sizes=[];
   for(const f of facts){
@@ -2180,17 +2276,25 @@ async function buildTinyFitBanner(data,w,h){
     headLines=wrapTextLines(x,headline,copyW-6,3);
     if(headLines.length*headSize*1.03<=textH*.70 && headLines.every(l=>x.measureText(l).width<=copyW-6))break;
   }
-  let y=textTop;
+  const headlineGeom=geometryFor(plan,'headline');
+  const dateGeom=geometryFor(plan,'dateTime');
+  const venueGeom=geometryFor(plan,'venue');
+  const ctaGeom=geometryFor(plan,'cta');
+  let y=textTop + Number(headlineGeom.y||0)*h;
+  const textBaseX=copyLeft+3;
+  headSize=Math.max(6,Math.round(headSize*Number(headlineGeom.scale||1)));
   x.font=`800 ${headSize}px Arial`;
   for(const line of headLines){
     if(y+headSize>textBottom)break;
-    x.fillText(line,copyLeft+3,y);y+=headSize*1.03;
+    x.fillText(line,textBaseX+Number(headlineGeom.x||0)*w,y);y+=headSize*1.03;
   }
 
   if(secondary && textBottom-y>=7){
     const fsize=fitText(x,secondary,copyW-6,Math.max(8,Math.round(h*.105)),6,'700');
-    x.font=`700 ${fsize}px Arial`;x.fillStyle=themeColorForRole(plan,'dateTime');
-    if(y+fsize<=textBottom)x.fillText(secondary,copyLeft+3,y+1);
+    const secondaryGeom=manualText?geometryFor(plan,'manual'):dateTime?dateGeom:venueGeom;
+    const s2=Math.max(6,Math.round(fsize*Number(secondaryGeom.scale||1)));
+    x.font=`700 ${s2}px Arial`;x.fillStyle=themeColorForRole(plan,dateTime?'dateTime':(venue?'venue':'manual'));
+    if(y+s2<=textBottom)x.fillText(secondary,textBaseX+Number(secondaryGeom.x||0)*w,y+1+Number(secondaryGeom.y||0)*h);
   }
 
   if(cta&&ctaRect){
@@ -2202,12 +2306,13 @@ async function buildTinyFitBanner(data,w,h){
     }else{
       x.fillStyle=accent;roundedRect(x,cx,cy,cw,ctaH,Math.max(5,Math.round(ctaH*.28)));x.fill();
       const csize=fitText(x,cta,cw-8,Math.max(9,Math.round(ctaH*.52)),7,'800');
-      x.font=`800 ${csize}px Arial`;x.fillStyle=ctaText;x.textBaseline='middle';x.textAlign='center';
-      x.fillText(cta,cx+cw/2,cy+ctaH/2);x.textAlign='left';
+      const csize2=Math.max(6,Math.round(csize*Number(ctaGeom.scale||1)));
+      x.font=`800 ${csize2}px Arial`;x.fillStyle=ctaText;x.textBaseline='middle';x.textAlign='center';
+      x.fillText(cta,cx+cw/2+Number(ctaGeom.x||0)*w,cy+ctaH/2+Number(ctaGeom.y||0)*h);x.textAlign='left';
     }
   }
 
-  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.6 tiny fit-safe banner')),'image/png',1));
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.7 tiny fit-safe banner')),'image/png',1));
 }
 
 async function buildCanvasFirstBanner(data,w,h){
@@ -2235,7 +2340,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.6: instruction/layout intent MUST be initialized before subject placement.
+  // V8.7: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -2274,7 +2379,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.6 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.7 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const upperBody=/upper-body|head|shoulder|face/i.test(plan.subjectCropMode||'');
     const sourceCropH=upperBody?Math.max(1,Math.round(subject.height*.68)):subject.height;
@@ -2387,7 +2492,7 @@ async function buildCanvasFirstBanner(data,w,h){
 
   // Keep V6.7's improved adaptive text sizing.
   x.textBaseline='top';x.fillStyle=textColor;
-  let density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,micro?.82:1,micro?.82:1,{emphasizeDates,emphasizeSpeakerNames});
+  let density=measureTextBlock(x,headline,dateTime,venue,address,extra,extraFacts,copyW,h,outer,micro?.82:1,micro?.82:1,{emphasizeDates,emphasizeSpeakerNames});
   const usableH=h-outer*2;
   const usedRatio=Math.min(1,(density.used-outer)/Math.max(1,usableH));
 
@@ -2400,28 +2505,35 @@ async function buildCanvasFirstBanner(data,w,h){
     headlineScale=.82;factScale=.82;
   }
 
-  density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,headlineScale,factScale,{emphasizeDates,emphasizeSpeakerNames});
+  density=measureTextBlock(x,headline,dateTime,venue,address,extra,extraFacts,copyW,h,outer,headlineScale,factScale,{emphasizeDates,emphasizeSpeakerNames});
 
   if([dateTime,location,extra].filter(Boolean).length<=1){
-    density=measureTextBlock(x,headline,dateTime,location,extra,extraFacts,copyW,h,outer,Math.max(headlineScale,1.14),Math.max(factScale,1.08),{emphasizeDates,emphasizeSpeakerNames});
+    density=measureTextBlock(x,headline,dateTime,venue,address,extra,extraFacts,copyW,h,outer,Math.max(headlineScale,1.14),Math.max(factScale,1.08),{emphasizeDates,emphasizeSpeakerNames});
   }
 
-  x.fillStyle=textColor;
-  x.font=`800 ${density.headFit.size}px Arial`;
-  let y=outer;
+  x.fillStyle=themeColorForRole(plan,'headline');
+  const headlineGeom=geometryFor(plan,'headline');
+  const stateHeadlineScale=Math.max(.55,Math.min(2,Number(headlineGeom.scale||1)));
+  const renderedHeadlineSize=Math.max(6,Math.round(density.headFit.size*stateHeadlineScale));
+  x.font=`800 ${renderedHeadlineSize}px Arial`;
+  let y=outer+Number(headlineGeom.y||0)*h;
   for(const line of density.headFit.lines){
-    x.fillText(line,tx,y);
-    y+=density.headFit.lineH;
+    x.fillText(line,tx+Number(headlineGeom.x||0)*w,y);
+    y+=density.headFit.lineH*stateHeadlineScale;
   }
   y+=Math.max(1,Math.round(h*.006));
 
   for(let i=0;i<density.facts.length;i++){
     const f=density.facts[i];
-    if(y+f.size>h-outer)break;
-    x.font=`${f.weight} ${f.size}px Arial`;
-    x.fillStyle=i===0?themeColorForRole(plan,'manual'):themeColorForRole(plan,'extra');
-    x.fillText(f.text,tx,y);
-    y+=f.size+Math.max(1,Math.round(h*.012));
+    const role=f.role||'extra';
+    const geom=geometryFor(plan,role);
+    const scale=Math.max(.55,Math.min(2,Number(geom.scale||1)));
+    const size=Math.max(6,Math.round(f.size*scale));
+    if(y+size>h-outer)break;
+    x.font=`${f.weight} ${size}px Arial`;
+    x.fillStyle=themeColorForRole(plan,role);
+    x.fillText(f.text,tx+Number(geom.x||0)*w,y+Number(geom.y||0)*h);
+    y+=size+Math.max(1,Math.round(h*.012));
   }
 
   if(ctaBox){
@@ -2429,7 +2541,8 @@ async function buildCanvasFirstBanner(data,w,h){
     x.fillStyle=accent;x.fill();
     x.font=`800 ${ctaBox.size}px Arial`;
     x.fillStyle=contrastTextColor(accent);x.textBaseline='middle';
-    x.fillText(cta,ctaBox.x+(ctaBox.w-ctaBox.textW)/2,ctaBox.y+ctaBox.h/2);
+    const ctaGeom=geometryFor(plan,'cta');
+    x.fillText(cta,ctaBox.x+(ctaBox.w-ctaBox.textW)/2+Number(ctaGeom.x||0)*w,ctaBox.y+ctaBox.h/2+Number(ctaGeom.y||0)*h);
   }
 
   if(speakerNamesInline && extraFacts.length){
@@ -2478,7 +2591,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.6 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.7 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2497,7 +2610,7 @@ $('submit').onclick=async()=>{
     }else fd.append('mode','generate');
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.6 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.7 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2597,8 +2710,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.6 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.6 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.7 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.7 re-generated a different composition, but final-image validation could not confirm every item.';
     renderEngineInfo(lastServerResult,target,'REGENERATE',true);refreshActionCostEstimates();
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     

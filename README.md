@@ -1,40 +1,29 @@
-# Image Reshaper — V8.6
+# Image Reshaper — V8.7
 
-## V8.6 goals
+## Structured Current Design State
+V8.7 expands the structured-design work so the editable truth is the design state, while the PNG is the rendered result. The state tracks text, subject/group geometry, styles, visibility, source references, and layer metadata.
 
-### Structured current-design state (not just a flattened PNG)
-V8.6 treats the current design as a structured editable state made of background, people/subjects, logos, text fields, and layout metadata. **Apply text changes** and **Modify current design** are intended to patch that current state instead of restarting from the original source or treating the latest render as the only truth.
+### Deterministic state patches first
+Common Modify requests are translated into state changes before any rendering step:
+- move text or subject left/right/up/down
+- enlarge/reduce subjects
+- change text color
+- change text scale
+- preserve current layout while patching only the requested element
 
-### Source-geometry / source-asset reuse for subject scaling
-When a person/subject needs to be moved, enlarged, or reframed, V8.6 prefers the best available reusable source asset and stored geometry from the canonical source manifest. The goal is to scale or reposition the original extracted subject instead of enlarging a tiny already-rendered thumbnail whenever the source library supports it.
+Exact-canvas formats render these structured patches locally. Standard/large formats still require the image editor for visual pixels, but the current structured state and original source are supplied as authoritative references so the model is not asked to redesign from scratch.
 
-### Geometry-aware diagnostics
-The UI now surfaces extra engine diagnostics so you can verify the unified system more easily:
-- whether the source analysis was **Analyzed** or **Reused**
-- the **Source Manifest ID**
-- the operation and target
-- the renderer and canvas profile
-- whether the **Current design state** is structured
-- whether **Source geometry** is available for reuse
+### Original source reuse for subject scaling
+When a person/group is too small in the current render, V8.7 marks scale requests to prefer the original reusable source subject geometry/asset. For AI patch modes, the original source artwork is supplied as a reference alongside the current design so the editor can recover the higher-quality subject rather than simply enlarging a tiny rendered thumbnail. For exact-canvas layouts, the cached high-quality subject asset is scaled directly.
 
-### Unified system across all destination sizes
-All destination sizes continue to use one shared source-manifest pipeline. Changing size with the same uploaded source should reuse the canonical manifest and start from layout planning / rendering for the new dimensions rather than re-reading the source facts every time.
+### Grouped subjects
+If two people were isolated together as one transparent subject asset, the group is now considered independently scalable **as a group**. The UI no longer reports that no scalable subject exists when a grouped source asset is available and the user is asking to enlarge/move both people together. Individual independent movement still requires individual source geometry/cutouts.
 
-### Safer modify/edit prompts
-Current-design patch modes now include stronger guidance to preserve the current layout, treat the current design state as the baseline, and use reusable source subject assets for resize / move requests whenever available.
+### Text geometry
+Text elements now carry normalized geometry metadata (offset, scale, alignment). Exact-canvas rendering reads that geometry so instructions such as “move the address a bit left” can be represented as a persistent state patch instead of being forgotten on the next operation.
 
+### Lower-cost retry policy
+For deterministic structured patches, V8.7 does not automatically launch a second full image edit after preservation QA fails. It returns a precise failure instead. Creative/unstructured patches retain the stricter retry behavior. This avoids paying for a second full image generation when the requested property is already represented in structured state.
 
-### V8.6 interface updates
-- Generic Optional Instructions examples rather than poster-specific examples.
-- When at least one older version exists, the Previous versions area also shows a highlighted **Current version X** card for direct comparison.
-- Apply Text Changes and Modify Current Design display an elapsed timer while running.
-- Header account display shows the username once (role duplication removed).
-- Added a compact Image Reshaper icon beside the application title.
-
-
-## V8.6 cost visibility and progress UX
-
-- Every action now shows an **estimated API cost before click**, based on the current renderer/profile and current OpenAI list-price assumptions used by this build.
-- Engine Diagnostics repeats the estimate for the completed operation. This is intentionally labeled an estimate because image-input token usage, planner/vision token usage, model fallback, and QA retries vary.
-- Generate/Resize, Re-generate, Apply Text Changes, and Modify Current Design each get their **own inline progress panel and elapsed timer directly below the action button**.
-- Progress stage names differ by operation and by exact/compact vs standard canvas. Resize from the same uploaded source explicitly starts with **Load cached source manifest** rather than pretending to re-analyze the source.
+### Diagnostics
+Engine Diagnostics continues to show source-manifest reuse, renderer, estimated cost, current structured state, and source geometry availability. Modification Results now distinguishes grouped scalable assets from reference-only elements.

@@ -1,21 +1,14 @@
-# V8.6 Test Report
+# V8.7 Test Report
 
-## Added in V8.6
-- Estimated API cost appears beside Reshape, Re-generate, Apply Text Changes, and Modify Current Design.
-- Engine Diagnostics includes the estimate for the completed operation.
-- Per-action inline progress panels include elapsed time, a progress track, and detailed action-specific stages.
-- Progress stage lists differ for GENERATE, RESIZE, REGENERATE, EDIT_TEXT, and MODIFY, and also distinguish exact/compact canvases from standard canvases.
-- Resize with a cached manifest begins with **Load cached source manifest**, making source reuse visible to the user.
+## Added in V8.7
+- Structured design state v2 exists and is preserved in the plan.
+- Text elements carry persistent geometry/style metadata.
+- Text move/scale/color instructions patch structured state before rendering.
+- Subject scale requests prefer the original reusable source subject asset.
+- Grouped multi-person subject assets are recognized as scalable as a group.
+- Standard-size current-design image edits receive the original uploaded source as a reference image.
+- Deterministic structured patches do not automatically pay for a second full image edit when the first preservation QA fails.
+- Exact-canvas renderers read structured text geometry for persistent positional/style changes.
 
-## Automated checks
-- Front-end JavaScript syntax: PASS
-- Backend / auth / middleware JavaScript syntax: PASS
-- Cost/progress UI contract test: PASS
-- Routing/profile matrix: PASS
-- Fit-budget tests: PASS
-- Frontend state/color tests: PASS
-- Static architecture tests: PASS
-- Mocked handler operation tests: PASS
-
-## Cost-estimate note
-The UI intentionally displays estimates rather than exact billing. Current pricing assumptions are encoded for the model paths used by V8.6, while image-input tokens, GPT planner/vision token usage, automatic retries, and model fallback can vary per request.
+## Regression coverage
+The existing routing, tiny fit-budget/no-overlap, manifest reuse, mocked handler operation, cost/progress UI, and syntax tests are run together with the V8.7 structured-state test before packaging.
