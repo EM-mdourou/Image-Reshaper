@@ -188,4 +188,4 @@ for(const mode of ['edit_text','modify','regenerate']){
   assert.equal(sourceAnalysisCalls,before,`880x460 ${mode} with cached sourceManifest must not re-analyze source`);
 }
 
-console.log('PASS v8.8 mocked handler operation tests');
+console.log('PASS v8.9 mocked handler operation tests');

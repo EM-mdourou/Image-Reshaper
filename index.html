@@ -204,24 +204,14 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 .costestimate{font-size:10px;line-height:1.35;color:#6e755e;text-align:center;min-height:14px}
 .costestimate strong{color:#4f6116}.costestimate .retrywarn{color:#8a6b19}
 .costdisclaimer{font-size:10px;color:#7b8072;text-align:right;margin:-9px 4px 14px}
-.inlineprogress{display:none;background:#111;color:#fff;border-radius:10px;padding:9px 10px;min-width:210px;box-shadow:0 5px 15px rgba(0,0,0,.08)}
-.inlineprogress.running{display:block}
-.inlineprogress .iprogresshead{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:10px;margin-bottom:7px}
-.inlineprogress .iprogresshead b{font-size:10px;color:#f3f4ed;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.inlineprogress .itime{font-variant-numeric:tabular-nums;color:#d5ddb8;font-weight:800;white-space:nowrap}
-.inlineprogress .itrack{height:5px;background:#363636;border-radius:999px;overflow:hidden;margin-bottom:7px}
-.inlineprogress .ifill{height:100%;width:0;background:var(--green);border-radius:999px;transition:width .45s ease}
-.inlineprogress .icurrent{font-size:10px;line-height:1.35;color:#d8dec7;margin-bottom:6px}
-.inlineprogress .isteps{display:flex;gap:4px;flex-wrap:wrap}
-.inlineprogress .istep{font-size:8px;line-height:1.1;padding:3px 5px;border-radius:999px;background:#282828;color:#888;white-space:nowrap}
-.inlineprogress .istep.done{background:#26300f;color:#dfe9bf}.inlineprogress .istep.active{background:#41520e;color:#fff}
-.legacyprogress{display:none!important}
-@media(max-width:700px){.actionbuttons{width:100%}.actionunit,.actionunit.compactunit{width:100%;max-width:none}.costdisclaimer{text-align:left}.inlineprogress{min-width:0}}
+.progressdock{width:100%;margin:10px 0 16px}.inlineprogress{display:none;width:100%;background:#111;color:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 7px 22px rgba(0,0,0,.10);box-sizing:border-box}.inlineprogress.running{display:block}.inlineprogress .iprogresshead{display:flex;justify-content:space-between;gap:16px;align-items:center;font-size:13px;margin-bottom:10px}.inlineprogress .iprogresshead b{font-size:14px;color:#f3f4ed;line-height:1.3}.inlineprogress .itime{font-size:13px;font-variant-numeric:tabular-nums;color:#d5ddb8;font-weight:850;white-space:nowrap}.inlineprogress .itrack{height:8px;background:#363636;border-radius:999px;overflow:hidden;margin-bottom:11px}.inlineprogress .ifill{height:100%;width:0;background:var(--green);border-radius:999px;transition:width .45s ease}.inlineprogress .icurrent{font-size:13px;line-height:1.45;color:#e4e8d5;margin-bottom:10px;font-weight:650}.inlineprogress .isteps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:7px}.inlineprogress .istep{font-size:11px;line-height:1.3;padding:8px 9px;border-radius:9px;background:#282828;color:#9a9a9a;white-space:normal}.inlineprogress .istep.done{background:#26300f;color:#dfe9bf}.inlineprogress .istep.active{background:#41520e;color:#fff;box-shadow:inset 0 0 0 1px #76951b}.legacyprogress{display:none!important}
+.enginepeek{position:relative;display:inline-block;margin:8px 0 4px}.enginepeekbtn{border:1px solid #d5d9c8;background:#f7f9f1;color:#526018;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:800;cursor:pointer}.enginepeekbtn:hover{border-color:#9db73b;background:#f0f5df}.enginepeek .engineinfo{display:none!important;position:absolute;z-index:40;left:0;top:calc(100% + 7px);width:min(720px,calc(100vw - 48px));background:#fff;border:1px solid #d7dcc9;border-radius:12px;padding:13px;box-shadow:0 14px 38px rgba(0,0,0,.14)}.enginepeek:hover .engineinfo,.enginepeek.open .engineinfo{display:grid!important}.enginepeek:not(.ready){display:none}
+@media(max-width:700px){.actionbuttons{width:100%}.actionunit,.actionunit.compactunit{width:100%;max-width:none}.costdisclaimer{text-align:left}.inlineprogress{padding:14px}.inlineprogress .isteps{grid-template-columns:1fr}.enginepeek .engineinfo{position:fixed;left:14px;right:14px;top:auto;width:auto}}
 
 .historyitem.currenthistory{border:2px solid #a4bd43;background:#fbfdf6;box-shadow:0 5px 18px rgba(91,112,22,.08)}
 .historyitem.currenthistory .historyrun{font-size:13px;color:#526700}
 </style><script>
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.8:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.9:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -264,26 +254,25 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.8 preserves a structured current-design state, retries source reading when needed, and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.8 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.9 preserves a structured current-design state, retries source reading when needed, and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.9 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
   <div class="actionunit">
     <button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button>
     <div id="costRegenerate" class="costestimate"></div>
-    <div id="progressRegenerate" class="inlineprogress"></div>
   </div>
   <div class="actionunit">
     <button id="submit" class="primary" disabled>Reshape with AI →</button>
     <div id="costSubmit" class="costestimate"></div>
-    <div id="progressSubmit" class="inlineprogress"></div>
   </div>
 </div></div>
-<div class="costdisclaimer">API costs are estimates based on the current V8.8 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
+<div class="progressdock"><div id="progressRegenerate" class="inlineprogress"></div><div id="progressSubmit" class="inlineprogress"></div></div>
+<div class="costdisclaimer">API costs are estimates based on the current V8.9 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
 <div id="progressbox" class="progressbox legacyprogress" aria-hidden="true"></div>
 <div id="status" class="status"></div><div id="error" class="error"></div><div id="rejectedCandidateNotice" class="rejectednotice"><span>This attempt was rejected by visual QA and was not saved as the current version.</span><button id="viewRejectedCandidate" type="button">View rejected candidate</button></div><div id="rejectedCandidateModal" class="rejectedmodal" role="dialog" aria-modal="true" aria-label="Rejected candidate preview"><div class="rejectedmodalcard"><button id="closeRejectedCandidate" class="rejectedclose" type="button" aria-label="Close">×</button><h4>Rejected candidate preview</h4><p id="rejectedCandidateReason"></p><img id="rejectedCandidateImage" alt="Rejected candidate modification"></div></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
-<div class="preview"><img id="output"></div><div id="validation" class="note"></div><div id="engineInfo" class="engineinfo" style="display:none"></div>
+<div class="preview"><img id="output"></div><div id="validation" class="note"></div><div id="enginePeek" class="enginepeek"><button id="engineDetailsBtn" class="enginepeekbtn" type="button">ⓘ Engine details</button><div id="engineInfo" class="engineinfo"></div></div>
 <details id="sourceElementsPanel" class="elementpanel" open>
   <summary>Source elements</summary>
   <div class="accordionbody">
-    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.8 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
+    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.9 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
     <div id="elementSummary" class="elementsummary"></div>
     <div id="elementList" class="elementlist"></div>
   </div>
@@ -298,8 +287,9 @@ Never expose internal planner/meta/debug/schema text.`;
       <button id="addTextRow" class="textadd" type="button">+ Add text</button>
       <span class="textlocked">Direct edits persist into later versions and Modify instructions.</span>
     </div>
-    <div class="actionunit compactunit"><button id="applyTextEdits" class="textapply" type="button">Apply text changes →</button><div id="costText" class="costestimate"></div><div id="progressText" class="inlineprogress"></div></div>
+    <div class="actionunit compactunit"><button id="applyTextEdits" class="textapply" type="button">Apply text changes →</button><div id="costText" class="costestimate"></div></div>
   </div>
+  <div class="progressdock"><div id="progressText" class="inlineprogress"></div></div>
   </div>
 </details>
 <div class="modifygrid">
@@ -308,7 +298,7 @@ Never expose internal planner/meta/debug/schema text.`;
   <textarea id="modifyInstructions" placeholder="Example: Move the address slightly left, make the featured person larger, or change the title to ‘Ramadan Event’."></textarea>
   <div class="modifyactions">
     <div class="modifyhint">Updates the CURRENT design instead of starting over. Each successful change is saved below as a previous version with the instruction that produced it.</div>
-    <div class="actionunit compactunit"><button id="modifyBtn" class="modifybtn" type="button">Modify current design →</button><div id="costModify" class="costestimate"></div><div id="progressModify" class="inlineprogress"></div></div>
+    <div class="actionunit compactunit"><button id="modifyBtn" class="modifybtn" type="button">Modify current design →</button><div id="costModify" class="costestimate"></div></div>
   </div>
 </div>
 <div id="diagnosticsPanel" class="diagpanel">
@@ -317,13 +307,14 @@ Never expose internal planner/meta/debug/schema text.`;
   <div id="diagnosticsList" class="diaglist"><div class="diagempty">No modification diagnostics yet.</div></div>
 </div>
 </div>
+<div class="progressdock"><div id="progressModify" class="inlineprogress"></div></div>
 <div class="historytitle">Previous versions</div>
 <div id="currentHistoryCard" style="display:none"></div>
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 8.8</div>
-</footer></main><script>const APP_VERSION='8.8';
+  <div class="versionfooter">Version 8.9</div>
+</footer></main><script>const APP_VERSION='8.9';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -514,8 +505,13 @@ function renderEngineInfo(data,target,operation=lastEngineOperation,reused=lastS
   const sourceGeometry=(data.subjectAsset||data.bannerPlan?.subjectAsset||(data.sourceElements||[]).some(x=>x&&x.crop))?'Available':'Limited';
   const cost=estimateActionCost(operation,target,reused);
   box.innerHTML=`<div><b>Source Manifest ID</b><span>${escapeHtml(manifestId)}</span></div><div><b>Source analysis</b><span>${analysis}</span></div><div><b>Operation</b><span>${escapeHtml(String(operation||'').toUpperCase())}</span></div><div><b>Canvas profile</b><span>${escapeHtml(profile)}</span></div><div><b>Renderer</b><span>${escapeHtml(renderer)}</span></div><div><b>Current design state</b><span>${escapeHtml(currentState)}</span></div><div><b>Source geometry</b><span>${escapeHtml(sourceGeometry)}</span></div><div><b>Estimated API cost</b><span>${escapeHtml(cost.typical)} typical · up to ~${escapeHtml(cost.retry)} with retry</span></div><div><b>Cost basis</b><span title="${escapeHtml(cost.detail)}">Estimate — usage varies</span></div><div><b>Target</b><span>${target[1]} × ${target[2]} px</span></div>`;
-  box.style.display='grid';
+  box.style.display='';
+  $('enginePeek')?.classList.add('ready');
 }
+
+
+$('engineDetailsBtn')?.addEventListener('click',()=>{$('enginePeek')?.classList.toggle('open');});
+document.addEventListener('click',e=>{const p=$('enginePeek');if(p&&p.classList.contains('open')&&!p.contains(e.target))p.classList.remove('open');});
 
 let textEditorRows=[];
 let sourceElements=[];let lastDiagnostics=[];
@@ -818,6 +814,23 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
 
   const subjectGeometry=geometryFor(next,'subject-group');
   next=patchStructuredElement(next,'subject-group',{geometry:{...subjectGeometry,x:Number.isFinite(Number(next.subjectX))?Number(next.subjectX):subjectGeometry.x,scale:Number(next.subjectScale||subjectGeometry.scale||1),heightPct:Number(next.subjectTargetHeightPct||next.subjectHeightPct||subjectGeometry.heightPct||0)},availability:(Number(next.subjectCount||0)>1?'grouped':'independent')});
+
+  // V8.9: an explicit user request to show a semantic field outranks compact-size omission rules.
+  const requireFields=[];
+  const explicitShow=(words)=>new RegExp(`\\b(?:add|show|include|display|put|place|restore|bring back|must show|keep)\\b[\\s\\S]{0,45}\\b(?:${words})\\b`,`i`).test(String(instruction||''));
+  if(explicitShow('address|location'))requireFields.push('address');
+  if(explicitShow('venue'))requireFields.push('venue');
+  if(explicitShow('call to action|cta|register|rsvp|button'))requireFields.push('cta');
+  if(explicitShow('date|time|showtime'))requireFields.push('dateTime');
+  if(requireFields.length){
+    next.userRequiredFields=[...new Set([...(next.userRequiredFields||[]),...requireFields])];
+    next.displayBudget={...(next.displayBudget||{}),userRequiredFields:next.userRequiredFields,userPriorityOverride:true};
+    if(requireFields.includes('address'))next.displayBudget.drawAddress=true;
+    if(requireFields.includes('venue'))next.displayBudget.drawVenue=true;
+    if(requireFields.includes('cta'))next.displayBudget.drawCta=true;
+    if(requireFields.includes('dateTime'))next.displayBudget.drawDateTime=true;
+  }
+
   next.visualState={
     ...(next.visualState||{}),
     subjectAnchor:next.subjectAnchor,
@@ -855,7 +868,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.8: added/manual text is now expected to be part of the planned layout.
+  // V8.9: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -1069,7 +1082,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.8: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.9: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -1250,6 +1263,27 @@ function requestedSourceElements(instruction=''){
   return [...new Map(found.map(x=>[x.id,x])).values()];
 }
 
+
+function visibleFieldDecisionDiagnostic(plan={},instruction='',qa={}){
+  const t=String(instruction||'').toLowerCase();
+  const budget=plan.displayBudget||{};
+  const wantsAddress=/\b(?:add|show|include|display|restore|bring back)\b[\s\S]{0,40}\b(?:address|location)\b/.test(t);
+  const wantsVenue=/\b(?:add|show|include|display|restore|bring back)\b[\s\S]{0,40}\bvenue\b/.test(t);
+  const wantsCta=/\b(?:add|show|include|display|restore|bring back)\b[\s\S]{0,40}\b(?:call to action|cta|register|rsvp|button)\b/.test(t);
+  const msgs=[];
+  const check=(wanted,field,value,drawFlag,label)=>{
+    if(!wanted)return;
+    if(!String(value||'').trim())msgs.push({status:'failed',message:`Source/state reason: ${label} was explicitly requested, but no ${label.toLowerCase()} value exists in the current structured design/source manifest.`});
+    else if(drawFlag===false)msgs.push({status:'failed',message:`Priority reason: ${label} exists, but the compact layout budget suppressed it. This is a renderer-priority failure; explicit user requests should override that rule.`});
+    else if(qa && qa.verified===false)msgs.push({status:'partial',message:`Placement reason: ${label} exists and was promoted to USER_REQUIRED, so it was not omitted as lower priority. The final render still could not place/verify it, indicating a fit, collision, or rendering-placement failure.`});
+    else msgs.push({status:'applied',message:`${label} was promoted to USER_REQUIRED and allowed by the layout budget.`});
+  };
+  check(wantsAddress,'address',plan.address||plan.secondary,budget.drawAddress,'Address');
+  check(wantsVenue,'venue',plan.venue,budget.drawVenue,'Venue');
+  check(wantsCta,'cta',plan.cta,budget.drawCta,'Call to action');
+  return msgs;
+}
+
 function diagnosticsForInstruction(beforePlan={},afterPlan={},instruction=''){
   const t=String(instruction||'').toLowerCase(),out=[];
   const add=(status,message)=>out.push({status,message});
@@ -1266,7 +1300,7 @@ function diagnosticsForInstruction(beforePlan={},afterPlan={},instruction=''){
     const groupedAsset=!!(lastServerResult?.subjectAsset) && Number(afterPlan.subjectCount||0)>1;
     add((changed||groupedAsset)?'applied':'partial',
       groupedAsset?'The original reusable subject-group asset is available and the group will be scaled from that source asset rather than from the tiny rendered thumbnail.'
-      :(changed?'Subject size target was increased and locked for this version; V8.8 prefers the original reusable source subject asset when available.'
+      :(changed?'Subject size target was increased and locked for this version; V8.9 prefers the original reusable source subject asset when available.'
                :'A size request was detected, but no reusable subject source asset/geometry was available.'));
   }
 
@@ -1381,7 +1415,7 @@ function archiveCurrentRun(){
 function resetDesignSession(clearFile=false){
   lastServerResult=null;lastRenderedUrl=null;currentRunInstruction='';historyRunNumber=0;currentVersionNumber=1;lastDesignTarget=null;
   if($('historyList'))$('historyList').innerHTML='';if($('currentHistoryCard')){$('currentHistoryCard').innerHTML='';$('currentHistoryCard').style.display='none';}
-  if($('result'))$('result').style.display='none';if($('engineInfo'))$('engineInfo').style.display='none';
+  if($('result'))$('result').style.display='none';if($('enginePeek'))$('enginePeek').classList.remove('ready','open');
   if($('regenerate'))$('regenerate').disabled=true;
   if($('error'))$('error').style.display='none';
   if($('instructions'))$('instructions').value='';
@@ -1483,7 +1517,7 @@ wireUploader();
 
 let mainProgressStop=null;
 function setProgress(step,title){
-  // V8.8 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
+  // V8.9 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
   const host=document.querySelector('.inlineprogress.running');
   if(host&&title){const cur=host.querySelector('.icurrent');if(cur)cur.textContent=title;}
 }
@@ -2204,7 +2238,7 @@ function measureTextBlock(ctx,headline,dateTime,venue,address,extra,extraFacts,c
 
   const facts=[];
   if(dateTime)facts.push({role:'dateTime',text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.8: user-added/extra text outranks location when space is tight.
+  // V8.9: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -2349,7 +2383,7 @@ async function buildTinyFitBanner(data,w,h){
     }
   }
 
-  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.8 tiny fit-safe banner')),'image/png',1));
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.9 tiny fit-safe banner')),'image/png',1));
 }
 
 async function buildCanvasFirstBanner(data,w,h){
@@ -2377,7 +2411,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.8: instruction/layout intent MUST be initialized before subject placement.
+  // V8.9: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -2416,7 +2450,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.8 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.9 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const cropMode=String(plan.subjectCropMode||'').toLowerCase();
     const headshot=/headshot|face-closeup|face-close-up/.test(cropMode);
@@ -2631,7 +2665,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.8 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.9 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2650,7 +2684,7 @@ $('submit').onclick=async()=>{
     }else fd.append('mode','generate');
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.8 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.9 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2750,8 +2784,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.8 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.8 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.9 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.9 re-generated a different composition, but final-image validation could not confirm every item.';
     renderEngineInfo(lastServerResult,target,'REGENERATE',true);refreshActionCostEstimates();
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     
@@ -2893,7 +2927,7 @@ $('modifyBtn').onclick=async()=>{
       j.backgroundArt=j.backgroundArt||baseData.backgroundArt;
       j.subjectAsset=j.subjectAsset||baseData.subjectAsset;
     }
-    // V8.8: backend modifications are the newest state and must win over the older browser plan.
+    // V8.9: backend modifications are the newest state and must win over the older browser plan.
     // The previous merge order could erase a newly returned crop/scale/position change.
     j.bannerPlan=applyVisualInstructionToPlan(
       {...priorPlanForModify, ...(j.bannerPlan||baseData.bannerPlan||{})},
@@ -2928,8 +2962,9 @@ $('modifyBtn').onclick=async()=>{
     normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{});
     buildSourceElementLibrary(lastServerResult);
     const stateDiagnostics=diagnosticsForInstruction(beforeModifyPlan,lastServerResult.bannerPlan||{},instructions);
-    if(qa.verified)setDiagnostics([{status:'applied',message:`Final PNG visually verified the instruction: “${instructions}”`},...stateDiagnostics.filter(x=>x.status!=='applied')]);
-    else setDiagnostics([{status:'failed',message:`Final PNG did not verify the instruction: “${instructions}”. ${qa.reason||'The requested result was not visibly confirmed.'}`},...stateDiagnostics.filter(x=>x.status!=='applied')]);
+    const fieldDecisionDiagnostics=visibleFieldDecisionDiagnostic(lastServerResult.bannerPlan||{},instructions,qa);
+    if(qa.verified)setDiagnostics([{status:'applied',message:`Final PNG visually verified the instruction: “${instructions}”`},...fieldDecisionDiagnostics.filter(x=>x.status!=='applied'),...stateDiagnostics.filter(x=>x.status!=='applied')]);
+    else setDiagnostics([{status:'failed',message:`Final PNG did not verify the instruction: “${instructions}”. ${qa.reason||'The requested result was not visibly confirmed.'}`},...fieldDecisionDiagnostics,...stateDiagnostics.filter(x=>x.status!=='applied')]);
     setCurrentInstruction(instructions,'Modify instruction');
     renderEngineInfo(lastServerResult,target,'MODIFY',true);refreshActionCostEstimates();
     $('modifyInstructions').value='';

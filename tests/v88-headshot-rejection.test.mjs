@@ -15,4 +15,4 @@ assert.match(api,/subjectCropMode="headshot"/);
 assert.match(api,/rejectedCandidate:candidate/);
 assert.match(api,/Candidate modification rejected by visual QA/);
 assert.match(api,/responsePlan=\{\.\.\.priorPlan,\.\.\.universalPlan\}/);
-console.log('PASS v8.8 headshot/rejected-candidate tests');
+console.log('PASS v8.9 headshot/rejected-candidate tests');

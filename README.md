@@ -1,11 +1,21 @@
-# Image Reshaper — V8.8
+# Image Reshaper — V8.9
 
-## V8.8 fixes
+## V8.9 changes
 
-- Adds a **Rejected candidate preview** link/modal when current-design QA rejects a modification. The rejected image is not saved as the current version, but the user can inspect what the model attempted.
-- Replaces user-facing `IMAGE 1` / `IMAGE 2` wording with **current design** / **candidate modification**.
-- Fixes the modify-plan merge order so newly returned backend crop/scale/position changes are not overwritten by the older browser state.
-- Removes the server-side lock-copy behavior that could restore an old subject crop after the newest instruction requested a different crop.
-- Adds a true **headshot** crop mode for requests such as “zoom into the person’s face” or “make the head the height of the banner”.
-- Headshot mode uses the reusable original source subject asset where available, crops much tighter than upper-body mode, and allows a larger subject zone.
-- `zoom into` is explicitly recognized by both the browser structured-state parser and backend instruction parser.
+### User-required fields override compact-size priority
+When the user explicitly asks to add/show an address, venue, CTA, or date/time, that field is promoted to **USER_REQUIRED**. Compact and tiny layout budgets may normally omit lower-priority fields, but an explicit user request now overrides that omission rule.
+
+### Better modification failure reasons
+Modification Results now distinguishes between common causes such as:
+- source/state value missing
+- compact priority suppression
+- user-required field promoted successfully
+- fit/collision/render-placement failure after promotion
+
+This is intended to answer *why* a requested item did not appear, rather than only saying that final PNG verification failed.
+
+### Engine details are minimized
+The permanent Engine Diagnostics block is replaced by a compact **ⓘ Engine details** control. Hover on desktop or click/tap to open the diagnostics popover.
+
+### Full-width readable progress
+Generate, Resize, Re-generate, Apply Text Changes, and Modify now use full-width progress panels with normal-size text, a larger progress bar, elapsed timer, current-stage description, and detailed action/size-specific stages.
