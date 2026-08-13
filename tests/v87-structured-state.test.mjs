@@ -14,4 +14,4 @@ if(!api.includes('function isDeterministicStructuredPatch')) throw new Error('Mi
 if(!api.includes('structuredStateMode:true')) throw new Error('Missing structured state response flag');
 if(!api.includes("filename:im.filename||'original-source.png'")) throw new Error('Original source reference not supplied to patch editor');
 if(!api.includes('candidateRejected:true')) throw new Error('Lower-cost deterministic rejection policy missing');
-console.log('PASS v8.9 structured design state tests');
+console.log('PASS v8.10 structured design state tests');

@@ -6,5 +6,5 @@ for(const id of ['costSubmit','costRegenerate','costText','costModify','progress
 for(const term of ['Estimated API cost','Load cached source manifest','Resolve source element / geometry','Verify changed text']){
   if(!html.includes(term)) throw new Error(`missing UI/progress term: ${term}`);
 }
-if(!html.includes("const APP_VERSION='8.9'")) throw new Error('wrong app version');
-console.log('PASS v8.9 cost/progress UI tests');
+if(!html.includes("const APP_VERSION='8.10'")) throw new Error('wrong app version');
+console.log('PASS v8.10 cost/progress UI tests');

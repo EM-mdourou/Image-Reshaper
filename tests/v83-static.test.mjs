@@ -15,14 +15,14 @@ assert.match(html,/data\.image && data\.exportMode==='safe-contain'\)base=await 
 assert.match(html,/const ex=await renderUniversalDesignState\(j,\[s\[0\],s\[1\],s\[2\]\]\)/,'initial rendering must use centralized exact finalizer');
 assert.match(html,/const ex=await renderUniversalDesignState\(nextRenderData,target\)/,'modify rendering must use centralized exact finalizer');
 assert.match(html,/Could not attach current design for regeneration-difference QA/,'regenerate must attach current design for difference QA');
-assert.match(html,/const APP_VERSION='8\.9'/);
-assert.match(html,/Version 8\.9/);
+assert.match(html,/const APP_VERSION='8\.10'/);
+assert.match(html,/Version 8\.10/);
 
 
 assert.equal(api.includes('\x08'),false,'backend source should not contain control-character regex boundaries');
 assert.equal(html.includes('\x08'),false,'frontend source should not contain control-character regex boundaries');
 assert.match(html,/neutral black is the fallback|fallback\. Never invent lime green|return pick\(\[styles\.headline/i);
-console.log('PASS v8.9 static architecture tests');
+console.log('PASS v8.10 static architecture tests');
 
 assert.match(api,/displayBudgetForCanvas/,'server must compute a fit budget for each canvas');
 assert.match(html,/function buildTinyFitBanner/,'tiny canvases require a dedicated fit-safe renderer');
@@ -38,4 +38,4 @@ assert.match(api,/Do NOT re-analyze/,'resize must explicitly skip source re-anal
 assert.match(api,/CENTERED HORIZONTAL SAFE STRIP/,'extreme background generation must be target-aspect aware');
 assert.match(api,/Never leave a tiny isolated landmark fragment/,'background prompt must reject accidental landmark fragments');
 assert.match(api,/target-aware panoramic background/,'compact regenerate must generate a fresh target-aware background');
-console.log('PASS v8.9 manifest reuse/background diagnostics tests');
+console.log('PASS v8.10 manifest reuse/background diagnostics tests');

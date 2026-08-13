@@ -211,7 +211,7 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 .historyitem.currenthistory{border:2px solid #a4bd43;background:#fbfdf6;box-shadow:0 5px 18px rgba(91,112,22,.08)}
 .historyitem.currenthistory .historyrun{font-size:13px;color:#526700}
 </style><script>
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.9:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.10:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -254,7 +254,7 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.9 preserves a structured current-design state, retries source reading when needed, and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.9 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.10 preserves a structured current-design state, retries source reading when needed, and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.10 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
   <div class="actionunit">
     <button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button>
     <div id="costRegenerate" class="costestimate"></div>
@@ -265,14 +265,14 @@ Never expose internal planner/meta/debug/schema text.`;
   </div>
 </div></div>
 <div class="progressdock"><div id="progressRegenerate" class="inlineprogress"></div><div id="progressSubmit" class="inlineprogress"></div></div>
-<div class="costdisclaimer">API costs are estimates based on the current V8.9 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
+<div class="costdisclaimer">API costs are estimates based on the current V8.10 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
 <div id="progressbox" class="progressbox legacyprogress" aria-hidden="true"></div>
 <div id="status" class="status"></div><div id="error" class="error"></div><div id="rejectedCandidateNotice" class="rejectednotice"><span>This attempt was rejected by visual QA and was not saved as the current version.</span><button id="viewRejectedCandidate" type="button">View rejected candidate</button></div><div id="rejectedCandidateModal" class="rejectedmodal" role="dialog" aria-modal="true" aria-label="Rejected candidate preview"><div class="rejectedmodalcard"><button id="closeRejectedCandidate" class="rejectedclose" type="button" aria-label="Close">×</button><h4>Rejected candidate preview</h4><p id="rejectedCandidateReason"></p><img id="rejectedCandidateImage" alt="Rejected candidate modification"></div></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
 <div class="preview"><img id="output"></div><div id="validation" class="note"></div><div id="enginePeek" class="enginepeek"><button id="engineDetailsBtn" class="enginepeekbtn" type="button">ⓘ Engine details</button><div id="engineInfo" class="engineinfo"></div></div>
 <details id="sourceElementsPanel" class="elementpanel" open>
   <summary>Source elements</summary>
   <div class="accordionbody">
-    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.9 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
+    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.10 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
     <div id="elementSummary" class="elementsummary"></div>
     <div id="elementList" class="elementlist"></div>
   </div>
@@ -313,8 +313,8 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 8.9</div>
-</footer></main><script>const APP_VERSION='8.9';
+  <div class="versionfooter">Version 8.10</div>
+</footer></main><script>const APP_VERSION='8.10';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -510,8 +510,16 @@ function renderEngineInfo(data,target,operation=lastEngineOperation,reused=lastS
 }
 
 
-$('engineDetailsBtn')?.addEventListener('click',()=>{$('enginePeek')?.classList.toggle('open');});
-document.addEventListener('click',e=>{const p=$('enginePeek');if(p&&p.classList.contains('open')&&!p.contains(e.target))p.classList.remove('open');});
+// V8.10: wire Engine Details only after the DOM is ready. Using native DOM lookup here
+// avoids touching the `$` helper before it has been initialized later in this script.
+window.addEventListener('DOMContentLoaded',()=>{
+  const btn=document.getElementById('engineDetailsBtn');
+  const peek=document.getElementById('enginePeek');
+  btn?.addEventListener('click',()=>peek?.classList.toggle('open'));
+  document.addEventListener('click',e=>{
+    if(peek&&peek.classList.contains('open')&&!peek.contains(e.target))peek.classList.remove('open');
+  });
+});
 
 let textEditorRows=[];
 let sourceElements=[];let lastDiagnostics=[];
@@ -815,7 +823,7 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
   const subjectGeometry=geometryFor(next,'subject-group');
   next=patchStructuredElement(next,'subject-group',{geometry:{...subjectGeometry,x:Number.isFinite(Number(next.subjectX))?Number(next.subjectX):subjectGeometry.x,scale:Number(next.subjectScale||subjectGeometry.scale||1),heightPct:Number(next.subjectTargetHeightPct||next.subjectHeightPct||subjectGeometry.heightPct||0)},availability:(Number(next.subjectCount||0)>1?'grouped':'independent')});
 
-  // V8.9: an explicit user request to show a semantic field outranks compact-size omission rules.
+  // V8.10: an explicit user request to show a semantic field outranks compact-size omission rules.
   const requireFields=[];
   const explicitShow=(words)=>new RegExp(`\\b(?:add|show|include|display|put|place|restore|bring back|must show|keep)\\b[\\s\\S]{0,45}\\b(?:${words})\\b`,`i`).test(String(instruction||''));
   if(explicitShow('address|location'))requireFields.push('address');
@@ -868,7 +876,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.9: added/manual text is now expected to be part of the planned layout.
+  // V8.10: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -1082,7 +1090,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.9: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.10: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -1300,7 +1308,7 @@ function diagnosticsForInstruction(beforePlan={},afterPlan={},instruction=''){
     const groupedAsset=!!(lastServerResult?.subjectAsset) && Number(afterPlan.subjectCount||0)>1;
     add((changed||groupedAsset)?'applied':'partial',
       groupedAsset?'The original reusable subject-group asset is available and the group will be scaled from that source asset rather than from the tiny rendered thumbnail.'
-      :(changed?'Subject size target was increased and locked for this version; V8.9 prefers the original reusable source subject asset when available.'
+      :(changed?'Subject size target was increased and locked for this version; V8.10 prefers the original reusable source subject asset when available.'
                :'A size request was detected, but no reusable subject source asset/geometry was available.'));
   }
 
@@ -1517,7 +1525,7 @@ wireUploader();
 
 let mainProgressStop=null;
 function setProgress(step,title){
-  // V8.9 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
+  // V8.10 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
   const host=document.querySelector('.inlineprogress.running');
   if(host&&title){const cur=host.querySelector('.icurrent');if(cur)cur.textContent=title;}
 }
@@ -2238,7 +2246,7 @@ function measureTextBlock(ctx,headline,dateTime,venue,address,extra,extraFacts,c
 
   const facts=[];
   if(dateTime)facts.push({role:'dateTime',text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.9: user-added/extra text outranks location when space is tight.
+  // V8.10: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -2383,7 +2391,7 @@ async function buildTinyFitBanner(data,w,h){
     }
   }
 
-  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.9 tiny fit-safe banner')),'image/png',1));
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.10 tiny fit-safe banner')),'image/png',1));
 }
 
 async function buildCanvasFirstBanner(data,w,h){
@@ -2411,7 +2419,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.9: instruction/layout intent MUST be initialized before subject placement.
+  // V8.10: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -2450,7 +2458,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.9 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.10 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const cropMode=String(plan.subjectCropMode||'').toLowerCase();
     const headshot=/headshot|face-closeup|face-close-up/.test(cropMode);
@@ -2665,7 +2673,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.9 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.10 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2684,7 +2692,7 @@ $('submit').onclick=async()=>{
     }else fd.append('mode','generate');
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.9 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.10 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2784,8 +2792,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.9 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.9 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.10 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.10 re-generated a different composition, but final-image validation could not confirm every item.';
     renderEngineInfo(lastServerResult,target,'REGENERATE',true);refreshActionCostEstimates();
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
     
@@ -2927,7 +2935,7 @@ $('modifyBtn').onclick=async()=>{
       j.backgroundArt=j.backgroundArt||baseData.backgroundArt;
       j.subjectAsset=j.subjectAsset||baseData.subjectAsset;
     }
-    // V8.9: backend modifications are the newest state and must win over the older browser plan.
+    // V8.10: backend modifications are the newest state and must win over the older browser plan.
     // The previous merge order could erase a newly returned crop/scale/position change.
     j.bannerPlan=applyVisualInstructionToPlan(
       {...priorPlanForModify, ...(j.bannerPlan||baseData.bannerPlan||{})},

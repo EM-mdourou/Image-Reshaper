@@ -1,6 +1,6 @@
 {
   "name": "image-reshaper",
-  "version": "8.9.0",
+  "version": "8.10.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -10,6 +10,6 @@
     "pg": "^8.13.1"
   },
   "scripts": {
-    "test": "node tests/v83-routing.test.mjs && node tests/v83-static.test.mjs && node tests/v83-handler-mock.test.mjs && node tests/v83-frontend-state.test.mjs && node tests/v86-ui.test.mjs && node tests/v87-structured-state.test.mjs && node tests/v88-headshot-rejection.test.mjs && node tests/v89-ui-priority.test.mjs"
+    "test": "node tests/v83-routing.test.mjs && node tests/v83-static.test.mjs && node tests/v83-handler-mock.test.mjs && node tests/v83-frontend-state.test.mjs && node tests/v86-ui.test.mjs && node tests/v87-structured-state.test.mjs && node tests/v88-headshot-rejection.test.mjs && node tests/v89-ui-priority.test.mjs && node tests/v810-uploader-init.test.mjs"
   }
 }
