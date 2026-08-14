@@ -1,12 +1,12 @@
-# Image Reshaper — V8.10
-## V8.10 upload hotfix
+# Image Reshaper — V8.11
+## V8.11 upload hotfix
 - Fixes a frontend initialization crash introduced by the Engine Details popover.
 - Click-to-browse and drag/drop upload handlers now initialize normally.
 - Engine Details wiring waits for DOM readiness and does not access the `$` helper before initialization.
 - Adds a regression test that verifies uploader event wiring and initialization order.
 
 
-## V8.10 changes
+## V8.11 changes
 
 ### User-required fields override compact-size priority
 When the user explicitly asks to add/show an address, venue, CTA, or date/time, that field is promoted to **USER_REQUIRED**. Compact and tiny layout budgets may normally omit lower-priority fields, but an explicit user request now overrides that omission rule.

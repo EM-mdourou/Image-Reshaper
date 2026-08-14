@@ -20,6 +20,10 @@
     "api/auth/logout.js": {
       "maxDuration": 10,
       "memory": 128
+    },
+    "api/history.js": {
+      "maxDuration": 15,
+      "memory": 256
     }
   }
 }

@@ -1,19 +1,19 @@
-# V8.10 Test Report
+# V8.11 Test Report
 
-V8.10 adds explicit user-priority visibility overrides, reasoned failure diagnostics, minimized Engine Details, and full-width action progress.
+V8.11 adds explicit user-priority visibility overrides, reasoned failure diagnostics, minimized Engine Details, and full-width action progress.
 
-# V8.10 Test Report
+# V8.11 Test Report
 
-## Added in V8.10
+## Added in V8.11
 - Rejected-candidate preview modal/link.
 - Friendly rejection wording.
 - Backend/browser merge-order regression test.
 - Headshot/face-closeup crop mode and `zoom into` parsing.
 - QA-rejected candidate returned without saving it as current version.
 
-# V8.10 Test Report
+# V8.11 Test Report
 
-## Added in V8.10
+## Added in V8.11
 - Structured design state v2 exists and is preserved in the plan.
 - Text elements carry persistent geometry/style metadata.
 - Text move/scale/color instructions patch structured state before rendering.
@@ -24,4 +24,4 @@ V8.10 adds explicit user-priority visibility overrides, reasoned failure diagnos
 - Exact-canvas renderers read structured text geometry for persistent positional/style changes.
 
 ## Regression coverage
-The existing routing, tiny fit-budget/no-overlap, manifest reuse, mocked handler operation, cost/progress UI, and syntax tests are run together with the V8.10 structured-state test before packaging.
+The existing routing, tiny fit-budget/no-overlap, manifest reuse, mocked handler operation, cost/progress UI, and syntax tests are run together with the V8.11 structured-state test before packaging.

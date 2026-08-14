@@ -28,5 +28,5 @@ for(const required of [
 const finalWirePos=html.lastIndexOf('wireUploader();');
 if(finalWirePos<helperPos) throw new Error('Uploader is initialized before DOM helper setup');
 
-if(!html.includes("const APP_VERSION='8.10'")) throw new Error('wrong app version');
-console.log('PASS v8.10 uploader initialization regression test');
+if(!html.includes("const APP_VERSION='8.11'")) throw new Error('wrong app version');
+console.log('PASS v8.11 uploader initialization regression test');
