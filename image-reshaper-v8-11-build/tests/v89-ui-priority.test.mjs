@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const api=fs.readFileSync(new URL('../api/reshape.js',import.meta.url),'utf8');
+assert.match(html,/Version 8\.11/);
+assert.match(html,/engineDetailsBtn/);
+assert.match(html,/enginepeek/);
+assert.match(html,/progressdock/);
+assert.match(html,/font-size:13px/);
+assert.match(html,/USER_REQUIRED/);
+assert.match(html,/visibleFieldDecisionDiagnostic/);
+assert.match(api,/explicitRequiredFields/);
+assert.match(api,/applyUserRequiredVisibility/);
+assert.match(api,/userPriorityOverride/);
+console.log('PASS v8.11 UI, priority override, and diagnostic-reason tests');

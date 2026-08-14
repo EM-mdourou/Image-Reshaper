@@ -1,0 +1,29 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/reshape.js": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "api/health.js": {
+      "maxDuration": 10,
+      "memory": 256
+    },
+    "api/auth/login.js": {
+      "maxDuration": 15,
+      "memory": 256
+    },
+    "api/auth/me.js": {
+      "maxDuration": 10,
+      "memory": 128
+    },
+    "api/auth/logout.js": {
+      "maxDuration": 10,
+      "memory": 128
+    },
+    "api/history.js": {
+      "maxDuration": 15,
+      "memory": 256
+    }
+  }
+}
