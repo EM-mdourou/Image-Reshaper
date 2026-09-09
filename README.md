@@ -1,3 +1,7 @@
+Image Reshaper V8.12
+
+Added manual "Crop to size" workflow with a client-side crop editor, exact-dimension PNG export, and CROP history logging.
+
 # Image Reshaper — V8.11
 ## V8.11 upload hotfix
 - Fixes a frontend initialization crash introduced by the Engine Details popover.

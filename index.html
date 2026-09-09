@@ -210,8 +210,30 @@ details.elementpanel .accordionbody,details.texteditor .accordionbody{padding:14
 
 .historyitem.currenthistory{border:2px solid #a4bd43;background:#fbfdf6;box-shadow:0 5px 18px rgba(91,112,22,.08)}
 .historyitem.currenthistory .historyrun{font-size:13px;color:#526700}
+
+button.cropbtn{border:1px solid #111;border-radius:10px;background:#f7f9f1;color:#111;padding:14px 18px;font-weight:850;cursor:pointer}
+button.cropbtn:hover{background:#eef3df}
+button.cropbtn:disabled{opacity:.45;cursor:not-allowed}
+.cropmodal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.7);padding:22px;align-items:center;justify-content:center}
+.cropmodal.open{display:flex}
+.cropcard{width:min(1100px,95vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.3);padding:18px}
+.crophead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px}
+.crophead h3{margin:0;font-size:22px}.crophead p{margin:4px 0 0;color:#68705e;font-size:13px}
+.cropiconbtn{border:1px solid #d7dcc9;background:#fff;border-radius:999px;width:36px;height:36px;font-size:22px;line-height:1;cursor:pointer}
+.cropstagewrap{background:#0e1114;border-radius:16px;padding:14px}
+.cropstage{position:relative;width:100%;height:min(70vh,560px);min-height:320px;overflow:hidden;border-radius:12px;background:radial-gradient(circle at center,#2c3338 0,#171c20 55%,#0f1316 100%);touch-action:none}
+.cropstage img{position:absolute;user-select:none;-webkit-user-drag:none;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.cropbox{position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.48);cursor:move;background:transparent}
+.cropgridline{position:absolute;background:rgba(255,255,255,.45);pointer-events:none}.cropgridline.v{top:0;bottom:0;width:1px}.cropgridline.v.one{left:33.333%}.cropgridline.v.two{left:66.666%}.cropgridline.h{left:0;right:0;height:1px}.cropgridline.h.one{top:33.333%}.cropgridline.h.two{top:66.666%}
+.crophandle{position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #111;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.crophandle.nw{left:-9px;top:-9px;cursor:nwse-resize}.crophandle.ne{right:-9px;top:-9px;cursor:nesw-resize}.crophandle.sw{left:-9px;bottom:-9px;cursor:nesw-resize}.crophandle.se{right:-9px;bottom:-9px;cursor:nwse-resize}
+.cropmeta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;font-size:12px}.cropmeta div{background:#f7f8f3;border:1px solid #e3e6d9;border-radius:10px;padding:10px 12px}.cropmeta b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#647124;margin-bottom:3px}
+.croptips{font-size:12px;color:#666;line-height:1.45;margin-top:12px}
+.cropactions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.cropsecondary,.cropprimary{border-radius:10px;padding:12px 16px;font-weight:800;cursor:pointer}.cropsecondary{border:1px solid #cfd6bc;background:#fff;color:#111}.cropprimary{border:0;background:var(--green);color:#111}
+@media(max-width:760px){.cropcard{padding:14px}.cropstage{height:56vh;min-height:280px}.cropmeta{grid-template-columns:1fr}.cropactions{flex-direction:column}.cropactions button{width:100%}}
 </style><script>
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.11:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.12:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -254,25 +276,67 @@ Never expose internal planner/meta/debug/schema text.`;
     <label>Height <input id="customH" type="number" min="50" max="5000" step="1" placeholder="e.g. 628"></label>
     <button type="button" id="useCustom">Use custom</button>
   </div>
-</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.11 preserves a structured current-design state, retries source reading when needed, and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.11 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
+</div></section><section class="card instructions compactcard"><div class="head"><span class="step">03</span><h3>Optional instructions</h3></div><textarea id="instructions" placeholder="Example: Change the title to ‘Ramadan Event’, make the featured person larger, or move the call-to-action to the right."></textarea><div class="hint">Optional: use natural language for factual corrections, source-element requests, placement, scale, and design changes. V8.12 preserves a structured current-design state, retries source reading when needed, and can use an independent vision fallback if the primary analysis returns no visible text. Example: “Title should be ‘Ramadan Event’, make the featured person larger, and place the date near the call-to-action.” The first Reshape creates a new composition from the original artwork. Then use “Modify this design” below the result to refine the CURRENT design without starting over. V8.12 includes a backend health check at /api/reshape (GET).</div></section></div></div><div class="action"><div><b id="chosen">Events</b><span id="dims" style="margin-left:10px">880 × 460 px</span></div><div class="actionbuttons">
   <div class="actionunit">
     <button id="regenerate" class="regenbtn" type="button" disabled>Re-generate</button>
     <div id="costRegenerate" class="costestimate"></div>
+  </div>
+  <div class="actionunit">
+    <button id="cropBtn" class="cropbtn" type="button" disabled>Crop to size</button>
+    <div id="costCrop" class="costestimate"></div>
   </div>
   <div class="actionunit">
     <button id="submit" class="primary" disabled>Reshape with AI →</button>
     <div id="costSubmit" class="costestimate"></div>
   </div>
 </div></div>
-<div class="progressdock"><div id="progressRegenerate" class="inlineprogress"></div><div id="progressSubmit" class="inlineprogress"></div></div>
-<div class="costdisclaimer">API costs are estimates based on the current V8.11 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
+<div class="progressdock"><div id="progressRegenerate" class="inlineprogress"></div><div id="progressCrop" class="inlineprogress"></div><div id="progressSubmit" class="inlineprogress"></div></div>
+<div class="costdisclaimer">API costs are estimates based on the current V8.12 model path. Image-input tokens, planner/QA usage, and automatic retries can change the final billed amount.</div>
 <div id="progressbox" class="progressbox legacyprogress" aria-hidden="true"></div>
-<div id="status" class="status"></div><div id="error" class="error"></div><div id="rejectedCandidateNotice" class="rejectednotice"><span>This attempt was rejected by visual QA and was not saved as the current version.</span><button id="viewRejectedCandidate" type="button">View rejected candidate</button></div><div id="rejectedCandidateModal" class="rejectedmodal" role="dialog" aria-modal="true" aria-label="Rejected candidate preview"><div class="rejectedmodalcard"><button id="closeRejectedCandidate" class="rejectedclose" type="button" aria-label="Close">×</button><h4>Rejected candidate preview</h4><p id="rejectedCandidateReason"></p><img id="rejectedCandidateImage" alt="Rejected candidate modification"></div></div><section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
+<div id="status" class="status"></div><div id="error" class="error"></div><div id="rejectedCandidateNotice" class="rejectednotice"><span>This attempt was rejected by visual QA and was not saved as the current version.</span><button id="viewRejectedCandidate" type="button">View rejected candidate</button></div><div id="rejectedCandidateModal" class="rejectedmodal" role="dialog" aria-modal="true" aria-label="Rejected candidate preview"><div class="rejectedmodalcard"><button id="closeRejectedCandidate" class="rejectedclose" type="button" aria-label="Close">×</button><h4>Rejected candidate preview</h4><p id="rejectedCandidateReason"></p><img id="rejectedCandidateImage" alt="Rejected candidate modification"></div></div>
+<div id="cropModal" class="cropmodal" role="dialog" aria-modal="true" aria-label="Crop to selected size">
+  <div class="cropcard">
+    <div class="crophead">
+      <div>
+        <h3>Crop to selected size</h3>
+        <p id="cropTargetLabel">Output: 880 × 460 px</p>
+      </div>
+      <button id="cropClose" class="cropiconbtn" type="button" aria-label="Close crop editor">×</button>
+    </div>
+    <div class="cropstagewrap">
+      <div id="cropStage" class="cropstage">
+        <img id="cropImage" alt="Crop source preview">
+        <div id="cropBox" class="cropbox" aria-hidden="true">
+          <div class="cropgridline v one"></div>
+          <div class="cropgridline v two"></div>
+          <div class="cropgridline h one"></div>
+          <div class="cropgridline h two"></div>
+          <span class="crophandle nw" data-handle="nw"></span>
+          <span class="crophandle ne" data-handle="ne"></span>
+          <span class="crophandle sw" data-handle="sw"></span>
+          <span class="crophandle se" data-handle="se"></span>
+        </div>
+      </div>
+    </div>
+    <div class="cropmeta">
+      <div><b>Aspect ratio</b> <span id="cropAspectLabel">1.91:1</span></div>
+      <div><b>Selection</b> <span id="cropSelectionLabel">Ready</span></div>
+      <div><b>Mode</b> <span>Manual crop · no API cost</span></div>
+    </div>
+    <div class="croptips">Drag the crop area to reposition it. Drag any corner to resize it while keeping the selected aspect ratio locked.</div>
+    <div class="cropactions">
+      <button id="cropReset" class="cropsecondary" type="button">Reset</button>
+      <button id="cropCancel" class="cropsecondary" type="button">Cancel</button>
+      <button id="cropSave" class="cropprimary" type="button">Save crop</button>
+    </div>
+  </div>
+</div>
+<section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
 <div class="preview"><img id="output"></div><div id="validation" class="note"></div><div id="enginePeek" class="enginepeek"><button id="engineDetailsBtn" class="enginepeekbtn" type="button">ⓘ Engine details</button><div id="engineInfo" class="engineinfo"></div></div>
 <details id="sourceElementsPanel" class="elementpanel" open>
   <summary>Source elements</summary>
   <div class="accordionbody">
-    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.11 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
+    <div class="elementintro">Elements identified from the original artwork are kept as a reusable library for later Modify requests.</div><div class="elementintrohelp"><b>Grouped / partial:</b> the element was detected inside a shared/grouped crop rather than as a clean standalone cutout. V8.12 will still try to lift scale/move requests back to the best reusable source geometry or subject asset when available, but exact independent placement may remain limited if no clean standalone cutout exists.</div>
     <div id="elementSummary" class="elementsummary"></div>
     <div id="elementList" class="elementlist"></div>
   </div>
@@ -313,8 +377,8 @@ Never expose internal planner/meta/debug/schema text.`;
 <div id="historyList" class="historylist"></div>
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
-  <div class="versionfooter">Version 8.11</div>
-</footer></main><script>const APP_VERSION='8.11';
+  <div class="versionfooter">Version 8.12</div>
+</footer></main><script>const APP_VERSION='8.12';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -363,7 +427,7 @@ function estimateActionCost(operation='GENERATE',target=s,reused=false){
   // but actual text/image-input token usage varies by poster and automatic retry behavior.
   let typical='',retry='',detail='';
   if(exact){
-    if(op==='EDIT_TEXT'){
+    if(op==='CROP'){typical='$0.00';retry='$0.00';detail='Client-side crop and export in the browser. No API call is made.';}else if(op==='EDIT_TEXT'){
       typical='$0.01–$0.03';retry='$0.04';detail='Exact-canvas text state + final vision QA; normally no new image-generation call.';
     }else if(op==='MODIFY'){
       typical='$0.01–$0.05';retry='$0.07';detail='Structured patch + instruction interpretation/QA; normally reuses the existing exact-canvas visual assets.';
@@ -373,7 +437,9 @@ function estimateActionCost(operation='GENERATE',target=s,reused=false){
       typical=reused?'$0.34–$0.43':'$0.35–$0.46';retry='$0.55';detail=(reused?'Cached manifest; ':'Source analysis + ')+'high-quality background and subject asset generation, plus planning/QA.';
     }
   }else{
-    if(op==='EDIT_TEXT'){
+    if(op==='CROP'){
+      typical='$0.00';retry='$0.00';detail='Client-side crop and export in the browser. No API call is made.';
+    }else if(op==='EDIT_TEXT'){
       typical='$0.27–$0.34';retry='$0.55';detail='High-quality current-design image patch + preservation comparison + final QA.';
     }else if(op==='MODIFY'){
       typical='$0.28–$0.36';retry='$0.58';detail='Instruction interpretation + high-quality current-design image patch + comparison/QA.';
@@ -396,11 +462,13 @@ function refreshActionCostEstimates(){
   };
   set('costSubmit',reused?'RESIZE':'GENERATE',reused);
   set('costRegenerate','REGENERATE',true);
+  set('costCrop','CROP',true);
   set('costText','EDIT_TEXT',true);
   set('costModify','MODIFY',true);
 }
 function progressStagesFor(operation='GENERATE',target=s,reused=false){
   const op=String(operation||'GENERATE').toUpperCase(), exact=isExactCostProfile(target);
+  if(op==='CROP') return ['Load uploaded image','Lock crop box to selected aspect ratio','Adjust crop selection','Export exact target dimensions','Save preview and download'];
   if(op==='EDIT_TEXT') return exact?
     ['Load current structured state','Apply authoritative text values','Reflow affected text regions','Render exact canvas','Verify changed text','Save new version']:
     ['Load current structured state','Apply authoritative text values','Reflow affected regions','Patch current image','Compare with baseline','Verify changed text','Save new version'];
@@ -417,10 +485,10 @@ function progressStagesFor(operation='GENERATE',target=s,reused=false){
     ['Prepare upload','Analyze source once','Extract facts / people / logos','Build reusable source library','Prioritize for target size','Plan exact-canvas layout','Generate background + subject assets','Compose exact canvas','Verify fit / content','Finalize PNG']:
     ['Prepare upload','Analyze source once','Extract facts / people / logos','Prioritize source content','Plan target layout','Generate composition','Verify facts / geometry / margins','Finalize PNG'];
 }
-function progressHostId(key){return {submit:'progressSubmit',regenerate:'progressRegenerate',text:'progressText',modify:'progressModify'}[key]||'progressSubmit';}
+function progressHostId(key){return {submit:'progressSubmit',regenerate:'progressRegenerate',crop:'progressCrop',text:'progressText',modify:'progressModify'}[key]||'progressSubmit';}
 function beginActionProgress(key,operation,target=s,reused=false){
   const host=$(progressHostId(key)); if(!host)return ()=>{};
-  ['progressSubmit','progressRegenerate','progressText','progressModify'].forEach(id=>{const el=$(id);if(el&&el!==host){el.classList.remove('running');el.innerHTML='';}});
+  ['progressSubmit','progressRegenerate','progressCrop','progressText','progressModify'].forEach(id=>{const el=$(id);if(el&&el!==host){el.classList.remove('running');el.innerHTML='';}});
   const steps=progressStagesFor(operation,target,reused);
   const profile=localCanvasProfile(target?.[1]||1,target?.[2]||1);
   const start=Date.now(); let idx=0;
@@ -436,6 +504,7 @@ function beginActionProgress(key,operation,target=s,reused=false){
     if(op==='EDIT_TEXT')base=isExactCostProfile(target)?1.6:6;
     else if(op==='MODIFY')base=isExactCostProfile(target)?2.2:7;
     else if(op==='REGENERATE')base=isExactCostProfile(target)?4.5:8;
+    else if(op==='CROP')base=0.7;
     else base=isExactCostProfile(target)?5:8;
     idx=Math.min(steps.length-1,Math.floor(elapsed/base));
     host.querySelector('.itime').textContent=Math.floor(elapsed)+'s';
@@ -524,7 +593,7 @@ function renderEngineInfo(data,target,operation=lastEngineOperation,reused=lastS
 }
 
 
-// V8.11: wire Engine Details only after the DOM is ready. Using native DOM lookup here
+// V8.12: wire Engine Details only after the DOM is ready. Using native DOM lookup here
 // avoids touching the `$` helper before it has been initialized later in this script.
 window.addEventListener('DOMContentLoaded',()=>{
   const btn=document.getElementById('engineDetailsBtn');
@@ -837,7 +906,7 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
   const subjectGeometry=geometryFor(next,'subject-group');
   next=patchStructuredElement(next,'subject-group',{geometry:{...subjectGeometry,x:Number.isFinite(Number(next.subjectX))?Number(next.subjectX):subjectGeometry.x,scale:Number(next.subjectScale||subjectGeometry.scale||1),heightPct:Number(next.subjectTargetHeightPct||next.subjectHeightPct||subjectGeometry.heightPct||0)},availability:(Number(next.subjectCount||0)>1?'grouped':'independent')});
 
-  // V8.11: an explicit user request to show a semantic field outranks compact-size omission rules.
+  // V8.12: an explicit user request to show a semantic field outranks compact-size omission rules.
   const requireFields=[];
   const explicitShow=(words)=>new RegExp(`\\b(?:add|show|include|display|put|place|restore|bring back|must show|keep)\\b[\\s\\S]{0,45}\\b(?:${words})\\b`,`i`).test(String(instruction||''));
   if(explicitShow('address|location'))requireFields.push('address');
@@ -890,7 +959,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.11: added/manual text is now expected to be part of the planned layout.
+  // V8.12: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -1104,7 +1173,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.11: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.12: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -1322,7 +1391,7 @@ function diagnosticsForInstruction(beforePlan={},afterPlan={},instruction=''){
     const groupedAsset=!!(lastServerResult?.subjectAsset) && Number(afterPlan.subjectCount||0)>1;
     add((changed||groupedAsset)?'applied':'partial',
       groupedAsset?'The original reusable subject-group asset is available and the group will be scaled from that source asset rather than from the tiny rendered thumbnail.'
-      :(changed?'Subject size target was increased and locked for this version; V8.11 prefers the original reusable source subject asset when available.'
+      :(changed?'Subject size target was increased and locked for this version; V8.12 prefers the original reusable source subject asset when available.'
                :'A size request was detected, but no reusable subject source asset/geometry was available.'));
   }
 
@@ -1436,23 +1505,35 @@ function archiveCurrentRun(){
 }
 function resetDesignSession(clearFile=false){
   lastServerResult=null;lastRenderedUrl=null;currentRunInstruction='';historyRunNumber=0;currentVersionNumber=1;lastDesignTarget=null;
-  if($('historyList'))$('historyList').innerHTML='';if($('currentHistoryCard')){$('currentHistoryCard').innerHTML='';$('currentHistoryCard').style.display='none';}
-  if($('result'))$('result').style.display='none';if($('enginePeek'))$('enginePeek').classList.remove('ready','open');
+  if($('historyList'))$('historyList').innerHTML='';
+  if($('currentHistoryCard')){$('currentHistoryCard').innerHTML='';$('currentHistoryCard').style.display='none';}
+  if($('result'))$('result').style.display='none';
+  if($('enginePeek'))$('enginePeek').classList.remove('ready','open');
   if($('regenerate'))$('regenerate').disabled=true;
+  if($('applyTextEdits'))$('applyTextEdits').disabled=true;
+  if($('modifyBtn'))$('modifyBtn').disabled=true;
   if($('error'))$('error').style.display='none';
   if($('instructions'))$('instructions').value='';
   if($('modifyInstructions'))$('modifyInstructions').value='';
   if($('currentInstruction'))$('currentInstruction').style.display='none';
   textEditorRows=[];if($('textRows'))$('textRows').innerHTML='';
-  sourceElements=[];lastDiagnostics=[];versionStates=[];currentDesignState=null;if($('elementSummary'))$('elementSummary').innerHTML='';if($('elementList'))$('elementList').innerHTML='';setDiagnostics([]);
+  sourceElements=[];lastDiagnostics=[];versionStates=[];currentDesignState=null;
+  if($('elementSummary'))$('elementSummary').innerHTML='';
+  if($('elementList'))$('elementList').innerHTML='';
+  setDiagnostics([]);
   if(clearFile){
     f=null;
     $('file').value='';
     $('filename').textContent='';
     $('clearAll').style.display='none';
     $('submit').disabled=true;
+    if($('cropBtn'))$('cropBtn').disabled=true;
     d.innerHTML='<div class="up">↑</div><strong>Drag & drop your image here</strong><small>or click to browse · PNG, JPG, WEBP</small>';
+    if(typeof closeCropModal==='function')closeCropModal(true);
     wireUploader();
+  }
+}
+
 const customBtn=$('useCustom');
 if(customBtn){
   customBtn.onclick=()=>{
@@ -1464,10 +1545,6 @@ if(customBtn){
     }
   };
 }
-
-  }
-}
-
 
 function wireUploader(){
   const input=$('file');
@@ -1527,19 +1604,131 @@ function wireDestinations(){
     btn.dataset.destinationWired='1';
   });
 }
-wireDestinations();M();let d=$('drop');d.ondragover=e=>e.preventDefault();function F(x){if(!x)return;resetDesignSession(false);f=x;$('filename').textContent='✓ '+x.name;$('clearAll').style.display='inline-block';$('submit').disabled=false;d.innerHTML=`<img src="${URL.createObjectURL(x)}">`;refreshActionCostEstimates()}$('clearAll').onclick=()=>resetDesignSession(true);
+wireDestinations();M();let d=$('drop');d.ondragover=e=>e.preventDefault();function F(x){if(!x)return;resetDesignSession(false);f=x;$('filename').textContent='✓ '+x.name;$('clearAll').style.display='inline-block';$('submit').disabled=false;if($('cropBtn'))$('cropBtn').disabled=false;d.innerHTML=`<img src="${URL.createObjectURL(x)}">`;refreshActionCostEstimates()}$('clearAll').onclick=()=>resetDesignSession(true);
 function fitExact(src,w,h){return new Promise((ok,no)=>{let i=new Image();i.onload=()=>{let c=document.createElement('canvas');c.width=w;c.height=h;let x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';let bg=Math.max(w/i.width,h/i.height),bw=i.width*bg,bh=i.height*bg;x.save();x.filter='blur(20px)';x.globalAlpha=.88;x.drawImage(i,(w-bw)/2,(h-bh)/2,bw,bh);x.restore();let fg=Math.min(w/i.width,h/i.height),fw=i.width*fg,fh=i.height*fg;x.drawImage(i,(w-fw)/2,(h-fh)/2,fw,fh);c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not create PNG')),'image/png',1)};i.onerror=no;i.src=src})}
 
 async function compositeAddedTextOverImage(imageUrl,plan={},w,h){
   return await fitExact(imageUrl,w,h);
 }
 
+const cropState={open:false,url:'',img:null,nw:0,nh:0,displayW:0,displayH:0,imgX:0,imgY:0,box:{x:0,y:0,w:0,h:0},drag:null};
+function cropAspect(){return Math.max(.0001,(Number(s?.[1])||1)/(Number(s?.[2])||1));}
+function formatAspect(v){if(!isFinite(v)||v<=0)return '1:1';if(v>=1)return `${v.toFixed(2)}:1`;return `1:${(1/v).toFixed(2)}`;}
+function updateCropLabels(){
+  const target=`${s[1]} × ${s[2]} px`; if($('cropTargetLabel'))$('cropTargetLabel').textContent=`Output: ${target}`;
+  if($('cropAspectLabel'))$('cropAspectLabel').textContent=formatAspect(cropAspect());
+  const b=cropState.box||{}; if($('cropSelectionLabel'))$('cropSelectionLabel').textContent=`${Math.round(b.w||0)} × ${Math.round(b.h||0)} preview px`;
+}
+function clampCropBox(){
+  const min=48, maxX=cropState.imgX+cropState.displayW, maxY=cropState.imgY+cropState.displayH;
+  cropState.box.w=Math.max(min,Math.min(cropState.box.w,cropState.displayW));
+  cropState.box.h=Math.max(min,Math.min(cropState.box.h,cropState.displayH));
+  cropState.box.x=Math.max(cropState.imgX,Math.min(cropState.box.x,maxX-cropState.box.w));
+  cropState.box.y=Math.max(cropState.imgY,Math.min(cropState.box.y,maxY-cropState.box.h));
+}
+function renderCropUi(){
+  const img=$('cropImage'),box=$('cropBox'); if(!img||!box)return;
+  img.src=cropState.url||''; img.style.left=cropState.imgX+'px'; img.style.top=cropState.imgY+'px'; img.style.width=cropState.displayW+'px'; img.style.height=cropState.displayH+'px';
+  box.style.left=cropState.box.x+'px'; box.style.top=cropState.box.y+'px'; box.style.width=cropState.box.w+'px'; box.style.height=cropState.box.h+'px';
+  updateCropLabels();
+}
+function resetCropBox(){
+  const aspect=cropAspect(),margin=18,availW=Math.max(40,cropState.displayW-margin*2),availH=Math.max(40,cropState.displayH-margin*2);
+  let w=availW,h=w/aspect; if(h>availH){h=availH;w=h*aspect;}
+  cropState.box={x:cropState.imgX+(cropState.displayW-w)/2,y:cropState.imgY+(cropState.displayH-h)/2,w,h};
+  clampCropBox(); renderCropUi();
+}
+async function openCropModal(){
+  if(!f)return;
+  const stop=beginActionProgress('crop','CROP',s,false);
+  try{
+    const url=URL.createObjectURL(f); cropState.url=url;
+    const img=new Image();
+    await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url;});
+    cropState.img=img; cropState.nw=img.naturalWidth; cropState.nh=img.naturalHeight;
+    const stage=$('cropStage'); const modal=$('cropModal'); if(!stage||!modal)throw new Error('Crop editor is unavailable.');
+    modal.classList.add('open'); cropState.open=true;
+    const rect=stage.getBoundingClientRect();
+    const scale=Math.min(rect.width/cropState.nw,rect.height/cropState.nh);
+    cropState.displayW=Math.max(1,Math.round(cropState.nw*scale)); cropState.displayH=Math.max(1,Math.round(cropState.nh*scale));
+    cropState.imgX=Math.round((rect.width-cropState.displayW)/2); cropState.imgY=Math.round((rect.height-cropState.displayH)/2);
+    resetCropBox();
+  }catch(e){$('error').textContent='Crop editor failed: '+(e?.message||e);$('error').style.display='block';}
+  finally{stop();}
+}
+function closeCropModal(silent=false){const modal=$('cropModal'); if(modal)modal.classList.remove('open'); cropState.open=false; cropState.drag=null; if(!silent&&cropState.url){try{URL.revokeObjectURL(cropState.url);}catch{}}}
+function cropPointerDown(e){
+  if(!cropState.open)return; const stage=$('cropStage'); if(!stage)return; const rect=stage.getBoundingClientRect(); const x=e.clientX-rect.left, y=e.clientY-rect.top;
+  const handle=e.target?.dataset?.handle; const b=cropState.box; cropState.drag={type:handle?('resize-'+handle):'move',startX:x,startY:y,box:{...b}}; e.preventDefault();
+}
+function cropPointerMove(e){
+  if(!cropState.drag||!cropState.open)return; const stage=$('cropStage'); if(!stage)return; const rect=stage.getBoundingClientRect(); const px=e.clientX-rect.left, py=e.clientY-rect.top; const d=cropState.drag, aspect=cropAspect(), min=48;
+  const B={...d.box};
+  if(d.type==='move'){
+    cropState.box.x=B.x+(px-d.startX); cropState.box.y=B.y+(py-d.startY); clampCropBox(); renderCropUi(); return;
+  }
+  const handle=d.type.replace('resize-','');
+  if(handle==='se'){
+    const ax=B.x, ay=B.y; let maxW=(cropState.imgX+cropState.displayW)-ax, maxH=(cropState.imgY+cropState.displayH)-ay; let w=Math.max(min,px-ax), h=w/aspect; if(h>maxH||w>maxW){ const fit=Math.min(maxW,maxH*aspect); w=Math.max(min,fit); h=w/aspect; } if(h>py-ay){ h=Math.max(min,py-ay); w=h*aspect; } cropState.box={x:ax,y:ay,w,h};
+  }else if(handle==='nw'){
+    const bx=B.x+B.w, by=B.y+B.h; let maxW=bx-cropState.imgX, maxH=by-cropState.imgY; let w=Math.max(min,bx-px), h=w/aspect; if(h>maxH||w>maxW){ const fit=Math.min(maxW,maxH*aspect); w=Math.max(min,fit); h=w/aspect; } if(h>by-py){ h=Math.max(min,by-py); w=h*aspect; } cropState.box={x:bx-w,y:by-h,w,h};
+  }else if(handle==='ne'){
+    const ax=B.x, by=B.y+B.h; let maxW=(cropState.imgX+cropState.displayW)-ax, maxH=by-cropState.imgY; let w=Math.max(min,px-ax), h=w/aspect; if(h>maxH||w>maxW){ const fit=Math.min(maxW,maxH*aspect); w=Math.max(min,fit); h=w/aspect; } if(h>by-py){ h=Math.max(min,by-py); w=h*aspect; } cropState.box={x:ax,y:by-h,w,h};
+  }else if(handle==='sw'){
+    const bx=B.x+B.w, ay=B.y; let maxW=bx-cropState.imgX, maxH=(cropState.imgY+cropState.displayH)-ay; let w=Math.max(min,bx-px), h=w/aspect; if(h>maxH||w>maxW){ const fit=Math.min(maxW,maxH*aspect); w=Math.max(min,fit); h=w/aspect; } if(h>py-ay){ h=Math.max(min,py-ay); w=h*aspect; } cropState.box={x:bx-w,y:ay,w,h};
+  }
+  clampCropBox(); renderCropUi();
+}
+function cropPointerUp(){cropState.drag=null;}
+async function saveCropSelection(){
+  if(!cropState.img)return; const stop=beginActionProgress('crop','CROP',s,false);
+  try{
+    const sx=(cropState.box.x-cropState.imgX)/cropState.displayW*cropState.nw;
+    const sy=(cropState.box.y-cropState.imgY)/cropState.displayH*cropState.nh;
+    const sw=cropState.box.w/cropState.displayW*cropState.nw;
+    const sh=cropState.box.h/cropState.displayH*cropState.nh;
+    const canvas=document.createElement('canvas'); canvas.width=s[1]; canvas.height=s[2];
+    const ctx=canvas.getContext('2d'); ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high';
+    ctx.drawImage(cropState.img,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
+    const dataUrl=canvas.toDataURL('image/png');
+    applyCropResult(dataUrl);
+    closeCropModal();
+  }catch(e){$('error').textContent='Could not save crop: '+(e?.message||e);$('error').style.display='block';}
+  finally{stop();}
+}
+function applyCropResult(dataUrl){
+  clearRejectedCandidate(); $('error').style.display='none'; $('status').style.display='none';
+  if(lastRenderedUrl){archiveCurrentRun(); currentVersionNumber++;}
+  lastRenderedUrl=dataUrl; lastDesignTarget=[s[0],s[1],s[2]]; lastEngineOperation='CROP'; lastSourceAnalysisReused=false;
+  lastServerResult={renderMode:'manual-crop-tool',canvasProfile:{id:localCanvasProfile(s[1],s[2])},bannerPlan:{textElements:[],manualTextElements:[],structuredDesignState:{version:0}},validationSummary:'Manual crop completed.'};
+  $('output').src=dataUrl; $('download').href=dataUrl; $('download').download=(f?.name?.replace(/\.[^.]+$/,'')||'cropped-image')+'_'+s[1]+'x'+s[2]+'_cropped.png';
+  $('validation').textContent=`Manual crop completed at exact ${s[1]} × ${s[2]} px. No AI/API call was used.`; $('result').style.display='block';
+  sourceElements=[]; renderSourceElements(); textEditorRows=[]; renderTextEditor();
+  if($('applyTextEdits'))$('applyTextEdits').disabled=true; if($('modifyBtn'))$('modifyBtn').disabled=true; if($('regenerate'))$('regenerate').disabled=true;
+  setDiagnostics([{status:'applied',message:`Manual crop exported at exact ${s[1]} × ${s[2]} px from the crop region you selected.`}]);
+  setCurrentInstruction(`Manual crop to ${s[1]} × ${s[2]} px`,'Manual crop');
+  renderEngineInfo(lastServerResult,lastDesignTarget,'CROP',false); refreshActionCostEstimates();
+  recordPersistentHistory('CROP',`Manual crop to ${s[1]} × ${s[2]} px`);
+}
+function wireCropper(){
+  $('cropBtn')?.addEventListener('click',openCropModal);
+  $('cropClose')?.addEventListener('click',()=>closeCropModal());
+  $('cropCancel')?.addEventListener('click',()=>closeCropModal());
+  $('cropReset')?.addEventListener('click',resetCropBox);
+  $('cropSave')?.addEventListener('click',saveCropSelection);
+  $('cropBox')?.addEventListener('pointerdown',cropPointerDown);
+  document.addEventListener('pointermove',cropPointerMove);
+  document.addEventListener('pointerup',cropPointerUp);
+  $('cropModal')?.addEventListener('click',e=>{if(e.target?.id==='cropModal')closeCropModal();});
+  window.addEventListener('resize',()=>{ if(cropState.open&&cropState.nw&&cropState.nh){ const stage=$('cropStage'); if(!stage)return; const rect=stage.getBoundingClientRect(); const scale=Math.min(rect.width/cropState.nw,rect.height/cropState.nh); cropState.displayW=Math.max(1,Math.round(cropState.nw*scale)); cropState.displayH=Math.max(1,Math.round(cropState.nh*scale)); cropState.imgX=Math.round((rect.width-cropState.displayW)/2); cropState.imgY=Math.round((rect.height-cropState.displayH)/2); resetCropBox(); } });
+}
 
 wireUploader();
+wireCropper();
 
 let mainProgressStop=null;
 function setProgress(step,title){
-  // V8.11 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
+  // V8.12 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
   const host=document.querySelector('.inlineprogress.running');
   if(host&&title){const cur=host.querySelector('.icurrent');if(cur)cur.textContent=title;}
 }
@@ -2260,7 +2449,7 @@ function measureTextBlock(ctx,headline,dateTime,venue,address,extra,extraFacts,c
 
   const facts=[];
   if(dateTime)facts.push({role:'dateTime',text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.11: user-added/extra text outranks location when space is tight.
+  // V8.12: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -2405,7 +2594,7 @@ async function buildTinyFitBanner(data,w,h){
     }
   }
 
-  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.11 tiny fit-safe banner')),'image/png',1));
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.12 tiny fit-safe banner')),'image/png',1));
 }
 
 async function buildCanvasFirstBanner(data,w,h){
@@ -2433,7 +2622,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.11: instruction/layout intent MUST be initialized before subject placement.
+  // V8.12: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -2472,7 +2661,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.11 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.12 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const cropMode=String(plan.subjectCropMode||'').toLowerCase();
     const headshot=/headshot|face-closeup|face-close-up/.test(cropMode);
@@ -2687,7 +2876,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.11 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.12 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2706,7 +2895,7 @@ $('submit').onclick=async()=>{
     }else fd.append('mode','generate');
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.11 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.12 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2716,6 +2905,7 @@ if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
     j=normalizeDesignState(j);
     j.bannerPlan=applyVisualInstructionToPlan(j.bannerPlan||{},$('instructions').value||'');lastServerResult=j;lastRenderedUrl=ex;lastDesignTarget=[s[0],s[1],s[2]];$('modifyInstructions').value='';
     normalizeTextEditorFromPlan(j.bannerPlan||{});
+    if($('applyTextEdits'))$('applyTextEdits').disabled=false; if($('modifyBtn'))$('modifyBtn').disabled=false;
     buildSourceElementLibrary(j);
     captureCurrentVersionState($('instructions').value||'',reuseCanonical?'Resized from cached source manifest':'Initial generation');
     setDiagnostics([{status:'applied',message:reuseCanonical?'Cached source manifest was reused; only the new destination layout was planned/rendered.':'Original artwork was analyzed and a reusable source-element library was created for later modifications.'}]);
@@ -2797,7 +2987,7 @@ $('regenerate').onclick=async()=>{
     const qa=await validateRenderedResult(ex,'Re-generated a meaningfully different layout while preserving all current content.',mandatoryTexts);
 
     captureCurrentVersionState('Re-generated with a different layout','Re-generated layout');
-    normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{});
+    normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{}); if($('applyTextEdits'))$('applyTextEdits').disabled=false; if($('modifyBtn'))$('modifyBtn').disabled=false;
     buildSourceElementLibrary(lastServerResult);
     setCurrentInstruction('Re-generated with a different layout','Re-generated layout');
     setDiagnostics([{
@@ -2807,8 +2997,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.11 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.11 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.12 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.12 re-generated a different composition, but final-image validation could not confirm every item.';
     renderEngineInfo(lastServerResult,target,'REGENERATE',true);refreshActionCostEstimates();
     recordPersistentHistory('REGENERATE','Re-generated with a different layout');
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
@@ -2878,7 +3068,7 @@ $('applyTextEdits').onclick=async()=>{
     const qa=await validateRenderedResult(ex,changeSummary,requiredTexts);
     archiveCurrentRun();currentVersionNumber++;
     $('output').src=ex;$('download').href=ex;lastRenderedUrl=ex;lastServerResult=nextData;
-    captureCurrentVersionState(changeSummary,'Text/content edit');normalizeTextEditorFromPlan(j.bannerPlan||{});buildSourceElementLibrary(lastServerResult);
+    captureCurrentVersionState(changeSummary,'Text/content edit');normalizeTextEditorFromPlan(j.bannerPlan||{});if($('applyTextEdits'))$('applyTextEdits').disabled=false; if($('modifyBtn'))$('modifyBtn').disabled=false;buildSourceElementLibrary(lastServerResult);
     setDiagnostics([{status:qa.verified?'applied':'partial',message:qa.verified?`${changeSummary} · Final PNG visually verified.`:`${changeSummary} · Final PNG validation: ${qa.reason||'one or more requested text items were not visibly confirmed.'}`}]);
     setCurrentInstruction(changeSummary,'Text/content edit');
     $('validation').textContent=qa.verified?`V${APP_VERSION} re-laid out the design and visually verified the authoritative text changes.`:`V${APP_VERSION} re-laid out the design, but final-image validation did not confirm every requested text item.`;
@@ -2952,7 +3142,7 @@ $('modifyBtn').onclick=async()=>{
       j.backgroundArt=j.backgroundArt||baseData.backgroundArt;
       j.subjectAsset=j.subjectAsset||baseData.subjectAsset;
     }
-    // V8.11: backend modifications are the newest state and must win over the older browser plan.
+    // V8.12: backend modifications are the newest state and must win over the older browser plan.
     // The previous merge order could erase a newly returned crop/scale/position change.
     j.bannerPlan=applyVisualInstructionToPlan(
       {...priorPlanForModify, ...(j.bannerPlan||baseData.bannerPlan||{})},
@@ -2984,7 +3174,7 @@ $('modifyBtn').onclick=async()=>{
     const mandatoryTexts=(lastServerResult.bannerPlan?.manualTextElements||[]).map(x=>x.text).filter(Boolean);
     const qa=await validateRenderedResult(ex,instructions,mandatoryTexts);
     captureCurrentVersionState(instructions,explicitBaseState?`Branched from version ${explicitBaseState.version}`:'Modify instruction');
-    normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{});
+    normalizeTextEditorFromPlan(lastServerResult.bannerPlan||{}); if($('applyTextEdits'))$('applyTextEdits').disabled=false; if($('modifyBtn'))$('modifyBtn').disabled=false;
     buildSourceElementLibrary(lastServerResult);
     const stateDiagnostics=diagnosticsForInstruction(beforeModifyPlan,lastServerResult.bannerPlan||{},instructions);
     const fieldDecisionDiagnostics=visibleFieldDecisionDiagnostic(lastServerResult.bannerPlan||{},instructions,qa);
