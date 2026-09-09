@@ -1,5 +1,5 @@
 
-window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.12:
+window.V81_CONTROLLED_CREATIVE_GUIDANCE = `CONTROLLED CREATIVE FREEDOM — V8.13:
 Treat 728x90 as the final canvas before all layout decisions.
 Protect exact factual copy and recognizable source subjects, but otherwise compose the advertisement freely.
 Do not force subjects to edges or predefined columns. Subject may be left, center, right, off-center, between text groups, or integrated with the visual field.
@@ -11,7 +11,7 @@ Use layering and overlap when aesthetically useful.
 Perform a final art-director critique for balance, legibility, recognizability, cropping, dead space, cramped copy, richness, and professional-ad quality; revise the plan if needed.
 Never expose internal planner/meta/debug/schema text.`;
 
-const APP_VERSION='8.12';
+const APP_VERSION='8.13';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -226,7 +226,7 @@ function renderEngineInfo(data,target,operation=lastEngineOperation,reused=lastS
 }
 
 
-// V8.12: wire Engine Details only after the DOM is ready. Using native DOM lookup here
+// V8.13: wire Engine Details only after the DOM is ready. Using native DOM lookup here
 // avoids touching the `$` helper before it has been initialized later in this script.
 window.addEventListener('DOMContentLoaded',()=>{
   const btn=document.getElementById('engineDetailsBtn');
@@ -539,7 +539,7 @@ function applyVisualInstructionToPlan(plan={},instruction=''){
   const subjectGeometry=geometryFor(next,'subject-group');
   next=patchStructuredElement(next,'subject-group',{geometry:{...subjectGeometry,x:Number.isFinite(Number(next.subjectX))?Number(next.subjectX):subjectGeometry.x,scale:Number(next.subjectScale||subjectGeometry.scale||1),heightPct:Number(next.subjectTargetHeightPct||next.subjectHeightPct||subjectGeometry.heightPct||0)},availability:(Number(next.subjectCount||0)>1?'grouped':'independent')});
 
-  // V8.12: an explicit user request to show a semantic field outranks compact-size omission rules.
+  // V8.13: an explicit user request to show a semantic field outranks compact-size omission rules.
   const requireFields=[];
   const explicitShow=(words)=>new RegExp(`\\b(?:add|show|include|display|put|place|restore|bring back|must show|keep)\\b[\\s\\S]{0,45}\\b(?:${words})\\b`,`i`).test(String(instruction||''));
   if(explicitShow('address|location'))requireFields.push('address');
@@ -592,7 +592,7 @@ function colorLuma(hex='#60791c'){
 }
 
 async function overlayMandatoryUserText(renderedUrl,plan={},w,h){
-  // V8.12: added/manual text is now expected to be part of the planned layout.
+  // V8.13: added/manual text is now expected to be part of the planned layout.
   // Keep this hook as a no-op so older call sites continue to work.
   return renderedUrl;
 }
@@ -806,7 +806,7 @@ function themeColorForRole(plan={},role='body'){
   const styles=plan?.textStyles||{};
   const valid=v=>typeof v==='string' && (/^#[0-9a-f]{6}$/i.test(v.trim()) || /^(?:black|white|red|blue|green|orange|purple|gold|yellow|navy|maroon|teal)$/i.test(v.trim()));
   const pick=(vals,fallback='#111111')=>{for(const v of vals){if(valid(v))return v.trim();}return fallback;};
-  // V8.12: source/explicit style first; neutral black is the fallback. Never invent lime green.
+  // V8.13: source/explicit style first; neutral black is the fallback. Never invent lime green.
   if(role==='headline')return pick([styles.headline?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
   if(role==='cta')return pick([styles.cta?.color,plan.ctaTextColor,plan.textColor,plan.accentColor,plan.primaryColor],'#111111');
   return pick([styles[role]?.color,plan.textColor,plan.primaryColor,plan.themeColor,plan.accentColor],'#111111');
@@ -1024,7 +1024,7 @@ function diagnosticsForInstruction(beforePlan={},afterPlan={},instruction=''){
     const groupedAsset=!!(lastServerResult?.subjectAsset) && Number(afterPlan.subjectCount||0)>1;
     add((changed||groupedAsset)?'applied':'partial',
       groupedAsset?'The original reusable subject-group asset is available and the group will be scaled from that source asset rather than from the tiny rendered thumbnail.'
-      :(changed?'Subject size target was increased and locked for this version; V8.12 prefers the original reusable source subject asset when available.'
+      :(changed?'Subject size target was increased and locked for this version; V8.13 prefers the original reusable source subject asset when available.'
                :'A size request was detected, but no reusable subject source asset/geometry was available.'));
   }
 
@@ -1167,18 +1167,6 @@ function resetDesignSession(clearFile=false){
   }
 }
 
-const customBtn=$('useCustom');
-if(customBtn){
-  customBtn.onclick=()=>{
-    const w=+$('customW').value,h=+$('customH').value;
-    if(w>0&&h>0){
-      s=['Custom',w,h];
-      document.querySelectorAll('#presets .preset').forEach(x=>x.classList.remove('active'));
-      M();
-    }
-  };
-}
-
 function wireUploader(){
   const input=$('file');
   const drop=$('drop');
@@ -1237,7 +1225,20 @@ function wireDestinations(){
     btn.dataset.destinationWired='1';
   });
 }
-wireDestinations();M();let d=$('drop');d.ondragover=e=>e.preventDefault();function F(x){if(!x)return;resetDesignSession(false);f=x;$('filename').textContent='✓ '+x.name;$('clearAll').style.display='inline-block';$('submit').disabled=false;if($('cropBtn'))$('cropBtn').disabled=false;d.innerHTML=`<img src="${URL.createObjectURL(x)}">`;refreshActionCostEstimates()}$('clearAll').onclick=()=>resetDesignSession(true);
+function wireCustomDestination(){
+  const customBtn=$('useCustom');
+  if(!customBtn||customBtn.dataset.destinationWired)return;
+  customBtn.addEventListener('click',()=>{
+    const w=+$('customW').value,h=+$('customH').value;
+    if(w>0&&h>0){
+      s=['Custom',w,h];
+      document.querySelectorAll('#presets .preset').forEach(x=>x.classList.remove('active'));
+      M();
+    }
+  });
+  customBtn.dataset.destinationWired='1';
+}
+wireDestinations();wireCustomDestination();M();let d=$('drop');d.ondragover=e=>e.preventDefault();function F(x){if(!x)return;resetDesignSession(false);f=x;$('filename').textContent='✓ '+x.name;$('clearAll').style.display='inline-block';$('submit').disabled=false;if($('cropBtn'))$('cropBtn').disabled=false;d.innerHTML=`<img src="${URL.createObjectURL(x)}">`;refreshActionCostEstimates()}$('clearAll').onclick=()=>resetDesignSession(true);
 function fitExact(src,w,h){return new Promise((ok,no)=>{let i=new Image();i.onload=()=>{let c=document.createElement('canvas');c.width=w;c.height=h;let x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';let bg=Math.max(w/i.width,h/i.height),bw=i.width*bg,bh=i.height*bg;x.save();x.filter='blur(20px)';x.globalAlpha=.88;x.drawImage(i,(w-bw)/2,(h-bh)/2,bw,bh);x.restore();let fg=Math.min(w/i.width,h/i.height),fw=i.width*fg,fh=i.height*fg;x.drawImage(i,(w-fw)/2,(h-fh)/2,fw,fh);c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not create PNG')),'image/png',1)};i.onerror=no;i.src=src})}
 
 async function compositeAddedTextOverImage(imageUrl,plan={},w,h){
@@ -1361,7 +1362,7 @@ wireCropper();
 
 let mainProgressStop=null;
 function setProgress(step,title){
-  // V8.12 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
+  // V8.13 uses per-action progress panels. This hook is kept so existing finalization calls remain valid.
   const host=document.querySelector('.inlineprogress.running');
   if(host&&title){const cur=host.querySelector('.icurrent');if(cur)cur.textContent=title;}
 }
@@ -2082,7 +2083,7 @@ function measureTextBlock(ctx,headline,dateTime,venue,address,extra,extraFacts,c
 
   const facts=[];
   if(dateTime)facts.push({role:'dateTime',text:dateTime,weight:'800',max:Math.max(12,Math.round(h*.19*factScale)),min:Math.max(9,Math.round(h*.12))});
-  // V8.12: user-added/extra text outranks location when space is tight.
+  // V8.13: user-added/extra text outranks location when space is tight.
   if(extra){
     const required=Array.isArray(extraFacts)&&extraFacts.length>0;
     const stronglyEmphasized=!!(options.emphasizeDates||options.emphasizeSpeakerNames);
@@ -2227,7 +2228,7 @@ async function buildTinyFitBanner(data,w,h){
     }
   }
 
-  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.12 tiny fit-safe banner')),'image/png',1));
+  return new Promise((ok,no)=>c.toBlob(b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.13 tiny fit-safe banner')),'image/png',1));
 }
 
 async function buildCanvasFirstBanner(data,w,h){
@@ -2255,7 +2256,7 @@ async function buildCanvasFirstBanner(data,w,h){
   const edgePad=Math.round(w*(edgePadPct/100));
   const outer=Math.max(4,Math.round(h*.04));
 
-  // V8.12: instruction/layout intent MUST be initialized before subject placement.
+  // V8.13: instruction/layout intent MUST be initialized before subject placement.
   // Compact/leaderboard layouts use these values while deciding how much room
   // to reserve for right-side names and other mandatory facts.
   const extraFacts=renderExtraFacts(plan);
@@ -2294,7 +2295,7 @@ async function buildCanvasFirstBanner(data,w,h){
     const baseZone=Math.max(22,Math.min(plan.subjectSizeLocked?68:50,Number(plan.subjectZonePct||(subjectCount>=2?38:32))));
     const maxSubjectW=Math.round(w*((micro&&!plan.subjectSizeLocked?Math.min(baseZone,30):baseZone)/100));
 
-    // V8.12 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
+    // V8.13 can modify the CURRENT subject framing to a head/shoulders or upper-body crop.
     // This is especially useful for tiny 728x90 banners where full-body portraits are unreadable.
     const cropMode=String(plan.subjectCropMode||'').toLowerCase();
     const headshot=/headshot|face-closeup|face-close-up/.test(cropMode);
@@ -2509,7 +2510,7 @@ async function buildCanvasFirstBanner(data,w,h){
   }
 
   return new Promise((ok,no)=>c.toBlob(
-    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.12 validated creative-layout banner')),
+    b=>b?ok(URL.createObjectURL(b)):no(Error('Could not build V8.13 validated creative-layout banner')),
     'image/png',1
   ));
 }
@@ -2528,7 +2529,7 @@ $('submit').onclick=async()=>{
     }else fd.append('mode','generate');
     let r=await fetch('/api/reshape',{method:'POST',body:fd}),raw=await r.text(),j={};
 if(r.status===404 && /NOT_FOUND|page could not be found/i.test(raw)){
-  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.12 should return a small JSON health response.');
+  throw new Error('Backend route /api/reshape is not deployed. This is a Vercel routing/deployment issue, not a poster-analysis failure. Open /api/reshape in the browser: V8.13 should return a small JSON health response.');
 }
     try{j=raw?JSON.parse(raw):{}}catch(_){j={error:raw||`Server returned HTTP ${r.status}`}}
     if(!r.ok)throw Error(j.error||`Generation failed (HTTP ${r.status})`);
@@ -2630,8 +2631,8 @@ $('regenerate').onclick=async()=>{
         : `A new layout was created, but final-image verification reported: ${qa.reason||'some content could not be confirmed.'}`
     }]);
     $('validation').textContent=qa.verified
-      ? 'V8.12 re-generated a different composition using the existing analyzed design state.'
-      : 'V8.12 re-generated a different composition, but final-image validation could not confirm every item.';
+      ? 'V8.13 re-generated a different composition using the existing analyzed design state.'
+      : 'V8.13 re-generated a different composition, but final-image validation could not confirm every item.';
     renderEngineInfo(lastServerResult,target,'REGENERATE',true);refreshActionCostEstimates();
     recordPersistentHistory('REGENERATE','Re-generated with a different layout');
     stopProgress();setProgress(5,'Finished — alternate layout ready.');
@@ -2775,7 +2776,7 @@ $('modifyBtn').onclick=async()=>{
       j.backgroundArt=j.backgroundArt||baseData.backgroundArt;
       j.subjectAsset=j.subjectAsset||baseData.subjectAsset;
     }
-    // V8.12: backend modifications are the newest state and must win over the older browser plan.
+    // V8.13: backend modifications are the newest state and must win over the older browser plan.
     // The previous merge order could erase a newly returned crop/scale/position change.
     j.bannerPlan=applyVisualInstructionToPlan(
       {...priorPlanForModify, ...(j.bannerPlan||baseData.bannerPlan||{})},
