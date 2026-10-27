@@ -46,12 +46,12 @@ for (const [w,h] of [[880,460],[300,250],[1080,1080],[1080,1350]]) {
 console.log('PASS v8.11 routing/profile tests');
 
 const presetExpectations=[
-  ['News',850,638,'ai-safe-contain'],
+  ['Articles',1600,800,'ai-safe-contain'],
   ['Opportunities',850,350,'ai-safe-contain'],
   ['Action Alerts',850,500,'ai-safe-contain'],
-  ['Events',880,460,'ai-safe-contain'],
+  ['Events',1600,800,'ai-safe-contain'],
   ['Social Media',1080,1350,'ai-safe-contain'],
-  ['Front Page',900,500,'ai-safe-contain'],
+  ['Front Page',1600,800,'ai-safe-contain'],
   ['Mobile Ad',320,50,'exact-canvas'],
   ['Large Ad',300,600,'ai-safe-contain'],
   ['Side Ad',300,250,'ai-safe-contain'],

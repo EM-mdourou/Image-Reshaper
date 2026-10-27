@@ -1,3 +1,7 @@
+Image Reshaper V8.14
+
+Preset update: Articles, Events, and Front Page now default to 1600 × 800 px, with a displayed minimum recommendation of 1200 × 600 px. The former News preset is renamed Articles.
+
 Image Reshaper V8.12
 
 Added manual "Crop to size" workflow with a client-side crop editor, exact-dimension PNG export, and CROP history logging.
