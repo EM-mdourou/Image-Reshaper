@@ -1,10 +1,14 @@
-# Image Reshaper V8.17
+Image Reshaper V8.18
 
-V8.17 removes the normal large-format crop/blur workaround when the current GPT image models can generate at the requested aspect ratio. Articles, Events, and Front Page now request 1600x800 directly. Other supported non-exact formats use a same-ratio model canvas and are proportionally resized without cropping. Generate/Resize also runs visual QA on the actual final exported PNG.
+Small normal-format destinations now generate on a larger same-ratio canvas that satisfies the current image-model minimum pixel budget, then resize proportionally without cropping. Extreme/tiny formats retain the exact-canvas content-priority renderer.
 
-Image Reshaper V8.17
+# Image Reshaper V8.18
 
-V8.17 changes large landscape outputs to edge-to-edge safe cropping. Articles, Events, Front Page, and other suitable large landscape targets use the centered safe crop from the generated image; blur/contain remains a fallback for incompatible shapes. Extreme banners retain their specialized exact-canvas path.
+V8.18 removes the normal large-format crop/blur workaround when the current GPT image models can generate at the requested aspect ratio. Articles, Events, and Front Page now request 1600x800 directly. Other supported non-exact formats use a same-ratio model canvas and are proportionally resized without cropping. Generate/Resize also runs visual QA on the actual final exported PNG.
+
+Image Reshaper V8.18
+
+V8.18 changes large landscape outputs to edge-to-edge safe cropping. Articles, Events, Front Page, and other suitable large landscape targets use the centered safe crop from the generated image; blur/contain remains a fallback for incompatible shapes. Extreme banners retain their specialized exact-canvas path.
 
 
 Model migration: removes runtime use of retired gpt-image-1, defaults precise editing/generation to gpt-image-2.5-sunburst, falls back to gpt-image-2.5-flare, and maps a stale IMAGE_MODEL=gpt-image-1 environment setting to the supported primary model.
