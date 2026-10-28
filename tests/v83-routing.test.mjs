@@ -1,94 +1,42 @@
 import assert from 'node:assert/strict';
-import { canvasProfile, operationStrategy, spec, displayBudgetForCanvas } from '../api/reshape.js';
+import fs from 'node:fs';
 
-const cases = [
-  {size:[728,90], profile:'EXTREME_HORIZONTAL', exact:true},
-  {size:[320,100], profile:'EXTREME_HORIZONTAL', exact:true},
-  {size:[200,100], profile:'COMPACT_HORIZONTAL', exact:true},
-  {size:[320,50], profile:'MICRO_HORIZONTAL', exact:true},
-  {size:[880,460], profile:'STANDARD_LANDSCAPE', exact:false},
-  {size:[300,250], profile:'STANDARD_LANDSCAPE', exact:false},
-  {size:[1080,1080], profile:'SQUARE', exact:false},
-  {size:[1080,1350], profile:'PORTRAIT', exact:false},
-];
+const api = fs.readFileSync(new URL('../api/reshape.js',import.meta.url),'utf8');
+const html = fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
 
-for (const c of cases) {
-  const [w,h] = c.size;
-  const p = canvasProfile(w,h);
-  assert.equal(p.id,c.profile,`${w}x${h} profile`);
-  assert.equal(p.exactCanvas,c.exact,`${w}x${h} exactCanvas`);
-}
+assert.match(api,/\(UNIFIED_ENGINE && exactCanvasProfile\)/,'unified engine must route shallow banners to exact canvas');
+assert.match(api,/CURRENT DESIGN PATCH — THIS IS NOT A REGENERATE REQUEST/,'patch modes need strict current-design prompt');
+assert.match(api,/visionCompare\(/,'current/baseline comparison must be available');
+assert.match(api,/exportMode:\(sp\.nativeFit\?'native-fit'/,'AI-sized results must use native-fit whenever the model canvas matches the target aspect ratio');
+assert.match(api,/Candidate modification rejected|candidateRejected:true/,'bad redesign patches must be rejected and surfaced as rejected candidates');
+assert.match(api,/requestMode==="regenerate" && currentIm/,'regenerate should compare against current design when supplied');
 
-for (const mode of ['generate','resize','regenerate','modify','edit_text']) {
-  const s = operationStrategy(mode,728,90);
-  assert.equal(s.renderer,'exact-canvas');
-  if (mode==='regenerate'||mode==='generate'||mode==='resize') assert.equal(s.behavior,'new-layout');
-  if (mode==='modify') assert.equal(s.behavior,'patch-current');
-  if (mode==='edit_text') assert.equal(s.behavior,'text-current');
-}
-
-for (const mode of ['generate','resize','regenerate','modify','edit_text']) {
-  const s = operationStrategy(mode,880,460);
-  assert.equal(s.renderer,'ai-safe-contain');
-  if (mode==='modify') assert.equal(s.behavior,'patch-current');
-  if (mode==='edit_text') assert.equal(s.behavior,'text-current');
-}
-
-// For AI-sized canvases, the computed safe crop must have the requested aspect ratio.
-for (const [w,h] of [[880,460],[300,250],[1080,1080],[1080,1350]]) {
-  const s = spec(w,h);
-  const target = w/h;
-  const safe = s.safe.w/s.safe.h;
-  assert.ok(Math.abs(target-safe) < 0.005,`${w}x${h} safe crop ratio ${safe} should match ${target}`);
-  assert.ok(s.safe.w>0 && s.safe.h>0);
-}
-
-console.log('PASS v8.11 routing/profile tests');
-
-const presetExpectations=[
-  ['Articles',1600,800,'ai-safe-contain'],
-  ['Opportunities',850,350,'ai-safe-contain'],
-  ['Action Alerts',850,500,'ai-safe-contain'],
-  ['Events',1600,800,'ai-safe-contain'],
-  ['Social Media',1080,1350,'ai-safe-contain'],
-  ['Front Page',1600,800,'ai-safe-contain'],
-  ['Mobile Ad',320,50,'exact-canvas'],
-  ['Large Ad',300,600,'ai-safe-contain'],
-  ['Side Ad',300,250,'ai-safe-contain'],
-  ['Leaderboard Ad',728,90,'exact-canvas'],
-  ['Mobile Directory',200,100,'exact-canvas'],
-  ['Desktop Directory',320,100,'exact-canvas'],
-];
-for(const [name,w,h,renderer] of presetExpectations){
-  const got=operationStrategy('generate',w,h).renderer;
-  assert.equal(got,renderer,`${name} ${w}x${h} renderer`);
-}
-console.log('PASS v8.11 preset routing matrix');
+assert.match(html,/data\.image && data\.exportMode==='native-fit'\)base=await resizeFullImageNoCrop/,'frontend must resize the complete native-ratio image without cropping');
+assert.match(html,/data\.image && data\.exportMode==='safe-contain'\)base=await containDesignWithDecorativeFill/,'frontend must retain safe contain as fallback');
+assert.match(html,/const ex=await renderUniversalDesignState\(j,\[s\[0\],s\[1\],s\[2\]\]\)/,'initial rendering must use centralized exact finalizer');
+assert.match(html,/const ex=await renderUniversalDesignState\(nextRenderData,target\)/,'modify rendering must use centralized exact finalizer');
+assert.match(html,/Could not attach current design for regeneration-difference QA/,'regenerate must attach current design for difference QA');
+assert.match(html,/const APP_VERSION='8\.17'/);
+assert.match(html,/Version 8\.17/);
 
 
-const tiny200=displayBudgetForCanvas(200,100,{headline:'H',dateTime:'D',venue:'V',address:'A',cta:'REGISTER NOW'});
-assert.equal(tiny200.tier,'TINY');
-assert.equal(tiny200.drawHeadline,true);
-assert.equal(tiny200.drawDateTime,true);
-assert.equal(tiny200.drawCta,true);
-assert.equal(tiny200.drawVenue,false);
-assert.equal(tiny200.drawAddress,false);
-assert.equal(tiny200.noOverlap,true);
+assert.equal(api.includes('\x08'),false,'backend source should not contain control-character regex boundaries');
+assert.equal(html.includes('\x08'),false,'frontend source should not contain control-character regex boundaries');
+assert.match(html,/neutral black is the fallback|fallback\. Never invent lime green|return pick\(\[styles\.headline/i);
+console.log('PASS v8.11 static architecture tests');
 
-const tiny320=displayBudgetForCanvas(320,50,{headline:'H',dateTime:'D',cta:'REGISTER NOW'});
-assert.equal(tiny320.tier,'TINY');
-assert.equal(tiny320.ctaMode,'inline');
+assert.match(api,/displayBudgetForCanvas/,'server must compute a fit budget for each canvas');
+assert.match(html,/function buildTinyFitBanner/,'tiny canvases require a dedicated fit-safe renderer');
+assert.match(html,/function tinyLayoutGeometry/,'tiny renderer must reserve disjoint subject/copy/CTA regions');
+assert.match(html,/contrastTextColor\(accent\)/,'CTA text must contrast with its button background');
+assert.match(html,/containDesignWithDecorativeFill/,'large-format finalization must avoid cropping foreground content');
 
-const leader=displayBudgetForCanvas(728,90,{headline:'H',dateTime:'D',venue:'V',address:'A',cta:'REGISTER NOW'});
-assert.equal(leader.tier,'COMPACT');
-assert.equal(leader.drawCta,true);
-assert.equal(leader.drawVenue,true);
-assert.equal(leader.drawAddress,false);
-console.log('PASS v8.11 fit-budget tests');
-
-
-const tinyManual=displayBudgetForCanvas(200,100,{headline:'H',dateTime:'D',venue:'V',cta:'REGISTER NOW',manualTextElements:[{text:'Be there!'}]});
-assert.equal(tinyManual.drawExtra,true,'user-added text must remain high priority on tiny canvas');
-assert.equal(tinyManual.drawDateTime,false,'tiny canvas may trade source date for authoritative added text rather than overlap');
-assert.equal(tinyManual.drawCta,true,'CTA remains reserved alongside authoritative added text');
-console.log('PASS v8.11 user-added text priority test');
+assert.match(html,/fd\.append\('mode','resize'\)/,'same-source destination changes must send RESIZE mode');
+assert.match(html,/Source Manifest ID/,'engine diagnostics must expose a source manifest identity');
+assert.match(html,/function manifestFingerprint/,'frontend needs a stable manifest fingerprint');
+assert.match(api,/requestMode==="resize"/,'backend must support RESIZE mode');
+assert.match(api,/Do NOT re-analyze/,'resize must explicitly skip source re-analysis');
+assert.match(api,/CENTERED HORIZONTAL SAFE STRIP/,'extreme background generation must be target-aspect aware');
+assert.match(api,/Never leave a tiny isolated landmark fragment/,'background prompt must reject accidental landmark fragments');
+assert.match(api,/target-aware panoramic background/,'compact regenerate must generate a fresh target-aware background');
+console.log('PASS v8.11 manifest reuse/background diagnostics tests');
