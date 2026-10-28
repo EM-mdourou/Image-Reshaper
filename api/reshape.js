@@ -2,9 +2,15 @@ export const config={api:{bodyParser:false}};
 
 const PLANNER_MODEL = process.env.PLANNER_MODEL || "gpt-5.1";
 const PLANNER_REASONING = process.env.PLANNER_REASONING || "high";
-const IMAGE_MODEL = process.env.IMAGE_MODEL || "gpt-image-1.5";
-const IMAGE_MODEL_FALLBACK = "gpt-image-1";
-const ENGINE_VERSION = "8.11";
+const RETIRED_IMAGE_MODELS = new Set(["gpt-image-1"]);
+function supportedImageModel(value, fallback){
+  const requested=String(value||"").trim();
+  return !requested || RETIRED_IMAGE_MODELS.has(requested) ? fallback : requested;
+}
+const IMAGE_MODEL = supportedImageModel(process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
+const IMAGE_EDIT_MODEL = supportedImageModel(process.env.IMAGE_EDIT_MODEL || process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
+const IMAGE_MODEL_FALLBACK = "gpt-image-2.5-flare";
+const ENGINE_VERSION = "8.15";
 const UNIFIED_ENGINE = String(process.env.RENDER_ENGINE||"unified").toLowerCase() !== "legacy";
 function parse(body,ct){const m=ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);if(!m)throw Error('Invalid upload');const bd=Buffer.from('--'+(m[1]||m[2])),a=[];let p=0;while((p=body.indexOf(bd,p))!==-1){let s=p+bd.length;if(body.slice(s,s+2).toString()==='--')break;if(body.slice(s,s+2).toString()==='\r\n')s+=2;let n=body.indexOf(bd,s);if(n<0)break;let q=body.slice(s,n-2),z=q.indexOf('\r\n\r\n');if(z<0){p=n;continue}let h=q.slice(0,z).toString();a.push({name:h.match(/name="([^"]+)"/)?.[1],filename:h.match(/filename="([^"]*)"/)?.[1],type:h.match(/content-type:\s*([^\r\n]+)/i)?.[1]?.trim(),data:q.slice(z+4)});p=n}return a}
 export function spec(w,h){let tr=w/h,gw,gh,size;if(tr>1.15){gw=1536;gh=1024;size='1536x1024'}else if(tr<.87){gw=1024;gh=1536;size='1024x1536'}else{gw=gh=1024;size='1024x1024'}let gr=gw/gh,safe;if(gr>tr){let sw=Math.round(gh*tr);safe={x:Math.round((gw-sw)/2),y:0,w:sw,h:gh}}else{let sh=Math.round(gw/tr);safe={x:0,y:Math.round((gh-sh)/2),w:gw,h:sh}}return{gw,gh,size,safe,tr}}
@@ -222,7 +228,7 @@ async function visionCompare(key,firstImage,secondImage,prompt,{model=PLANNER_MO
   return responseOutputText(d).trim();
 }
 
-async function edit(key,img,fn,type,prompt,size,refs=[]){let f=new FormData();f.append('model','gpt-image-1');f.append('image[]',new Blob([img],{type:type||'image/png'}),fn||'current.png');for(const ref of (refs||[])){if(ref?.data)f.append('image[]',new Blob([ref.data],{type:ref.type||'image/png'}),ref.filename||'source-reference.png')}f.append('prompt',prompt);f.append('size',size);f.append('quality','high');f.append('output_format','png');f.append('input_fidelity','high');let r=await fetch('https://api.openai.com/v1/images/edits',{method:'POST',headers:{Authorization:`Bearer ${key}`},body:f}),d=await r.json();if(!r.ok)throw Error(d?.error?.message||'Image edit failed');let b=d?.data?.[0]?.b64_json;if(!b)throw Error('No image returned');return b}
+async function edit(key,img,fn,type,prompt,size,refs=[]){let f=new FormData();f.append('model',IMAGE_EDIT_MODEL);f.append('image[]',new Blob([img],{type:type||'image/png'}),fn||'current.png');for(const ref of (refs||[])){if(ref?.data)f.append('image[]',new Blob([ref.data],{type:ref.type||'image/png'}),ref.filename||'source-reference.png')}f.append('prompt',prompt);f.append('size',size);f.append('quality','high');f.append('output_format','png');let r=await fetch('https://api.openai.com/v1/images/edits',{method:'POST',headers:{Authorization:`Bearer ${key}`},body:f}),d=await r.json();if(!r.ok && IMAGE_EDIT_MODEL!==IMAGE_MODEL_FALLBACK){let retry=new FormData();retry.append('model',IMAGE_MODEL_FALLBACK);retry.append('image[]',new Blob([img],{type:type||'image/png'}),fn||'current.png');for(const ref of (refs||[])){if(ref?.data)retry.append('image[]',new Blob([ref.data],{type:ref.type||'image/png'}),ref.filename||'source-reference.png')}retry.append('prompt',prompt);retry.append('size',size);retry.append('quality','high');retry.append('output_format','png');r=await fetch('https://api.openai.com/v1/images/edits',{method:'POST',headers:{Authorization:`Bearer ${key}`},body:retry});d=await r.json()}if(!r.ok)throw Error(d?.error?.message||'Image edit failed');let b=d?.data?.[0]?.b64_json;if(!b)throw Error('No image returned');return b}
 
 
 function field(text,name){
@@ -1321,7 +1327,6 @@ Rules:
   form.append("prompt",prompt);
   form.append("size","1024x1024");
   form.append("quality","high");
-  form.append("input_fidelity","high");
   form.append("background","transparent");
   form.append("image[]",new Blob([Buffer.from(sourceData.split(",")[1],"base64")],{type:"image/png"}),"source.png");
 
@@ -1332,8 +1337,8 @@ Rules:
   });
   let d=await r.json();
 
-  // If the newer image model is not enabled for this project/endpoint,
-  // automatically retry with GPT Image 1 so the app still works.
+  // If the primary image model is unavailable for this project/endpoint,
+  // automatically retry with the supported fast GPT Image 2.5 fallback.
   if(!r.ok && IMAGE_MODEL!==IMAGE_MODEL_FALLBACK){
     console.warn(`Image model ${IMAGE_MODEL} failed; retrying with ${IMAGE_MODEL_FALLBACK}:`, d?.error?.message||r.status);
     const fallbackForm=new FormData();
@@ -1341,7 +1346,6 @@ Rules:
     fallbackForm.append("prompt",prompt);
     fallbackForm.append("size","1024x1024");
     fallbackForm.append("quality","high");
-    fallbackForm.append("input_fidelity","high");
     fallbackForm.append("background","transparent");
     fallbackForm.append("image[]",new Blob([Buffer.from(sourceData.split(",")[1],"base64")],{type:"image/png"}),"source.png");
     r=await fetch("https://api.openai.com/v1/images/edits",{
@@ -1411,8 +1415,7 @@ Art-direction rules:
     form.append("prompt",prompt);
     form.append("size","1536x1024");
     form.append("quality","high");
-    form.append("input_fidelity","high");
-    form.append("image[]",new Blob([Buffer.from(sourceData.split(",")[1],"base64")],{type:"image/png"}),"source.png");
+      form.append("image[]",new Blob([Buffer.from(sourceData.split(",")[1],"base64")],{type:"image/png"}),"source.png");
     return form;
   };
 
@@ -1872,8 +1875,8 @@ return res.status(200).json({
         bannerPlan:{...universalPlan,...composer,sourceManifest:inventory,subjects:universalPlan.subjects||[],subjectCount:Math.max(Number(composer.subjectCount||0),Number(universalPlan.subjectCount||0)),subjectLabels:universalPlan.subjectLabels||[]},
         sourceManifest:inventory,
         sourceElements:canonicalSourceElements(inventory,{...universalPlan,...composer}),
-        validationSummary:`V8.11 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
-        modelInfo:{planner:PLANNER_MODEL,reasoning:PLANNER_REASONING,api:"responses",imageRequested:IMAGE_MODEL,imageFallback:IMAGE_MODEL_FALLBACK,engine:UNIFIED_ENGINE?"unified":"legacy",sourceAnalysisReused:!!priorPlan?.sourceManifest,operation:requestMode,canvasProfile:strategy.profile.id}
+        validationSummary:`V8.15 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
+        modelInfo:{planner:PLANNER_MODEL,reasoning:PLANNER_REASONING,api:"responses",imageRequested:IMAGE_MODEL,imageEdit:IMAGE_EDIT_MODEL,imageFallback:IMAGE_MODEL_FALLBACK,engine:UNIFIED_ENGINE?"unified":"legacy",sourceAnalysisReused:!!priorPlan?.sourceManifest,operation:requestMode,canvasProfile:strategy.profile.id}
       });
     }
 const unifiedModeRules=`

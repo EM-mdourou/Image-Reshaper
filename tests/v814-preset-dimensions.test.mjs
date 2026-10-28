@@ -9,4 +9,4 @@ assert.doesNotMatch(html,/data-name=\"News\"/);
 assert.match(html,/const P=\[\['Articles',1600,800\]/);
 assert.match(html,/\['Events',1600,800\]/);
 assert.match(html,/\['Front Page',1600,800\]/);
-console.log('V8.14 preset dimension tests passed');
+console.log('V8.15 preset dimension tests passed');

@@ -1,3 +1,7 @@
+Image Reshaper V8.15
+
+Model migration: removes runtime use of retired gpt-image-1, defaults precise editing/generation to gpt-image-2.5-sunburst, falls back to gpt-image-2.5-flare, and maps a stale IMAGE_MODEL=gpt-image-1 environment setting to the supported primary model.
+
 Image Reshaper V8.14
 
 Preset update: Articles, Events, and Front Page now default to 1600 × 800 px, with a displayed minimum recommendation of 1200 × 600 px. The former News preset is renamed Articles.
