@@ -14,4 +14,4 @@ assert.notEqual(large.size,"512x1024","Large Ad must not use the invalid under-b
 assert.equal(canvasProfile(728,90).exactCanvas,true,"Extreme leaderboard must stay on exact-canvas renderer");
 assert.equal(canvasProfile(320,50).exactCanvas,true,"Extreme mobile ad must stay on exact-canvas renderer");
 assert.equal(canvasProfile(200,100).exactCanvas,true,"Tiny directory format must keep compact/exact behavior");
-console.log("PASS V8.18 minimum-pixel-budget and extreme-format routing tests");
+console.log("PASS V8.19 minimum-pixel-budget and extreme-format routing tests");

@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const idx=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const api=fs.readFileSync(new URL('../api/reshape.js',import.meta.url),'utf8');
+assert.match(idx,/function qaRequiredTextsForPlan\(/);
+assert.match(idx,/lower-priority source facts intentionally omitted by the display budget are NOT failures/);
+assert.ok(idx.includes('logos?\\s*\\/?\\s*brand marks?'));
+assert.match(api,/A logo\/brand mark is a VISUAL ASSET/);
+assert.match(api,/Drop the entire value rather than displaying the suffix/);
+assert.ok(api.includes('visual\\s+assets?|logos?'));
+console.log('PASS V8.19 extreme metadata firewall and budget-aware QA tests');
