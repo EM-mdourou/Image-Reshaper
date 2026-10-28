@@ -7,16 +7,17 @@ const html = fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
 assert.match(api,/\(UNIFIED_ENGINE && exactCanvasProfile\)/,'unified engine must route shallow banners to exact canvas');
 assert.match(api,/CURRENT DESIGN PATCH — THIS IS NOT A REGENERATE REQUEST/,'patch modes need strict current-design prompt');
 assert.match(api,/visionCompare\(/,'current/baseline comparison must be available');
-assert.match(api,/exportMode:'safe-contain'/,'AI-sized results must use non-cropping safe contain');
+assert.match(api,/exportMode:\(preferEdgeToEdgeSafeCrop\(name,w,h\)\?'safe-crop':'safe-contain'\)/,'AI-sized results must choose safe crop for suitable large landscapes and safe contain otherwise');
 assert.match(api,/Candidate modification rejected|candidateRejected:true/,'bad redesign patches must be rejected and surfaced as rejected candidates');
 assert.match(api,/requestMode==="regenerate" && currentIm/,'regenerate should compare against current design when supplied');
 
-assert.match(html,/data\.image && data\.exportMode==='safe-contain'\)base=await containDesignWithDecorativeFill/,'frontend must contain full large-format foreground without cropping');
+assert.match(html,/data\.image && data\.safeCrop && \(data\.exportMode==='safe-crop'\|\|preferEdgeToEdgeSafeCrop\(target\)\)\)base=await cropSafeZone/,'frontend must edge-crop suitable large landscapes');
+assert.match(html,/data\.image && data\.exportMode==='safe-contain'\)base=await containDesignWithDecorativeFill/,'frontend must retain safe contain as fallback');
 assert.match(html,/const ex=await renderUniversalDesignState\(j,\[s\[0\],s\[1\],s\[2\]\]\)/,'initial rendering must use centralized exact finalizer');
 assert.match(html,/const ex=await renderUniversalDesignState\(nextRenderData,target\)/,'modify rendering must use centralized exact finalizer');
 assert.match(html,/Could not attach current design for regeneration-difference QA/,'regenerate must attach current design for difference QA');
-assert.match(html,/const APP_VERSION='8\.15'/);
-assert.match(html,/Version 8\.15/);
+assert.match(html,/const APP_VERSION='8\.16'/);
+assert.match(html,/Version 8\.16/);
 
 
 assert.equal(api.includes('\x08'),false,'backend source should not contain control-character regex boundaries');

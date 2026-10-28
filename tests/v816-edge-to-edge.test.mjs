@@ -1,0 +1,11 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const api=fs.readFileSync(new URL('../api/reshape.js',import.meta.url),'utf8');
+const idx=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+assert.match(api,/preferEdgeToEdgeSafeCrop\(name,w,h\)\?'safe-crop':'safe-contain'/);
+assert.match(api,/centered safe-crop region/);
+assert.match(idx,/data-name="Articles" data-width="1600" data-height="800"/);
+assert.match(idx,/data-name="Events" data-width="1600" data-height="800"/);
+assert.match(idx,/data-name="Front Page" data-width="1600" data-height="800"/);
+assert.match(idx,/data\.exportMode==='safe-crop'/);
+assert.match(idx,/cropSafeZone\(data\.image,w,h,data\.safeCrop\)/);
+console.log('PASS V8.16 edge-to-edge safe-crop tests');

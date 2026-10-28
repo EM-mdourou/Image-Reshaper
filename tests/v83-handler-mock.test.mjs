@@ -163,7 +163,7 @@ for(const [w,h] of [[728,90],[320,100],[200,100],[320,50]]){
   const r=await call({w:880,h:460,mode:'generate',current:false,withPrior:false});
   assert.equal(r.statusCode,200,'880x460 generate');
   assert.equal(r.json.renderMode,'unified-ai-composer');
-  assert.equal(r.json.exportMode,'safe-contain');
+  assert.equal(r.json.exportMode,'safe-crop');
   assert.ok(r.json.bannerPlan.displayBudget);
   assert.equal(r.json.bannerPlan.displayBudget.tier,'FULL');
 }
@@ -182,10 +182,17 @@ for(const mode of ['edit_text','modify','regenerate']){
   const r=await call({w:880,h:460,mode});
   assert.equal(r.statusCode,200,`880x460 ${mode}`);
   assert.equal(r.json.renderMode,'unified-ai-composer');
-  assert.equal(r.json.exportMode,'safe-contain');
+  assert.equal(r.json.exportMode,'safe-crop');
   assert.ok(r.json.bannerPlan.displayBudget);
   assert.equal(r.json.bannerPlan.displayBudget.tier,'FULL');
   assert.equal(sourceAnalysisCalls,before,`880x460 ${mode} with cached sourceManifest must not re-analyze source`);
+}
+
+
+{
+  const r=await call({w:300,h:250,mode:'generate',current:false,withPrior:false});
+  assert.equal(r.statusCode,200,'300x250 generate');
+  assert.equal(r.json.exportMode,'safe-contain','non-editorial near-square output should retain safe-contain fallback');
 }
 
 console.log('PASS v8.11 mocked handler operation tests');

@@ -1,4 +1,7 @@
-Image Reshaper V8.15
+Image Reshaper V8.16
+
+V8.16 changes large landscape outputs to edge-to-edge safe cropping. Articles, Events, Front Page, and other suitable large landscape targets use the centered safe crop from the generated image; blur/contain remains a fallback for incompatible shapes. Extreme banners retain their specialized exact-canvas path.
+
 
 Model migration: removes runtime use of retired gpt-image-1, defaults precise editing/generation to gpt-image-2.5-sunburst, falls back to gpt-image-2.5-flare, and maps a stale IMAGE_MODEL=gpt-image-1 environment setting to the supported primary model.
 
