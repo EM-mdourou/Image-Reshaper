@@ -1,3 +1,7 @@
+# Image Reshaper V9.2
+
+V9.2 upgrades Interactive Extreme source selection into a reusable asset-extraction workflow. Every manual source selection keeps an exact crop and can also produce a cleaned/trimmed asset or a transparent cutout candidate using the original source pixels. Logo and QR corrections can be previewed before insertion, while QR cleanup preserves the QR artwork instead of regenerating it.
+
 # Image Reshaper V9.1
 
 V9.1 upgrades Interactive Extreme with direct inline text editing, font family/size/weight/alignment controls, unrestricted off-canvas visual transforms, numeric position/size controls, and manual source-pixel replacement for Logo, QR, and Primary Visual. Visual layers can intentionally exceed the final ad canvas and are clipped only by the export viewport. Logo/QR auto-crop prompts are stricter, with manual source selection as the authoritative fallback.
