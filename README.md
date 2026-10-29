@@ -1,6 +1,6 @@
-# Image Reshaper V9.3
+# Image Reshaper V9.4
 
-V9.3 adds multi-step Undo/Redo to Interactive Extreme, repeatable AI background generation with selectable negative-space regions (Auto/Left/Right/Center/Top/Bottom), and movable/resizable gradient overlay layers for white or colored sheer contrast behind text and imagery. Gradient overlays support edge direction and opacity and are included in exact PNG export.
+V9.4 fixes Interactive control event wiring so controls that need both history-checkpoint and live-update listeners work correctly. Gradient edge, colour, and sheer strength now update the selected overlay immediately and export with the same values. V9.4 retains multi-step Undo/Redo to Interactive Extreme, repeatable AI background generation with selectable negative-space regions (Auto/Left/Right/Center/Top/Bottom), and movable/resizable gradient overlay layers for white or colored sheer contrast behind text and imagery. Gradient overlays support edge direction and opacity and are included in exact PNG export.
 
 # Image Reshaper V9.2
 

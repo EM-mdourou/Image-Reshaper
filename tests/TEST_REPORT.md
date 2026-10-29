@@ -28,3 +28,9 @@ The existing routing, tiny fit-budget/no-overlap, manifest reuse, mocked handler
 
 ## V9.3
 PASS — Undo/Redo, repeatable negative-space background generation, and gradient overlay regression tests pass.
+
+
+## V9.4
+- Fixed multi-event listener wiring in Interactive mode.
+- Gradient edge, colour, and sheer strength now update the selected layer live.
+- Gradient state remains identical in final PNG export.

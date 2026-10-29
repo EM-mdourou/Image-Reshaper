@@ -11,5 +11,5 @@ assert.match(api,/BACKGROUND-ONLY MODE/);
 assert.match(api,/NEGATIVE-SPACE REQUIREMENT/);
 assert.match(html,/type==='gradient'/);
 assert.match(html,/createLinearGradient/);
-assert.match(html,/const APP_VERSION='9\.3'/);
-console.log('PASS V9.3 undo-redo, generated backgrounds, and gradient overlay tests');
+assert.match(html,/const APP_VERSION='9\.4'/);
+console.log('PASS V9.4 undo-redo, generated backgrounds, and gradient overlay tests');
