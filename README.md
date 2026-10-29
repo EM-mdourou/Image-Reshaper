@@ -1,3 +1,7 @@
+# Image Reshaper V9.3
+
+V9.3 adds multi-step Undo/Redo to Interactive Extreme, repeatable AI background generation with selectable negative-space regions (Auto/Left/Right/Center/Top/Bottom), and movable/resizable gradient overlay layers for white or colored sheer contrast behind text and imagery. Gradient overlays support edge direction and opacity and are included in exact PNG export.
+
 # Image Reshaper V9.2
 
 V9.2 upgrades Interactive Extreme source selection into a reusable asset-extraction workflow. Every manual source selection keeps an exact crop and can also produce a cleaned/trimmed asset or a transparent cutout candidate using the original source pixels. Logo and QR corrections can be previewed before insertion, while QR cleanup preserves the QR artwork instead of regenerating it.

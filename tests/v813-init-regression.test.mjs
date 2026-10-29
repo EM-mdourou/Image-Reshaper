@@ -12,5 +12,5 @@ assert.match(html,/drop\.addEventListener\('drop'/,'Drag/drop listener missing')
 assert.match(html,/input\.addEventListener\('change'/,'File input change listener missing');
 assert.match(html,/btn\.addEventListener\('click'/,'Preset destination click wiring missing');
 assert.match(html,/id="cropBtn"/,'Crop button must remain present');
-assert.match(html,/const APP_VERSION='9\.2'/,'V9.2 version marker missing');
+assert.match(html,/const APP_VERSION='9\.3'/,'V9.2 version marker missing');
 console.log('PASS V8.17 uploader/destination initialization regression test');

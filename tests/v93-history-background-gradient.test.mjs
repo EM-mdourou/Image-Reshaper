@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const api=fs.readFileSync(new URL('../api/reshape.js',import.meta.url),'utf8');
+for(const id of ['ieUndo','ieRedo','ieGenerateBackground','ieBackgroundSpace','ieAddGradient','ieGradientEdge','ieGradientColor','ieGradientOpacity']) assert.ok(html.includes(`id="${id}"`),`missing ${id}`);
+assert.match(html,/function ieUndo\(/);
+assert.match(html,/function ieRedo\(/);
+assert.match(html,/ieHistoryPast/);
+assert.match(api,/requestMode==="background"/);
+assert.match(api,/BACKGROUND-ONLY MODE/);
+assert.match(api,/NEGATIVE-SPACE REQUIREMENT/);
+assert.match(html,/type==='gradient'/);
+assert.match(html,/createLinearGradient/);
+assert.match(html,/const APP_VERSION='9\.3'/);
+console.log('PASS V9.3 undo-redo, generated backgrounds, and gradient overlay tests');

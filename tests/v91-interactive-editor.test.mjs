@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const api=fs.readFileSync(new URL('../api/reshape.js',import.meta.url),'utf8');
-assert.match(html,/const APP_VERSION='9\.2'/);
+assert.match(html,/const APP_VERSION='9\.3'/);
 assert.match(html,/id="ieFontSize"/);
 assert.match(html,/id="ieFontFamily"/);
 assert.match(html,/id="ieTextValue"/);

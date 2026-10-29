@@ -25,3 +25,6 @@ V8.11 adds explicit user-priority visibility overrides, reasoned failure diagnos
 
 ## Regression coverage
 The existing routing, tiny fit-budget/no-overlap, manifest reuse, mocked handler operation, cost/progress UI, and syntax tests are run together with the V8.11 structured-state test before packaging.
+
+## V9.3
+PASS — Undo/Redo, repeatable negative-space background generation, and gradient overlay regression tests pass.

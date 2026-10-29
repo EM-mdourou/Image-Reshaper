@@ -10,7 +10,7 @@ function supportedImageModel(value, fallback){
 const IMAGE_MODEL = supportedImageModel(process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
 const IMAGE_EDIT_MODEL = supportedImageModel(process.env.IMAGE_EDIT_MODEL || process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
 const IMAGE_MODEL_FALLBACK = "gpt-image-2.5-flare";
-const ENGINE_VERSION = "9.2";
+const ENGINE_VERSION = "9.3";
 const UNIFIED_ENGINE = String(process.env.RENDER_ENGINE||"unified").toLowerCase() !== "legacy";
 function parse(body,ct){const m=ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);if(!m)throw Error('Invalid upload');const bd=Buffer.from('--'+(m[1]||m[2])),a=[];let p=0;while((p=body.indexOf(bd,p))!==-1){let s=p+bd.length;if(body.slice(s,s+2).toString()==='--')break;if(body.slice(s,s+2).toString()==='\r\n')s+=2;let n=body.indexOf(bd,s);if(n<0)break;let q=body.slice(s,n-2),z=q.indexOf('\r\n\r\n');if(z<0){p=n;continue}let h=q.slice(0,z).toString();a.push({name:h.match(/name="([^"]+)"/)?.[1],filename:h.match(/filename="([^"]*)"/)?.[1],type:h.match(/content-type:\s*([^\r\n]+)/i)?.[1]?.trim(),data:q.slice(z+4)});p=n}return a}
 export function spec(w,h){
@@ -1439,10 +1439,12 @@ Rules:
 
 
 
-async function buildVisualBannerArt(key,sourceData,composer,w,h){
+async function buildVisualBannerArt(key,sourceData,composer,w,h,options={}){
   const targetRatio=Number(w)/Number(h);
   const generatedRatio=1.5;
   const safeStripPct=targetRatio>generatedRatio?Math.max(12,Math.min(88,Math.round((generatedRatio/targetRatio)*100))):88;
+  const openSpace=String(options.openSpace||'auto').toLowerCase();
+  const openSpaceRule=openSpace==='auto'?'Reserve a generous calm, low-detail negative-space region where typography can be placed without competing with the artwork.':`Reserve roughly 40–55% of the FINAL banner as calm, low-detail NEGATIVE SPACE concentrated on the ${openSpace.toUpperCase()} side/region. Keep that region visually quiet, high-contrast, and free of focal objects so text, logos, or cutout images can be added later.`;
   const prompt=`Create BACKGROUND ART ONLY for a polished horizontal advertising banner derived from the attached source poster.
 
 FINAL destination canvas is exactly ${w}x${h}px.
@@ -1453,6 +1455,11 @@ DIMENSION-AWARE BACKGROUND SAFE STRIP:
 - Never leave a tiny isolated landmark fragment, tower tip, building tip, partial icon, or accidental-looking object as the only recognizable background feature.
 - If a landmark/architecture cannot fit meaningfully, abstract it into a wider skyline/silhouette/atmospheric motif or omit it and extend the source palette/texture instead.
 - For very wide/shallow destinations, think PANORAMIC REINTERPRETATION / OUTPAINTED SCENE, not literal source crop.
+
+NEGATIVE-SPACE REQUIREMENT:
+- ${openSpaceRule}
+- Empty space is intentional here: do NOT fill every area with decorative detail.
+- Keep focal architecture/texture away from the requested open-space region when practical.
 
 IMPORTANT:
 - The final canvas dimensions above are the FIRST design constraint.
@@ -1532,7 +1539,7 @@ if(req.method==="POST" && len>4_000_000){
 }
 
 if(req.method==='GET')return res.status(200).json({ok:true,route:'/api/reshape',version:ENGINE_VERSION,engine:UNIFIED_ENGINE?'unified':'legacy'});
-if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});let key=process.env.OPENAI_API_KEY;if(!key)return res.status(503).json({error:'OPENAI_API_KEY is not configured'});try{let c=[];for await(let x of req)c.push(x);let body=Buffer.concat(c),a=parse(body,req.headers['content-type']||''),g=n=>a.find(x=>x.name===n),im=g('image'),currentIm=g('currentImage'),name=g('name')?.data.toString()||'destination',w=+g('width')?.data.toString(),h=+g('height')?.data.toString(),extra=(g('instructions')?.data.toString()||'').slice(0,3000),requestMode=(g('mode')?.data.toString()||'generate').trim(),priorPlanRaw=(g('priorPlan')?.data.toString()||'').slice(0,25000),interactiveExtreme=/^(1|true|yes)$/i.test((g('interactiveExtreme')?.data.toString()||''));if(!im||!w||!h)return res.status(400).json({error:'Missing image or dimensions'});let mime=im.type||'image/png',src=`data:${mime};base64,${im.data.toString('base64')}`;
+if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});let key=process.env.OPENAI_API_KEY;if(!key)return res.status(503).json({error:'OPENAI_API_KEY is not configured'});try{let c=[];for await(let x of req)c.push(x);let body=Buffer.concat(c),a=parse(body,req.headers['content-type']||''),g=n=>a.find(x=>x.name===n),im=g('image'),currentIm=g('currentImage'),name=g('name')?.data.toString()||'destination',w=+g('width')?.data.toString(),h=+g('height')?.data.toString(),extra=(g('instructions')?.data.toString()||'').slice(0,3000),requestMode=(g('mode')?.data.toString()||'generate').trim(),priorPlanRaw=(g('priorPlan')?.data.toString()||'').slice(0,25000),interactiveExtreme=/^(1|true|yes)$/i.test((g('interactiveExtreme')?.data.toString()||'')),backgroundSpace=(g('backgroundSpace')?.data.toString()||'auto').trim().toLowerCase();if(!im||!w||!h)return res.status(400).json({error:'Missing image or dimensions'});let mime=im.type||'image/png',src=`data:${mime};base64,${im.data.toString('base64')}`;
 let priorPlan=null;
 if(priorPlanRaw){try{priorPlan=JSON.parse(priorPlanRaw)}catch(e){console.warn("Could not parse priorPlan:",e?.message||e)}}
 
@@ -1564,7 +1571,7 @@ Rules:
 }
 
 let inventory;
-if((requestMode==="regenerate"||requestMode==="replan"||requestMode==="edit_text"||requestMode==="modify"||requestMode==="resize") && priorPlan?.sourceManifest){
+if((requestMode==="regenerate"||requestMode==="replan"||requestMode==="edit_text"||requestMode==="modify"||requestMode==="resize"||requestMode==="background") && priorPlan?.sourceManifest){
   inventory=String(priorPlan.sourceManifest);
 }else{
   inventory=await vision(key,src,`Analyze this source poster/flyer/brochure and return a concise SOURCE FACT MANIFEST with these sections:
@@ -1668,6 +1675,14 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
     // use an exact-dimension compositor so a poster is never shrunk/letterboxed inside a banner.
     if((UNIFIED_ENGINE && exactCanvasProfile) || (!UNIFIED_ENGINE && legacyExact)){
       const sourceData=`data:${im.type||"image/png"};base64,${im.data.toString("base64")}`;
+
+      // V9.3 BACKGROUND-ONLY MODE: reuse cached source analysis and create another text-free background.
+      if(requestMode==="background" && priorPlan){
+        const backgroundPlan={...universalPlan,...priorPlan,sourceManifest:priorPlan.sourceManifest||inventory};
+        const bg=await buildVisualBannerArt(key,sourceData,backgroundPlan,w,h,{openSpace:backgroundSpace});
+        res.setHeader('Cache-Control','no-store');
+        return res.status(200).json({renderMode:'background-only',width:w,height:h,backgroundArt:bg,backgroundSpace,sourceManifest:inventory,validationSummary:`V9.3 generated a new text-free background with ${backgroundSpace==='auto'?'automatic':backgroundSpace} negative space for later content placement.`});
+      }
 
       // EDIT_TEXT MODE: keep the current banner layout; only update authoritative text state.
       if(requestMode==="edit_text" && priorPlan){

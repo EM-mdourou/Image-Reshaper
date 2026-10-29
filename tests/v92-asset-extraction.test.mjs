@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
-assert.match(html,/Interactive Extreme V9\.2/);
+assert.match(html,/Interactive Extreme V9\.3/);
 assert.match(html,/Preview extraction/);
 assert.match(html,/Exact crop/);
 assert.match(html,/Cleaned asset/);
