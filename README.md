@@ -1,3 +1,7 @@
+# Image Reshaper V9.1
+
+V9.1 upgrades Interactive Extreme with direct inline text editing, font family/size/weight/alignment controls, unrestricted off-canvas visual transforms, numeric position/size controls, and manual source-pixel replacement for Logo, QR, and Primary Visual. Visual layers can intentionally exceed the final ad canvas and are clipped only by the export viewport. Logo/QR auto-crop prompts are stricter, with manual source selection as the authoritative fallback.
+
 # Image Reshaper V9.0
 
 V9.0 fixes extreme-format metadata leakage and QA priority mismatches. Analysis labels such as “Logos/brand marks:” are blocked from drawable copy, while MICRO/EXTREME/COMPACT final QA validates only the fields selected by the display budget plus explicit user-required fields. Actual logo/brand assets remain visual elements.

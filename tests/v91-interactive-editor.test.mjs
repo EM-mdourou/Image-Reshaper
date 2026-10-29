@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const api=fs.readFileSync(new URL('../api/reshape.js',import.meta.url),'utf8');
+assert.match(html,/const APP_VERSION='9\.1'/);
+assert.match(html,/id="ieFontSize"/);
+assert.match(html,/id="ieFontFamily"/);
+assert.match(html,/id="ieTextValue"/);
+assert.match(html,/contentEditable='true'/);
+assert.match(html,/max="800"/);
+assert.match(html,/deliberately DO NOT clamp x\/y/);
+assert.match(html,/Replace from source/);
+assert.match(html,/Set logo from source/);
+assert.match(html,/Set QR from source/);
+assert.match(html,/Visual\/photo layers MAY intentionally extend beyond the canvas/);
+assert.match(api,/actual square machine-readable black\/white QR pattern/);
+assert.match(api,/actual compact brand mark\/wordmark\/emblem/);
+console.log('PASS V9.1 interactive editor controls, off-canvas transforms, and manual source replacement');

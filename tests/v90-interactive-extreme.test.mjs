@@ -17,4 +17,4 @@ assert.match(html,/ieCropSourceAsset/,'browser source-pixel crop helper missing'
 assert.match(html,/id:'qr'/,'QR must be an optional independent layer');
 assert.match(api,/backgroundChoices/,'background candidates missing');
 assert.match(api,/backgroundRichness:composer\.backgroundRichness===/,'alternate background generation missing');
-console.log('PASS V9.0 Interactive Extreme Beta tests');
+console.log('PASS V9.1 Interactive Extreme Beta tests');

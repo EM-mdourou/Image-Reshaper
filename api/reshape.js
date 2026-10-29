@@ -10,7 +10,7 @@ function supportedImageModel(value, fallback){
 const IMAGE_MODEL = supportedImageModel(process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
 const IMAGE_EDIT_MODEL = supportedImageModel(process.env.IMAGE_EDIT_MODEL || process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
 const IMAGE_MODEL_FALLBACK = "gpt-image-2.5-flare";
-const ENGINE_VERSION = "9.0";
+const ENGINE_VERSION = "9.1";
 const UNIFIED_ENGINE = String(process.env.RENDER_ENGINE||"unified").toLowerCase() !== "legacy";
 function parse(body,ct){const m=ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);if(!m)throw Error('Invalid upload');const bd=Buffer.from('--'+(m[1]||m[2])),a=[];let p=0;while((p=body.indexOf(bd,p))!==-1){let s=p+bd.length;if(body.slice(s,s+2).toString()==='--')break;if(body.slice(s,s+2).toString()==='\r\n')s+=2;let n=body.indexOf(bd,s);if(n<0)break;let q=body.slice(s,n-2),z=q.indexOf('\r\n\r\n');if(z<0){p=n;continue}let h=q.slice(0,z).toString();a.push({name:h.match(/name="([^"]+)"/)?.[1],filename:h.match(/filename="([^"]*)"/)?.[1],type:h.match(/content-type:\s*([^\r\n]+)/i)?.[1]?.trim(),data:q.slice(z+4)});p=n}return a}
 export function spec(w,h){
@@ -540,10 +540,12 @@ async function dedicatedSourceAssetCrop(key,dataUrl,assetType,label=''){
 Return exactly one line: CROP: x,y,w,h
 Coordinates are normalized 0.0-1.0 relative to the whole source image.
 Rules:
-- Select only the requested ${kind}; do not select a person, headline, full poster, or unrelated icon.
-- Make the crop tight enough to avoid unrelated content but include the complete ${kind} with a small safe margin.
+- Select only the requested ${kind}; do not select a person, headline, full poster, building/photo montage, or unrelated icon.
+- For LOGO: identify the actual compact brand mark/wordmark/emblem itself. Do NOT crop a large surrounding photograph just because the logo sits on top of it. Prefer the smallest rectangle containing the complete visible logo plus a tiny safe margin.
+- For QR: locate the actual square machine-readable black/white QR pattern. Do NOT return nearby CTA wording, arrows, badges, or a whole promotional card unless the QR pixels cannot be isolated; crop the QR pattern itself with its quiet-zone margin.
+- Make the crop tight enough to avoid unrelated content but include the complete requested asset with a small safe margin.
 - Never cut off any part of the logo/QR.
-- If no ${kind} exists, return CROP: 0,0,0,0.`;
+- If uncertain or if no ${kind} exists, return CROP: 0,0,0,0 rather than guessing.`;
   const text=await vision(key,dataUrl,prompt,{mode:'extract',effort:'none',recoveryEffort:'none',maxOutput:300,recoveryMaxOutput:500,allowModelFallback:true});
   const m=text.match(/CROP\s*:\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)/i);
   if(!m)return null;const nums=m.slice(1).map(Number);if(nums.some(v=>!Number.isFinite(v)))return null;
