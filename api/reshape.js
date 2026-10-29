@@ -10,7 +10,7 @@ function supportedImageModel(value, fallback){
 const IMAGE_MODEL = supportedImageModel(process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
 const IMAGE_EDIT_MODEL = supportedImageModel(process.env.IMAGE_EDIT_MODEL || process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
 const IMAGE_MODEL_FALLBACK = "gpt-image-2.5-flare";
-const ENGINE_VERSION = "8.18";
+const ENGINE_VERSION = "9.0";
 const UNIFIED_ENGINE = String(process.env.RENDER_ENGINE||"unified").toLowerCase() !== "legacy";
 function parse(body,ct){const m=ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);if(!m)throw Error('Invalid upload');const bd=Buffer.from('--'+(m[1]||m[2])),a=[];let p=0;while((p=body.indexOf(bd,p))!==-1){let s=p+bd.length;if(body.slice(s,s+2).toString()==='--')break;if(body.slice(s,s+2).toString()==='\r\n')s+=2;let n=body.indexOf(bd,s);if(n<0)break;let q=body.slice(s,n-2),z=q.indexOf('\r\n\r\n');if(z<0){p=n;continue}let h=q.slice(0,z).toString();a.push({name:h.match(/name="([^"]+)"/)?.[1],filename:h.match(/filename="([^"]*)"/)?.[1],type:h.match(/content-type:\s*([^\r\n]+)/i)?.[1]?.trim(),data:q.slice(z+4)});p=n}return a}
 export function spec(w,h){
@@ -23,7 +23,7 @@ export function spec(w,h){
     return {gw:W,gh:H,size:`${W}x${H}`,safe:{x:0,y:0,w:W,h:H},tr,nativeFit:true,direct:true,ratioError:0,pixelCount:W*H};
   }
   if(customRatioSupported){
-    // V8.19: preserve the FINAL aspect ratio, but never ask the image model for a canvas
+    // V9.0: preserve the FINAL aspect ratio, but never ask the image model for a canvas
     // below its current minimum pixel budget. Small destinations are generated larger at
     // the same ratio, then proportionally downscaled to the requested output dimensions.
     const desiredLong=Math.min(2560,Math.max(1024,Math.max(W,H)));
@@ -223,7 +223,7 @@ async function vision(key,data,prompt,opts={}){
 
   const recovery=`${prompt}
 
-V8.19 RECOVERY MODE:
+V9.0 RECOVERY MODE:
 Return the requested answer as visible plain text now.
 Do not return only reasoning.
 Do not omit the answer.
@@ -236,7 +236,7 @@ Use only information visible in the attached source image.`;
   if(extraction||opts.allowModelFallback){
     text=await run("fallback","gpt-4.1",null,opts.fallbackMaxOutput||3600,recovery);
     if(text){
-      console.warn("V8.19 source-analysis fallback to gpt-4.1 succeeded.");
+      console.warn("V9.0 source-analysis fallback to gpt-4.1 succeeded.");
       return text;
     }
   }
@@ -415,7 +415,7 @@ function manifestLine(inventory,key){
   const re=new RegExp('^'+key.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&')+'\\s*:\\s*(.*)$','im');
   const m=String(inventory||'').match(re);return cleanManifestValue(m?.[1]||'');
 }
-// V8.19 canonical source library: target dimensions never affect what exists in the source.
+// V9.0 canonical source library: target dimensions never affect what exists in the source.
 function canonicalSourceElements(inventory,plan={}){
   const items=[];let n=0;
   const push=(type,label,text='',extra={})=>{ if(!label)return; items.push({id:`src-${++n}`,type,label,text:text||label,source:'original artwork',reusable:true,...extra}); };
@@ -534,6 +534,24 @@ Rules:
 
 
 
+async function dedicatedSourceAssetCrop(key,dataUrl,assetType,label=''){
+  const kind=assetType==='qr'?'QR code':'logo / brand mark';
+  const prompt=`Locate ONE primary ${kind} in this source artwork. ${label?`Preferred identity: ${label}.`:''}
+Return exactly one line: CROP: x,y,w,h
+Coordinates are normalized 0.0-1.0 relative to the whole source image.
+Rules:
+- Select only the requested ${kind}; do not select a person, headline, full poster, or unrelated icon.
+- Make the crop tight enough to avoid unrelated content but include the complete ${kind} with a small safe margin.
+- Never cut off any part of the logo/QR.
+- If no ${kind} exists, return CROP: 0,0,0,0.`;
+  const text=await vision(key,dataUrl,prompt,{mode:'extract',effort:'none',recoveryEffort:'none',maxOutput:300,recoveryMaxOutput:500,allowModelFallback:true});
+  const m=text.match(/CROP\s*:\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)/i);
+  if(!m)return null;const nums=m.slice(1).map(Number);if(nums.some(v=>!Number.isFinite(v)))return null;
+  const crop={x:Math.max(0,Math.min(1,nums[0])),y:Math.max(0,Math.min(1,nums[1])),w:Math.max(0,Math.min(1,nums[2])),h:Math.max(0,Math.min(1,nums[3]))};
+  if(crop.w<.02||crop.h<.02||crop.w>.9||crop.h>.9)return null;return crop;
+}
+
+
 
 function cleanDisplayFact(v=""){
   return String(v||"")
@@ -647,7 +665,7 @@ Rules:
   return Object.freeze({headline,detail,secondary,cta});
 }
 function applyProtectedFacts(composer,manifest){
-  // V8.19: the layout model has zero authority to author display copy.
+  // V9.0: the layout model has zero authority to author display copy.
   composer.headline=manifest.headline||"";
   composer.detail=manifest.detail||"";
   composer.secondary=manifest.secondary||"";
@@ -940,7 +958,7 @@ function augmentInstructionManifestFromRaw(raw="",manifest={}){
     }
   }
 
-  // V8.19: newest user instruction is authoritative for deterministic text/styling.
+  // V9.0: newest user instruction is authoritative for deterministic text/styling.
   const appendAfter=t.match(/\b(?:add|insert|put|place|include|append)\b[\s\S]{0,55}?\b(?:subheading|subtitle|text|words?|phrase)\b[\s\S]{0,30}?["“]([^"”]+)["”][\s\S]{0,90}?\b(?:after|right\s+after|following)\b[\s\S]{0,55}?\b(?:the\s+)?(?:heading|headline|title|words?)\b[\s\S]{0,30}?["“]([^"”]+)["”]/i);
   if(appendAfter?.[1]&&appendAfter?.[2]){
     m.headlineOverride=mergeHeadlineCompletion(cleanDisplayFact(appendAfter[2]),cleanDisplayFact(appendAfter[1]));
@@ -1508,11 +1526,11 @@ function isDeterministicStructuredPatch(text=''){
 export default async function handler(req,res){
 const len=Number(req.headers?.["content-length"]||0);
 if(req.method==="POST" && len>4_000_000){
-  return res.status(413).json({error:"Upload is too large for the serverless function. V8.19 should compress the source image in the browser before upload; please refresh and try again."});
+  return res.status(413).json({error:"Upload is too large for the serverless function. V9.0 should compress the source image in the browser before upload; please refresh and try again."});
 }
 
 if(req.method==='GET')return res.status(200).json({ok:true,route:'/api/reshape',version:ENGINE_VERSION,engine:UNIFIED_ENGINE?'unified':'legacy'});
-if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});let key=process.env.OPENAI_API_KEY;if(!key)return res.status(503).json({error:'OPENAI_API_KEY is not configured'});try{let c=[];for await(let x of req)c.push(x);let body=Buffer.concat(c),a=parse(body,req.headers['content-type']||''),g=n=>a.find(x=>x.name===n),im=g('image'),currentIm=g('currentImage'),name=g('name')?.data.toString()||'destination',w=+g('width')?.data.toString(),h=+g('height')?.data.toString(),extra=(g('instructions')?.data.toString()||'').slice(0,3000),requestMode=(g('mode')?.data.toString()||'generate').trim(),priorPlanRaw=(g('priorPlan')?.data.toString()||'').slice(0,25000);if(!im||!w||!h)return res.status(400).json({error:'Missing image or dimensions'});let mime=im.type||'image/png',src=`data:${mime};base64,${im.data.toString('base64')}`;
+if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});let key=process.env.OPENAI_API_KEY;if(!key)return res.status(503).json({error:'OPENAI_API_KEY is not configured'});try{let c=[];for await(let x of req)c.push(x);let body=Buffer.concat(c),a=parse(body,req.headers['content-type']||''),g=n=>a.find(x=>x.name===n),im=g('image'),currentIm=g('currentImage'),name=g('name')?.data.toString()||'destination',w=+g('width')?.data.toString(),h=+g('height')?.data.toString(),extra=(g('instructions')?.data.toString()||'').slice(0,3000),requestMode=(g('mode')?.data.toString()||'generate').trim(),priorPlanRaw=(g('priorPlan')?.data.toString()||'').slice(0,25000),interactiveExtreme=/^(1|true|yes)$/i.test((g('interactiveExtreme')?.data.toString()||''));if(!im||!w||!h)return res.status(400).json({error:'Missing image or dimensions'});let mime=im.type||'image/png',src=`data:${mime};base64,${im.data.toString('base64')}`;
 let priorPlan=null;
 if(priorPlanRaw){try{priorPlan=JSON.parse(priorPlanRaw)}catch(e){console.warn("Could not parse priorPlan:",e?.message||e)}}
 
@@ -1644,7 +1662,7 @@ const exactCanvasProfile=strategy.profile.exactCanvas;
 const displayBudget=displayBudgetForCanvas(w,h,universalPlan);
 universalPlan.displayBudget=displayBudget;
 const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
-    // V8.19 keeps ONE canonical source manifest/planner, but extreme/shallow canvases
+    // V9.0 keeps ONE canonical source manifest/planner, but extreme/shallow canvases
     // use an exact-dimension compositor so a poster is never shrunk/letterboxed inside a banner.
     if((UNIFIED_ENGINE && exactCanvasProfile) || (!UNIFIED_ENGINE && legacyExact)){
       const sourceData=`data:${im.type||"image/png"};base64,${im.data.toString("base64")}`;
@@ -1658,10 +1676,10 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
         edited.textStyles=priorPlan.textStyles||{};
         res.setHeader('Cache-Control','no-store');
         return res.status(200).json({renderMode:'canvas-first-banner-composer',width:w,height:h,bannerPlan:edited,reuseAssets:true,
-          sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,edited),validationSummary:'V8.19 EDIT_TEXT mode preserved the current banner layout and updated authoritative text only.'});
+          sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,edited),validationSummary:'V9.0 EDIT_TEXT mode preserved the current banner layout and updated authoritative text only.'});
       }
 
-      // V8.19 MODIFY MODE: update the LAST generated plan rather than starting over.
+      // V9.0 MODIFY MODE: update the LAST generated plan rather than starting over.
       if(requestMode==="replan" && priorPlan){
         const replanned={...priorPlan};
         replanned.sourceManifest=priorPlan.sourceManifest||inventory;
@@ -1672,7 +1690,7 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
         replanned.subjectZonePct=Math.max(22,100-replanned.textZonePct-8);
         res.setHeader('Cache-Control','no-store');
         return res.status(200).json({renderMode:'canvas-first-banner-composer',width:w,height:h,bannerPlan:replanned,reuseAssets:true,
-          sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,replanned),validationSummary:'V8.19 re-planned the banner around authoritative text using the shared canonical source manifest.'});
+          sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,replanned),validationSummary:'V9.0 re-planned the banner around authoritative text using the shared canonical source manifest.'});
       }
 
       if(requestMode==="regenerate" && priorPlan){
@@ -1699,8 +1717,8 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
           backgroundArt:regeneratedBackground||undefined,
           sourceManifest:inventory,
           sourceElements:canonicalSourceElements(inventory,regenerated),
-          modelInfo:{engine:UNIFIED_ENGINE?"unified":"legacy",sourceAnalysisReused:true,operation:"regenerate",backgroundRegenerated:!!regeneratedBackground},
-          validationSummary:"V8.19 created an alternate banner layout and a new target-aware panoramic background from the cached canonical source manifest without re-running source analysis."
+          modelInfo:{engine:UNIFIED_ENGINE?"unified":"legacy",interactiveExtreme:!!interactiveExtreme,sourceAnalysisReused:true,operation:"regenerate",backgroundRegenerated:!!regeneratedBackground},
+          validationSummary:"V9.0 created an alternate banner layout and a new target-aware panoramic background from the cached canonical source manifest without re-running source analysis."
         });
       }
 
@@ -1786,7 +1804,7 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
         modified.textElements=Array.isArray(priorPlan.textElements)?priorPlan.textElements:modified.textElements;
         modified.textStyles=priorPlan.textStyles||modified.textStyles;
         modified.designStateVersion=priorPlan.designStateVersion||1;
-        // V8.19: `modified` already starts from priorPlan, so old locked subject values are inherited automatically.
+        // V9.0: `modified` already starts from priorPlan, so old locked subject values are inherited automatically.
         // Do not copy them back over the newly interpreted crop/scale/position request.
         modified.visualState={...(priorPlan.visualState||{}),...(modified.visualState||{})};
         modified.visualState.subjectAnchor=modified.subjectAnchor;
@@ -1805,11 +1823,11 @@ return res.status(200).json({
           width:w,height:h,
           bannerPlan:modified,
           reuseAssets:true,
-          validationSummary:"V8.19 modified the current design using a structured state patch. The newest user instruction was applied deterministically before layout, the current design state remained the baseline, and reusable source subject geometry/assets were preferred for resize or move requests when available."
+          validationSummary:"V9.0 modified the current design using a structured state patch. The newest user instruction was applied deterministically before layout, the current design state remained the baseline, and reusable source subject geometry/assets were preferred for resize or move requests when available."
         });
       }
 
-      // V8.19 stage 0: understand Optional Instructions as a first-class manifest.
+      // V9.0 stage 0: understand Optional Instructions as a first-class manifest.
       const initialStructuredPatch=structuredDesignPatchFromRaw(extra,{});
       let instructionManifest;
       try{
@@ -1823,7 +1841,7 @@ return res.status(200).json({
 
       instructionManifest=applyStructuredPatchToManifest(instructionManifest,initialStructuredPatch);
 
-      // V8.19 stage 1: extract factual display copy before any layout/design reasoning.
+      // V9.0 stage 1: extract factual display copy before any layout/design reasoning.
       let protectedFacts;
       if(requestMode==="resize" && priorPlan?.sourceManifest){
         const fallback=bannerPlanFromInventory(inventory,extra);
@@ -1837,13 +1855,13 @@ return res.status(200).json({
         }
       }
 
-      // V8.19: interpreted user corrections outrank extraction; regex parser remains as fallback.
+      // V9.0: interpreted user corrections outrank extraction; regex parser remains as fallback.
       protectedFacts=applyInstructionManifestToFacts(protectedFacts,instructionManifest);
       protectedFacts=applyUserFactOverrides(protectedFacts,extra);
       protectedFacts=applyAuthoritativeUserText(protectedFacts,extra);
       protectedFacts=applyStructuredDesignPatchToFacts(protectedFacts,initialStructuredPatch);
 
-      // V8.19: resolve natural-language "missing ending" headline requests against the ORIGINAL source.
+      // V9.0: resolve natural-language "missing ending" headline requests against the ORIGINAL source.
       if(!initialStructuredPatch?.text?.headline && !explicitTextOverridesFromRaw(extra).headline && instructionManifest?.headlineCompletionPhrase){
         const completeHeadline=await resolveHeadlineCompletion(
           key,sourceData,protectedFacts.headline,instructionManifest.headlineCompletionPhrase
@@ -1851,7 +1869,7 @@ return res.status(200).json({
         protectedFacts=Object.freeze({...protectedFacts,headline:completeHeadline});
       }
 
-      // V8.19: facts the user explicitly asks to see become protected display facts,
+      // V9.0: facts the user explicitly asks to see become protected display facts,
       // rather than optional art-direction suggestions.
       const requiredFacts=await extractRequiredVisibleFacts(
         key,sourceData,instructionManifest?.requiredVisibleFacts||[]
@@ -1870,7 +1888,7 @@ return res.status(200).json({
         composer={headline:"",detail:"",secondary:"",cta:"",visual:"none",subjectDescription:"",subjectSide:"right",style:"",accent:"#111111",textColor:"#111111"};
       }
 
-      // V8.19 stage 2: protected facts are re-applied AFTER planning. Planner metadata can never become drawable copy.
+      // V9.0 stage 2: protected facts are re-applied AFTER planning. Planner metadata can never become drawable copy.
       const invPlan=bannerPlanFromInventory(inventory,extra);
       composer=applyProtectedFacts(composer,protectedFacts);
       composer.requestedSourceElements=instructionManifest?.requestedSourceElements||[];
@@ -1894,7 +1912,7 @@ return res.status(200).json({
       try{ composer=await artDirectorRefinePlan(key,sourceData,w,h,composer,instructionManifest); }
       catch(e){ console.error("Art-director refinement failed; using first-pass plan:",e?.message||e); }
 
-      // V8.19 stage 3: lock again after art direction and fail closed on any copy mutation/leak.
+      // V9.0 stage 3: lock again after art direction and fail closed on any copy mutation/leak.
       composer=applyProtectedFacts(composer,protectedFacts);
       composer.displayBudget=displayBudgetForCanvas(w,h,{...universalPlan,...composer});
       const copyAudit=validateProtectedFacts(composer,protectedFacts);
@@ -1902,12 +1920,25 @@ return res.status(200).json({
 
       let visualArt=null;
       let subjectAsset=null;
+      let logoAsset=null;
+      let logoCrop=null;
+      let qrCrop=null;
+      let alternateBackgroundArt=null;
 
       try{
-        [visualArt,subjectAsset]=await Promise.all([
+        const tasks=[
           buildVisualBannerArt(key,sourceData,composer,w,h),
           buildSubjectAsset(key,sourceData,composer)
-        ]);
+        ];
+        if(interactiveExtreme && (universalPlan.logos||[]).length){
+          tasks.push(buildSubjectAsset(key,sourceData,{...composer,visual:'logo',subjectDescription:(universalPlan.logos||[])[0]||'the primary visible logo',requestedSourceElements:[]}));
+        }else tasks.push(Promise.resolve(null));
+        if(interactiveExtreme){
+          tasks.push(buildVisualBannerArt(key,sourceData,{...composer,backgroundRichness:composer.backgroundRichness==='subtle'?'rich':'subtle'},w,h));
+          tasks.push((universalPlan.logos||[]).length?dedicatedSourceAssetCrop(key,sourceData,'logo',(universalPlan.logos||[])[0]||''):Promise.resolve(null));
+          tasks.push(/\bQR\s*code\b/i.test(inventory)?dedicatedSourceAssetCrop(key,sourceData,'qr',''):Promise.resolve(null));
+        }else {tasks.push(Promise.resolve(null));tasks.push(Promise.resolve(null));tasks.push(Promise.resolve(null));}
+        [visualArt,subjectAsset,logoAsset,alternateBackgroundArt,logoCrop,qrCrop]=await Promise.all(tasks);
       }catch(e){
         console.error("Canvas-first asset generation issue:",e?.message||e);
 
@@ -1917,6 +1948,9 @@ return res.status(200).json({
         }
         if(!subjectAsset){
           try{ subjectAsset=await buildSubjectAsset(key,sourceData,composer); }catch(_){}
+        }
+        if(interactiveExtreme && !logoAsset && (universalPlan.logos||[]).length){
+          try{ logoAsset=await buildSubjectAsset(key,sourceData,{...composer,visual:'logo',subjectDescription:(universalPlan.logos||[])[0]||'the primary visible logo',requestedSourceElements:[]}); }catch(_){}
         }
       }
 
@@ -1929,15 +1963,21 @@ return res.status(200).json({
         sourceImage:sourceData,
         backgroundArt:visualArt,
         subjectAsset,
+        logoAsset,
+        logoCrop,
+        qrCrop,
+        qrPresent:!!qrCrop,
+        backgroundChoices:interactiveExtreme?[visualArt,alternateBackgroundArt].filter(Boolean):undefined,
+        interactiveExtreme:!!interactiveExtreme,
         bannerPlan:{...universalPlan,...composer,sourceManifest:inventory,subjects:universalPlan.subjects||[],subjectCount:Math.max(Number(composer.subjectCount||0),Number(universalPlan.subjectCount||0)),subjectLabels:universalPlan.subjectLabels||[]},
         sourceManifest:inventory,
         sourceElements:canonicalSourceElements(inventory,{...universalPlan,...composer}),
-        validationSummary:`V8.19 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
-        modelInfo:{planner:PLANNER_MODEL,reasoning:PLANNER_REASONING,api:"responses",imageRequested:IMAGE_MODEL,imageEdit:IMAGE_EDIT_MODEL,imageFallback:IMAGE_MODEL_FALLBACK,engine:UNIFIED_ENGINE?"unified":"legacy",sourceAnalysisReused:!!priorPlan?.sourceManifest,operation:requestMode,canvasProfile:strategy.profile.id}
+        validationSummary:`V9.0 resilient-source pipeline: source analysis retries on empty output, suspiciously incomplete headlines are verified, and explicit factual corrections in Optional Instructions override extraction before design; ${PLANNER_MODEL} uses dimension-aware art direction for ${composer.canvasClass||"the target"}; compact horizontal ads use the canvas-first composer; copy is audited before ${IMAGE_MODEL} creates visual assets.`,
+        modelInfo:{planner:PLANNER_MODEL,reasoning:PLANNER_REASONING,api:"responses",imageRequested:IMAGE_MODEL,imageEdit:IMAGE_EDIT_MODEL,imageFallback:IMAGE_MODEL_FALLBACK,engine:UNIFIED_ENGINE?"unified":"legacy",interactiveExtreme:!!interactiveExtreme,sourceAnalysisReused:!!priorPlan?.sourceManifest,operation:requestMode,canvasProfile:strategy.profile.id}
       });
     }
 const unifiedModeRules=`
-V8.19 OPERATION MODES — APPLY TO EVERY DESTINATION SIZE:
+V9.0 OPERATION MODES — APPLY TO EVERY DESTINATION SIZE:
 - The structured current-design state is authoritative for element geometry/style. The PNG is the rendered result, not the only editable truth.
 - For a subject scale/move request, prefer the original source reference supplied alongside the current render instead of enlarging a low-resolution thumbnail.
 
@@ -2022,7 +2062,7 @@ HIGHEST-PRIORITY USER OVERRIDE RULE:
 - Do not restore the old wording after the user explicitly changes it.
 - In MODIFY mode, preserve everything not requested and change only what the newest instruction asks for.`;
 
-// V8.19 OPERATION SEPARATION: EDIT_TEXT / MODIFY are current-design patches, never redesign prompts.
+// V9.0 OPERATION SEPARATION: EDIT_TEXT / MODIFY are current-design patches, never redesign prompts.
 let operationPrompt=prompt;
 const exactCurrentText=priorPlan ? [
   ...(Array.isArray(priorPlan.textElements)?priorPlan.textElements.filter(x=>x&&x.visible!==false&&x.text).map(x=>`${x.label||x.role||'Text'}: ${x.text}`):[]),
@@ -2033,7 +2073,7 @@ if((requestMode==="modify"||requestMode==="edit_text") && currentIm){
   const action=requestMode==="edit_text"
     ? `Change only the authoritative text/content values listed below. Local reflow inside existing text areas is allowed, but do not move unrelated visual groups.`
     : `Apply ONLY this newest instruction: ${extra||'No instruction supplied.'}`;
-  operationPrompt=`V8.19 CURRENT DESIGN PATCH — THIS IS NOT A REGENERATE REQUEST.\n\nTreat the current design as a structured editable composition, not as a request to invent a new layout from scratch.
+  operationPrompt=`V9.0 CURRENT DESIGN PATCH — THIS IS NOT A REGENERATE REQUEST.\n\nTreat the current design as a structured editable composition, not as a request to invent a new layout from scratch.
 
 The attached image is the CURRENT rendered design and is the absolute visual baseline.
 TARGET OUTPUT: ${w}x${h}px. The image API output will be proportionally contained in the final ${w}x${h} canvas without cropping. Keep the complete current design and every requested edit fully visible inside the generated image.
@@ -2084,7 +2124,7 @@ PASS only if:
 - only the requested text/element changed, plus minimal local reflow necessary for that change;
 - the requested change is visibly present.
 FAIL if IMAGE 2 looks like a new design/recomposition, moves unrelated groups, changes the background/layout substantially, or does not visibly implement the request.`;
-  try{preservationVerdict=await visionCompare(key,baseline,candidate,comparePrompt,{maxOutput:700});}catch(e){console.warn('V8.19 preservation comparison unavailable:',e?.message||e);preservationVerdict='PASS: comparison unavailable; strict patch prompt used';}
+  try{preservationVerdict=await visionCompare(key,baseline,candidate,comparePrompt,{maxOutput:700});}catch(e){console.warn('V9.0 preservation comparison unavailable:',e?.message||e);preservationVerdict='PASS: comparison unavailable; strict patch prompt used';}
   if(/^FAIL:/i.test(preservationVerdict)){
     if(isDeterministicStructuredPatch(extra)){
       const reason=preservationVerdict.replace(/^FAIL:\s*/i,'').replace(/IMAGE\s*1/gi,'the current design').replace(/IMAGE\s*2/gi,'the candidate modification');
@@ -2128,12 +2168,12 @@ FAIL if IMAGE 2 looks like a new design/recomposition, moves unrelated groups, c
       retried=true;
       b=await edit(key,editInput.data,editInput.filename||im.filename,editMime,prompt+`\n\nVALIDATION FAILURE FROM FIRST ATTEMPT:\n${val}\nCorrect these failures and keep all critical facts fully visible inside the generated image with clear edge-safe margins.`,sp.size);
     }
-  }catch(e){console.warn('V8.19 source QA unavailable:',e?.message||e);}
+  }catch(e){console.warn('V9.0 source QA unavailable:',e?.message||e);}
 }
 res.setHeader('Cache-Control','no-store');
 let responsePlan={...universalPlan};
 if((requestMode==='modify'||requestMode==='edit_text'||requestMode==='replan') && priorPlan){
-  // V8.19: newest backend plan wins. Prior state fills gaps but must not erase a newly returned crop/scale/position.
+  // V9.0: newest backend plan wins. Prior state fills gaps but must not erase a newly returned crop/scale/position.
   responsePlan={...priorPlan,...universalPlan};
   responsePlan.manualTextElements=Array.isArray(priorPlan.manualTextElements)?priorPlan.manualTextElements:[];
   responsePlan.textElements=Array.isArray(priorPlan.textElements)?priorPlan.textElements:responsePlan.textElements;
@@ -2141,12 +2181,12 @@ if((requestMode==='modify'||requestMode==='edit_text'||requestMode==='replan') &
   responsePlan.userTextLocked=!!priorPlan.userTextLocked;
 }
 responsePlan.displayBudget=displayBudgetForCanvas(w,h,responsePlan);
-return res.status(200).json({renderMode:'unified-ai-composer',structuredStateMode:true,image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:(sp.nativeFit?'native-fit':(preferEdgeToEdgeSafeCrop(name,w,h)?'safe-crop':'safe-contain')),safeCrop:sp.safe,generationCanvas:{width:sp.gw,height:sp.gh},generationRatioError:sp.ratioError,canvasProfile:strategy.profile,bannerPlan:responsePlan,sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,responsePlan),validationSummary:(requestMode==='edit_text'||requestMode==='modify')?(retried?'V8.19 current-design preservation QA rejected the first patch and accepted the stricter retry.':'V8.19 current-design preservation QA accepted the patch without a redesign.'):(retried?'V8.19 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='regenerate'?'V8.19 REGENERATE created a new layout from canonical source state.':'V8.19 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.'))})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
+return res.status(200).json({renderMode:'unified-ai-composer',structuredStateMode:true,image:`data:image/png;base64,${b}`,width:w,height:h,exportMode:(sp.nativeFit?'native-fit':(preferEdgeToEdgeSafeCrop(name,w,h)?'safe-crop':'safe-contain')),safeCrop:sp.safe,generationCanvas:{width:sp.gw,height:sp.gh},generationRatioError:sp.ratioError,canvasProfile:strategy.profile,bannerPlan:responsePlan,sourceManifest:inventory,sourceElements:canonicalSourceElements(inventory,responsePlan),validationSummary:(requestMode==='edit_text'||requestMode==='modify')?(retried?'V9.0 current-design preservation QA rejected the first patch and accepted the stricter retry.':'V9.0 current-design preservation QA accepted the patch without a redesign.'):(retried?'V9.0 visual QA detected a preservation/layout issue and automatically regenerated once.':(requestMode==='regenerate'?'V9.0 REGENERATE created a new layout from canonical source state.':'V9.0 visual QA passed: no obvious invented elements, clipping, major omissions, or severe canvas-utilization issues detected.'))})}catch(e){console.error(e);return res.status(500).json({error:e?.message||'Unexpected server error'})}}
 
 
 /*
 
-CONTROLLED CREATIVE FREEDOM — V8.19:
+CONTROLLED CREATIVE FREEDOM — V9.0:
 The final canvas is exactly 728x90 and MUST be treated as the design surface from the first decision.
 Do NOT use a rigid left/right/thirds template. Compose the whole advertisement as an art director.
 You may place the main source subject left, right, center, off-center, between text groups, or partially integrated with typography/background when visually strong.

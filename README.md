@@ -1,18 +1,18 @@
-# Image Reshaper V8.19
+# Image Reshaper V9.0
 
-V8.19 fixes extreme-format metadata leakage and QA priority mismatches. Analysis labels such as “Logos/brand marks:” are blocked from drawable copy, while MICRO/EXTREME/COMPACT final QA validates only the fields selected by the display budget plus explicit user-required fields. Actual logo/brand assets remain visual elements.
+V9.0 fixes extreme-format metadata leakage and QA priority mismatches. Analysis labels such as “Logos/brand marks:” are blocked from drawable copy, while MICRO/EXTREME/COMPACT final QA validates only the fields selected by the display budget plus explicit user-required fields. Actual logo/brand assets remain visual elements.
 
-Image Reshaper V8.19
+Image Reshaper V9.0
 
 Small normal-format destinations now generate on a larger same-ratio canvas that satisfies the current image-model minimum pixel budget, then resize proportionally without cropping. Extreme/tiny formats retain the exact-canvas content-priority renderer.
 
-# Image Reshaper V8.19
+# Image Reshaper V9.0
 
-V8.19 removes the normal large-format crop/blur workaround when the current GPT image models can generate at the requested aspect ratio. Articles, Events, and Front Page now request 1600x800 directly. Other supported non-exact formats use a same-ratio model canvas and are proportionally resized without cropping. Generate/Resize also runs visual QA on the actual final exported PNG.
+V9.0 removes the normal large-format crop/blur workaround when the current GPT image models can generate at the requested aspect ratio. Articles, Events, and Front Page now request 1600x800 directly. Other supported non-exact formats use a same-ratio model canvas and are proportionally resized without cropping. Generate/Resize also runs visual QA on the actual final exported PNG.
 
-Image Reshaper V8.19
+Image Reshaper V9.0
 
-V8.19 changes large landscape outputs to edge-to-edge safe cropping. Articles, Events, Front Page, and other suitable large landscape targets use the centered safe crop from the generated image; blur/contain remains a fallback for incompatible shapes. Extreme banners retain their specialized exact-canvas path.
+V9.0 changes large landscape outputs to edge-to-edge safe cropping. Articles, Events, Front Page, and other suitable large landscape targets use the centered safe crop from the generated image; blur/contain remains a fallback for incompatible shapes. Extreme banners retain their specialized exact-canvas path.
 
 
 Model migration: removes runtime use of retired gpt-image-1, defaults precise editing/generation to gpt-image-2.5-sunburst, falls back to gpt-image-2.5-flare, and maps a stale IMAGE_MODEL=gpt-image-1 environment setting to the supported primary model.
@@ -52,3 +52,6 @@ The permanent Engine Diagnostics block is replaced by a compact **ⓘ Engine det
 
 ### Full-width readable progress
 Generate, Resize, Re-generate, Apply Text Changes, and Modify now use full-width progress panels with normal-size text, a larger progress bar, elapsed timer, current-stage description, and detailed action/size-specific stages.
+
+## V9.0 Interactive Extreme Beta
+Extreme/compact formats can now switch between Classic and Interactive Beta. Interactive Beta exposes separate background, logo, primary visual, headline/detail/CTA/supporting layers; supports drag/resize/hide/remove; drag/drop priority; source-derived palette controls; two background candidates; and final exact-PNG QA. Classic remains available for A/B comparison.

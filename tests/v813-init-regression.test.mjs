@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const helper=html.indexOf("let s=P[3],f=null,$=i=>document.getElementById(i);");
 const custom=html.indexOf("function wireCustomDestination()");
-const init=html.indexOf("wireDestinations();wireCustomDestination();M();");
+const init=html.indexOf("wireDestinations();wireCustomDestination();wireInteractiveEditorControls();M();");
 const uploader=html.indexOf("wireUploader();");
 assert.ok(helper>0,'DOM helper initialization missing');
 assert.ok(custom>helper,'Custom destination code must be declared after DOM helper initialization');
@@ -12,5 +12,5 @@ assert.match(html,/drop\.addEventListener\('drop'/,'Drag/drop listener missing')
 assert.match(html,/input\.addEventListener\('change'/,'File input change listener missing');
 assert.match(html,/btn\.addEventListener\('click'/,'Preset destination click wiring missing');
 assert.match(html,/id="cropBtn"/,'Crop button must remain present');
-assert.match(html,/const APP_VERSION='8\.19'/,'V8.19 version marker missing');
+assert.match(html,/const APP_VERSION='9\.0'/,'V9.0 version marker missing');
 console.log('PASS V8.17 uploader/destination initialization regression test');
