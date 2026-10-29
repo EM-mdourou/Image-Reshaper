@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+assert.match(html,/interactiveEditorState\.layers=interactiveEditorState\.layers\.filter\(l=>l\.id!==id\)/,'Remove must delete the selected layer rather than only hiding it');
+assert.match(html,/function ieFitLayerBoxToAsset\(l,meta\)/,'Selected source assets must resize their layer box to the chosen extraction aspect ratio');
+assert.match(html,/assetMeta=ieExtractionCandidates\.meta\?\.\[mode\]/,'Apply-source must use actual selected extraction dimensions');
+assert.match(html,/iePreviewExactDims/,'Extraction preview should show actual pixel dimensions');
+assert.match(html,/max-height:140px;width:auto;height:auto/,'Extraction preview should not force a fake fixed-height preview box');
+assert.match(html,/const APP_VERSION='9\.6'/,'V9.6 version marker missing');
+console.log('PASS V9.6 remove semantics and extraction geometry regression');

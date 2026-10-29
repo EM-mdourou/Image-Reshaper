@@ -34,3 +34,10 @@ PASS — Undo/Redo, repeatable negative-space background generation, and gradien
 - Fixed multi-event listener wiring in Interactive mode.
 - Gradient edge, colour, and sheer strength now update the selected layer live.
 - Gradient state remains identical in final PNG export.
+
+
+## V9.5
+- Remove deletes the selected layer from state rather than hiding it.
+- Extraction candidates preserve/report actual pixel geometry.
+- Applied source assets resize their layer box to the chosen asset aspect ratio.
+- Preview boxes no longer impose artificial height.

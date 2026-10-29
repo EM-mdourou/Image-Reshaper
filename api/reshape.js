@@ -10,7 +10,7 @@ function supportedImageModel(value, fallback){
 const IMAGE_MODEL = supportedImageModel(process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
 const IMAGE_EDIT_MODEL = supportedImageModel(process.env.IMAGE_EDIT_MODEL || process.env.IMAGE_MODEL, "gpt-image-2.5-sunburst");
 const IMAGE_MODEL_FALLBACK = "gpt-image-2.5-flare";
-const ENGINE_VERSION = "9.4";
+const ENGINE_VERSION = "9.5";
 const UNIFIED_ENGINE = String(process.env.RENDER_ENGINE||"unified").toLowerCase() !== "legacy";
 function parse(body,ct){const m=ct.match(/boundary=(?:"([^"]+)"|([^;]+))/i);if(!m)throw Error('Invalid upload');const bd=Buffer.from('--'+(m[1]||m[2])),a=[];let p=0;while((p=body.indexOf(bd,p))!==-1){let s=p+bd.length;if(body.slice(s,s+2).toString()==='--')break;if(body.slice(s,s+2).toString()==='\r\n')s+=2;let n=body.indexOf(bd,s);if(n<0)break;let q=body.slice(s,n-2),z=q.indexOf('\r\n\r\n');if(z<0){p=n;continue}let h=q.slice(0,z).toString();a.push({name:h.match(/name="([^"]+)"/)?.[1],filename:h.match(/filename="([^"]*)"/)?.[1],type:h.match(/content-type:\s*([^\r\n]+)/i)?.[1]?.trim(),data:q.slice(z+4)});p=n}return a}
 export function spec(w,h){
@@ -1676,12 +1676,12 @@ const legacyExact=((tr>2.4 && h<=160) || tr<0.2);
     if((UNIFIED_ENGINE && exactCanvasProfile) || (!UNIFIED_ENGINE && legacyExact)){
       const sourceData=`data:${im.type||"image/png"};base64,${im.data.toString("base64")}`;
 
-      // V9.4 BACKGROUND-ONLY MODE: reuse cached source analysis and create another text-free background.
+      // V9.5 BACKGROUND-ONLY MODE: reuse cached source analysis and create another text-free background.
       if(requestMode==="background" && priorPlan){
         const backgroundPlan={...universalPlan,...priorPlan,sourceManifest:priorPlan.sourceManifest||inventory};
         const bg=await buildVisualBannerArt(key,sourceData,backgroundPlan,w,h,{openSpace:backgroundSpace});
         res.setHeader('Cache-Control','no-store');
-        return res.status(200).json({renderMode:'background-only',width:w,height:h,backgroundArt:bg,backgroundSpace,sourceManifest:inventory,validationSummary:`V9.4 generated a new text-free background with ${backgroundSpace==='auto'?'automatic':backgroundSpace} negative space for later content placement.`});
+        return res.status(200).json({renderMode:'background-only',width:w,height:h,backgroundArt:bg,backgroundSpace,sourceManifest:inventory,validationSummary:`V9.5 generated a new text-free background with ${backgroundSpace==='auto'?'automatic':backgroundSpace} negative space for later content placement.`});
       }
 
       // EDIT_TEXT MODE: keep the current banner layout; only update authoritative text state.
