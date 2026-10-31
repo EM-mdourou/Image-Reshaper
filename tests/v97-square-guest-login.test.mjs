@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const db=fs.readFileSync(new URL('../lib/db.js',import.meta.url),'utf8');
+assert.match(html,/data-name="Social Media Square" data-width="1080" data-height="1080"/);
+assert.match(html,/\['Social Media Square',1080,1080\]/);
+assert.match(html,/const APP_VERSION='9\.7'/);
+const m=db.match(/\['Guest','(scrypt\$[^']+)','guest'\]/);
+assert.ok(m,'Guest seeded login is missing');
+const [scheme,saltHex,hashHex]=m[1].split('$');
+assert.equal(scheme,'scrypt');
+const actual=crypto.scryptSync('C0llaB!',saltHex,64).toString('hex');
+assert.equal(actual,hashHex,'Guest password hash does not match the requested password');
+assert.ok(!db.includes("['Guest','C0llaB!'") ,'Plaintext Guest password must not be stored in db.js');
+console.log('PASS V9.7 social square preset and Guest login');

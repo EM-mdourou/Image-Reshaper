@@ -6,5 +6,5 @@ assert.match(html,/function ieFitLayerBoxToAsset\(l,meta\)/,'Selected source ass
 assert.match(html,/assetMeta=ieExtractionCandidates\.meta\?\.\[mode\]/,'Apply-source must use actual selected extraction dimensions');
 assert.match(html,/iePreviewExactDims/,'Extraction preview should show actual pixel dimensions');
 assert.match(html,/max-height:140px;width:auto;height:auto/,'Extraction preview should not force a fake fixed-height preview box');
-assert.match(html,/const APP_VERSION='9\.6'/,'V9.6 version marker missing');
-console.log('PASS V9.6 remove semantics and extraction geometry regression');
+assert.match(html,/const APP_VERSION='9\.7'/,'V9.7 version marker missing');
+console.log('PASS V9.7 remove semantics and extraction geometry regression');

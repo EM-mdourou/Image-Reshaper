@@ -264,6 +264,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <button type="button" class="preset" data-name="Action Alerts" data-width="850" data-height="500"><b>Action Alerts</b><small>850 × 500 px</small></button>
 <button type="button" class="preset active" data-name="Events" data-width="1600" data-height="800"><b>Events</b><small>1600 × 800 px · minimum 1200 × 600</small></button>
 <button type="button" class="preset" data-name="Social Media" data-width="1080" data-height="1350"><b>Social Media</b><small>1080 × 1350 px</small></button>
+<button type="button" class="preset" data-name="Social Media Square" data-width="1080" data-height="1080"><b>Social Media Square</b><small>1080 × 1080 px</small></button>
 <button type="button" class="preset" data-name="Front Page" data-width="1600" data-height="800"><b>Front Page</b><small>1600 × 800 px · minimum 1200 × 600</small></button>
 <button type="button" class="preset" data-name="Mobile Ad" data-width="320" data-height="50"><b>Mobile Ad</b><small>320 × 50 px</small></button>
 <button type="button" class="preset" data-name="Large Ad" data-width="300" data-height="600"><b>Large Ad</b><small>300 × 600 px</small></button>
@@ -343,7 +344,7 @@ Never expose internal planner/meta/debug/schema text.`;
 <section id="result" class="card result"><div class="resultbar"><div class="head" style="margin:0"><span class="step">04</span><h3>Your reshaped image</h3></div><a id="download" class="download">Download PNG ↓</a></div><div id="currentInstruction" class="currentinstruction" style="display:none"></div>
 <div class="preview"><img id="output"></div>
 <section id="interactiveEditor" class="interactiveeditor" style="display:none">
-  <div class="iehead"><div><b>Interactive Extreme V9.6</b><span>Double-click text to edit it directly. Drag/resize any layer freely; visuals may extend beyond the canvas and crop at its edges.</span></div><span class="iebadge">V9.6</span></div>
+  <div class="iehead"><div><b>Interactive Extreme V9.7</b><span>Double-click text to edit it directly. Drag/resize any layer freely; visuals may extend beyond the canvas and crop at its edges.</span></div><span class="iebadge">V9.7</span></div>
   <div class="ietoolbar"><button id="ieUndo" type="button" disabled>↶ Undo</button><button id="ieRedo" type="button" disabled>↷ Redo</button><span class="iehistoryhint">Undo/redo walks through your interactive edits one step at a time.</span></div>
   <div class="iegrid">
     <div class="iestagecol">
@@ -435,7 +436,7 @@ Never expose internal planner/meta/debug/schema text.`;
 </section><footer>
   <div class="copyright">© 2026 Eye Media Solutions Inc. All rights reserved.</div>
   <div class="versionfooter">Version 9.5</div>
-<div style="display:none">Version 9.6</div></footer></main><script>const APP_VERSION='9.6';
+<div style="display:none">Version 9.7</div></footer></main><script>const APP_VERSION='9.7';
 (async()=>{
   try{
     const r=await fetch('/api/auth/me',{credentials:'same-origin'});
@@ -1654,7 +1655,7 @@ function wireUploader(){
   }
 }
 
-const P=[['Articles',1600,800],['Opportunities',850,350],['Action Alerts',850,500],['Events',1600,800],['Social Media',1080,1350],['Front Page',1600,800],['Mobile Ad',320,50],['Large Ad',300,600],['Side Ad',300,250],['Leaderboard Ad',728,90],['Mobile Directory',200,100],['Desktop Directory',320,100]];
+const P=[['Articles',1600,800],['Opportunities',850,350],['Action Alerts',850,500],['Events',1600,800],['Social Media',1080,1350],['Social Media Square',1080,1080],['Front Page',1600,800],['Mobile Ad',320,50],['Large Ad',300,600],['Side Ad',300,250],['Leaderboard Ad',728,90],['Mobile Directory',200,100],['Desktop Directory',320,100]];
 let s=P[3],f=null,$=i=>document.getElementById(i);
 function M(){$('chosen').textContent=s[0];$('dims').textContent=`${s[1]} × ${s[2]} px`;refreshActionCostEstimates();updateExtremeModeVisibility()}
 function wireDestinations(){
@@ -2960,7 +2961,7 @@ async function buildCanvasFirstBanner(data,w,h){
 }
 
 
-// V9.6 Interactive Extreme Editor -------------------------------------------------
+// V9.7 Interactive Extreme Editor -------------------------------------------------
 let interactiveEditorState=null;
 let ieHistoryPast=[],ieHistoryFuture=[],ieHistoryRestoring=false;
 function ieSnapshotState(){const st=interactiveEditorState;if(!st)return null;return JSON.stringify({background:st.background,backgroundChoices:[...(st.backgroundChoices||[])],layers:(st.layers||[]).map(l=>({...l})),selectedId:st.selectedId});}
@@ -3062,7 +3063,7 @@ function wireInteractiveEditorControls(){
   bind('ieUndo','click',ieUndo);bind('ieRedo','click',ieRedo);bind('ieGenerateBackground','click',ieGenerateNewBackground);bind('ieAddTextLayer','click',ieAddTextLayer);bind('ieAddGradient','click',ieAddGradientLayer);
   bind('ieGradientEdge','focus',()=>ieHistoryCheckpoint());bind('ieGradientEdge','change',e=>{const l=ieLayerById(interactiveEditorState?.selectedId);if(l?.type==='gradient'){l.gradientEdge=e.target.value;if(['top','bottom'].includes(l.gradientEdge)&&l.w<.8){l.x=0;l.w=1;l.y=l.gradientEdge==='top'?0:.42;l.h=.58}else if(['left','right'].includes(l.gradientEdge)&&l.h<.8){l.y=0;l.h=1;l.x=l.gradientEdge==='left'?0:.42;l.w=.58}ieRenderStage()}});bind('ieGradientColor','pointerdown',()=>ieHistoryCheckpoint());bind('ieGradientColor','input',e=>{const l=ieLayerById(interactiveEditorState?.selectedId);if(l?.type==='gradient'){l.gradientColor=e.target.value;ieRenderStage()}});bind('ieGradientOpacity','pointerdown',()=>ieHistoryCheckpoint());bind('ieGradientOpacity','input',e=>{const l=ieLayerById(interactiveEditorState?.selectedId);if(l?.type==='gradient'){l.gradientOpacity=Number(e.target.value)/100;$('ieGradientOpacityValue').textContent=e.target.value+'%';ieRenderStage()}});
   document.querySelectorAll('[data-ie-source-role]').forEach(b=>{if(!b.dataset.wired){b.onclick=()=>ieOpenSourcePicker(b.dataset.ieSourceRole);b.dataset.wired='1'}});bind('ieSourceCancel','click',()=>$('ieSourceModal').classList.remove('open'));bind('ieSourcePreviewBtn','click',iePreviewSourceSelection);bind('ieSourceApply','click',ieApplySourceSelection);ieWireSourcePicker();
-  bind('ieFinalize','click',async()=>{if(!interactiveEditorState)return;const b=$('ieFinalize');b.disabled=true;b.textContent='Finalizing…';try{const ex=await ieExport();$('output').src=ex;$('download').href=ex;lastRenderedUrl=ex;const visible=interactiveEditorState.layers.filter(l=>l.visible&&['text','cta'].includes(l.type)).map(l=>l.text);const qa=await validateRenderedResult(ex,'INTERACTIVE V9.6 FINAL QA. Judge this exact exported banner. Required visible text must be readable and not accidentally clipped. QR codes and logos should remain intact when visible. Visual/photo layers MAY intentionally extend beyond the canvas and be cropped by the canvas viewport; do not fail intentional visual cropping.',visible);$('validation').textContent=qa.verified?'V9.6 interactive final export passed QA.':'V9.6 interactive export saved, but QA reported: '+(qa.reason||'an issue could not be ruled out.');captureCurrentVersionState('Interactive layer edits','V9.6 Interactive Extreme');recordPersistentHistory('INTERACTIVE_FINALIZE','Interactive layer edits')}finally{b.disabled=false;b.textContent='Finalize creative'}});
+  bind('ieFinalize','click',async()=>{if(!interactiveEditorState)return;const b=$('ieFinalize');b.disabled=true;b.textContent='Finalizing…';try{const ex=await ieExport();$('output').src=ex;$('download').href=ex;lastRenderedUrl=ex;const visible=interactiveEditorState.layers.filter(l=>l.visible&&['text','cta'].includes(l.type)).map(l=>l.text);const qa=await validateRenderedResult(ex,'INTERACTIVE V9.7 FINAL QA. Judge this exact exported banner. Required visible text must be readable and not accidentally clipped. QR codes and logos should remain intact when visible. Visual/photo layers MAY intentionally extend beyond the canvas and be cropped by the canvas viewport; do not fail intentional visual cropping.',visible);$('validation').textContent=qa.verified?'V9.7 interactive final export passed QA.':'V9.7 interactive export saved, but QA reported: '+(qa.reason||'an issue could not be ruled out.');captureCurrentVersionState('Interactive layer edits','V9.7 Interactive Extreme');recordPersistentHistory('INTERACTIVE_FINALIZE','Interactive layer edits')}finally{b.disabled=false;b.textContent='Finalize creative'}});
 }
 
 $('submit').onclick=async()=>{

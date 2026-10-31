@@ -1,8 +1,12 @@
-# Image Reshaper V9.6
+# Image Reshaper V9.7
 
-V9.6 fixes two Interactive Extreme issues found during live testing. **Remove** now actually deletes the selected layer from the layer stack instead of merely hiding it; Undo can restore a removed layer. Manual source extraction now records the exact pixel dimensions of each Exact/Cleaned/Transparent candidate and resizes the inserted Logo, QR, or Primary Visual layer to that asset's real aspect ratio, preventing wide shallow selections from inheriting an unrelated tall bounding box. Extraction previews also show the true pixel dimensions and no longer force a misleading fixed-height preview area.
+V9.7 adds a Social Media Square preset at 1080 × 1080 px and a seeded Guest login using the existing salted-scrypt authentication flow.
 
-V9.6 fixes Interactive control event wiring so controls that need both history-checkpoint and live-update listeners work correctly. Gradient edge, colour, and sheer strength now update the selected overlay immediately and export with the same values. V9.6 retains multi-step Undo/Redo to Interactive Extreme, repeatable AI background generation with selectable negative-space regions (Auto/Left/Right/Center/Top/Bottom), and movable/resizable gradient overlay layers for white or colored sheer contrast behind text and imagery. Gradient overlays support edge direction and opacity and are included in exact PNG export.
+# Image Reshaper V9.7
+
+V9.7 fixes two Interactive Extreme issues found during live testing. **Remove** now actually deletes the selected layer from the layer stack instead of merely hiding it; Undo can restore a removed layer. Manual source extraction now records the exact pixel dimensions of each Exact/Cleaned/Transparent candidate and resizes the inserted Logo, QR, or Primary Visual layer to that asset's real aspect ratio, preventing wide shallow selections from inheriting an unrelated tall bounding box. Extraction previews also show the true pixel dimensions and no longer force a misleading fixed-height preview area.
+
+V9.7 fixes Interactive control event wiring so controls that need both history-checkpoint and live-update listeners work correctly. Gradient edge, colour, and sheer strength now update the selected overlay immediately and export with the same values. V9.7 retains multi-step Undo/Redo to Interactive Extreme, repeatable AI background generation with selectable negative-space regions (Auto/Left/Right/Center/Top/Bottom), and movable/resizable gradient overlay layers for white or colored sheer contrast behind text and imagery. Gradient overlays support edge direction and opacity and are included in exact PNG export.
 
 # Image Reshaper V9.2
 

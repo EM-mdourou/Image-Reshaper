@@ -5,5 +5,5 @@ assert.match(html,/id=\"ieAddTextLayer\"/);
 assert.match(html,/function ieAddTextLayer\(/);
 assert.match(html,/function ieAugmentPaletteFromVisuals\(/);
 assert.match(html,/function ieExtractPaletteFromImage\(/);
-assert.match(html,/Interactive Extreme V9\.6/);
+assert.match(html,/Interactive Extreme V9\.7/);
 console.log('v96 interactive text + palette checks passed');

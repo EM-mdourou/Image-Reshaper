@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
-assert.match(html,/const APP_VERSION='9\.6'/);
+assert.match(html,/const APP_VERSION='9\.7'/);
 assert.match(html,/__ieWiredEvents=el\.__ieWiredEvents\|\|new Set\(\)/,'interactive bind helper must track listeners per event');
 assert.match(html,/__ieWiredEvents\.has\(event\)/,'interactive bind helper must not block a second event type on the same control');
 assert.match(html,/bind\('ieGradientEdge','change'/,'gradient edge change handler missing');

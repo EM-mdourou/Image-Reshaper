@@ -16,8 +16,8 @@ assert.match(html,/data\.image && data\.exportMode==='safe-contain'\)base=await 
 assert.match(html,/renderUniversalDesignState\(j,\[s\[0\],s\[1\],s\[2\]\]\)/,'initial rendering must retain centralized exact finalizer for Classic mode');
 assert.match(html,/const ex=await renderUniversalDesignState\(nextRenderData,target\)/,'modify rendering must use centralized exact finalizer');
 assert.match(html,/Could not attach current design for regeneration-difference QA/,'regenerate must attach current design for difference QA');
-assert.match(html,/const APP_VERSION='9\.6'/);
-assert.match(html,/Version 9\.6/);
+assert.match(html,/const APP_VERSION='9\.7'/);
+assert.match(html,/Version 9\.7/);
 
 
 assert.equal(api.includes('\x08'),false,'backend source should not contain control-character regex boundaries');
